@@ -217,6 +217,26 @@ ausdrücklich angesagt.
 Bei einem Update auf diese Version sowohl das Interaktionsmodell erneut
 importieren und bauen als auch den neu erzeugten Python-Code deployen.
 
+![Erfolgreiche Sprachabfragen im Alexa-Simulator](screenshots/05-sprachabfragen.png)
+
+Im Simulator wurden die vollständigen Aufrufe für Verbrauch, Tagesproduktion
+und Tageseinspeisung mit echten Messwerten geprüft. Die Zahlen im Screenshot
+sind Momentaufnahmen. Die automatischen Tests prüfen außerdem die Antworten
+ohne Display, gültige Nullwerte sowie fehlende und veraltete Daten.
+
+| Frage nach … | Bedeutung | Gesprochene Einheit |
+| --- | --- | --- |
+| aktueller Produktion | PV-Gesamtleistung inklusive BKW | Watt / Kilowatt |
+| Akkustand | Ladezustand der Batterie | Prozent |
+| aktuellem Verbrauch | Momentaner Hausverbrauch | Watt / Kilowatt |
+| heutiger Gesamtproduktion | PV und BKW seit lokaler Mitternacht | Kilowattstunden |
+| heutiger Einspeisung | Ins Netz abgegebene Energie seit lokaler Mitternacht | Kilowattstunden |
+
+Für einen Test auf einem weiteren Echo denselben Amazon-Account wie für den
+Entwickler-Skill verwenden. Eine gezielte Frage direkt mit dem vollständigen
+Aufruf stellen; vorheriges Öffnen ist nicht erforderlich. Ohne Display endet
+die Sitzung nach der Antwort.
+
 ## 6. Alexa-Skill einrichten
 
 ### Skill und Aufrufname
@@ -269,6 +289,7 @@ Der Skill wird hierfür nicht öffentlich im Skill Store veröffentlicht.
 | Beobachtung | Prüfen / Abhilfe |
 | --- | --- |
 | Alexa findet den Skill nicht | Exakten Aufruf „meine Solaranlage“, deutsches Sprachmodell, erfolgreichen Build, Entwicklungsmodus und dasselbe Amazon-Konto prüfen. |
+| Neue Sprachabfrage wird nicht erkannt | Aktuelles Interaktionsmodell importieren, speichern und erfolgreich bauen; zusätzlich den passenden Python-Code deployen. Mit einem der vollständigen Beispielaufrufe testen. |
 | „Bei der Antwort … ist ein Problem aufgetreten“ | Deployment abwarten; die vom Builder erzeugte vollständige Datei verwenden. Bei Bedarf die Alexa-hosted-CloudWatch-Logs der verwendeten Region lesen. |
 | Silk öffnet sich | Der alte Browser-Skill wurde gestartet. Den Skill „Solaranlage“ mit „öffne meine Solaranlage“ aufrufen. |
 | Nur — / Verbindung prüfen | Relay-Adresse inklusive `/pv`, Leseschlüssel, Worker-Secrets und Internetverbindung prüfen. |

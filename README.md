@@ -21,6 +21,11 @@ Kilowattstunden angesagt, der aktuelle Hausverbrauch in Watt bzw. Kilowatt.
 Fehlende und veraltete Daten werden benannt. Auf dem Echo Show bleibt
 das normale Öffnen eine stille Anzeige; nur gezielte Fragen werden gesprochen.
 
+![Sprachabfragen zu Hausverbrauch, heutiger Gesamtproduktion und Einspeisung](docs/screenshots/05-sprachabfragen.png)
+
+Die Abfragen wurden im Alexa-Simulator mit echten Messwerten geprüft. Die
+abgebildeten Zahlen sind Momentaufnahmen, keine fest hinterlegten Antworten.
+
 📖 **[Bebilderte Anleitung: Einrichtung, Bedienung und Fehlerbehebung](docs/ANLEITUNG.md)**
 
 ## Anzeige
