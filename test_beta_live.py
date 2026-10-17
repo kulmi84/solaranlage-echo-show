@@ -110,6 +110,16 @@ class AutomaticDisplayTests(unittest.TestCase):
         response, _ = self.render(1060, self.event(['refresh']))
         self.assertEqual(self.document(response)['settings']['idleTimeout'], 3_600_000)
 
+    def test_display_never_requests_a_spoken_reply(self):
+        for args in [None, ['refresh'], ['auto_refresh', 4_600_000]]:
+            with self.subTest(arguments=args):
+                response, _ = self.render(1060, self.event(args))
+                self.assertNotIn('shouldEndSession', response['response'])
+                self.assertNotIn('reprompt', response['response'])
+                self.assertNotIn('outputSpeech', response['response'])
+                self.assertEqual(response['response']['directives'][0]['type'],
+                                 'Alexa.Presentation.APL.RenderDocument')
+
     def test_expired_automatic_event_stops_without_fetch(self):
         response, reader = self.render(4600, self.event(['auto_refresh', 4_600_000]))
         reader.assert_not_called()

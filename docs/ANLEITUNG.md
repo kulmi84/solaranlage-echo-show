@@ -52,6 +52,14 @@ Monats-, Jahres- oder Lebensdauerzähler.
 3. Alternativ den Skill schließen und erneut öffnen.
 4. Mit **„Alexa, stopp“** beenden.
 
+Die Anzeige fordert nach dem Öffnen, Antippen oder automatischen Aktualisieren
+keine Spracheingabe an. Dafür bleibt `shouldEndSession` in APL-Antworten bewusst
+ungesetzt. Normale Alexa-Befehle mit **„Alexa, …“** beginnen. Ob Alexa einen Befehl
+an ihre allgemeinen Funktionen oder die noch aktive Skill-Sitzung weitergibt,
+entscheidet die Plattform; andere Funktionen können die Anzeige verlassen.
+Ein dauerhaft gleichzeitiger Betrieb aller Alexa-Funktionen und der Anzeige
+wird vom Skill nicht erzwungen.
+
 Home Assistant überträgt einmal pro Minute. Die geöffnete Anzeige ruft den
 zuletzt empfangenen Datensatz automatisch alle 60 Sekunden ab. Upload und
 Abruf laufen unabhängig; einzelne Sensoränderungen können daher erst nach

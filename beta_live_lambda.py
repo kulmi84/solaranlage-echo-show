@@ -115,6 +115,7 @@ def lambda_handler(event, context):
             ]
         }]}
     }
+    # Omit shouldEndSession: show APL without opening the microphone for a reply.
+    # True would close the skill; False would request speech after every refresh.
     return {'version': '1.0', 'response': {
-        'directives': [{'type': 'Alexa.Presentation.APL.RenderDocument', 'token': 'solaranlage', 'document': document}],
-        'shouldEndSession': False}}
+        'directives': [{'type': 'Alexa.Presentation.APL.RenderDocument', 'token': 'solaranlage', 'document': document}]}}
