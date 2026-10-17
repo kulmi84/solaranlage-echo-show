@@ -209,6 +209,11 @@ Die `beta_`-Dateinamen bleiben zur Kompatibilität mit dem ursprünglichen Proto
 erhalten. Alte Silk-Launcher, Testbilder, produktive Konfigurationen und
 Zugangsdaten gehören nicht zur veröffentlichten Projektversion.
 
+## Geplante Erweiterungen
+
+[Idee 1: Produktion und Akkustand auf weiteren Alexa-Geräten per Sprache abfragen](docs/IDEEN.md)
+ist als nächste mögliche Erweiterung dokumentiert.
+
 ## Lizenz
 
 MIT, siehe [LICENSE](LICENSE). Der ursprüngliche Lizenzhinweis bleibt erhalten.
