@@ -7,6 +7,8 @@ Home Assistant braucht dafür keine öffentliche Adresse und keine Portfreigabe.
 
 **Sprachaufruf:** „Alexa, öffne meine Solaranlage.“
 
+📖 **[Bebilderte Anleitung: Einrichtung, Bedienung und Fehlerbehebung](docs/ANLEITUNG.md)**
+
 ## Anzeige
 
 | Bereich | Live | Heute seit Mitternacht |
