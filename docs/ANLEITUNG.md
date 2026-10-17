@@ -238,13 +238,6 @@ ausdrücklich angesagt.
 Bei einem Update auf diese Version sowohl das Interaktionsmodell erneut
 importieren und bauen als auch den neu erzeugten Python-Code deployen.
 
-![Erfolgreiche Sprachabfragen im Alexa-Simulator](screenshots/05-sprachabfragen.png)
-
-Im Simulator wurden die vollständigen Aufrufe für Verbrauch, Tagesproduktion
-und Tageseinspeisung mit echten Messwerten geprüft. Die Zahlen im Screenshot
-sind Momentaufnahmen. Die automatischen Tests prüfen außerdem die Antworten
-ohne Display, gültige Nullwerte sowie fehlende und veraltete Daten.
-
 | Frage nach … | Bedeutung | Gesprochene Einheit |
 | --- | --- | --- |
 | aktueller Produktion | PV-Gesamtleistung inklusive BKW | Watt / Kilowatt |
