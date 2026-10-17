@@ -20,3 +20,8 @@ cloudflare/wrangler.jsonc
 /template.json
 /pv-display.json
 /home-assistant/pv_beta_package.yaml
+
+# Generated installation bundles contain private keys and sensor mappings.
+/installations/
+**/secrets-ergaenzen.yaml
+**/relay/secrets.json

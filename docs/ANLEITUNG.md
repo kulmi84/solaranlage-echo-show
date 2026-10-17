@@ -1,5 +1,8 @@
 # Solaranlage – bebilderte Anleitung
 
+Neue, getrennte Testinstallation: [Einrichtungsassistent und Schnellstart](SCHNELLSTART.md).
+Die bisherige manuelle Anleitung bleibt als Referenz erhalten.
+
 Diese Anleitung beschreibt den privaten Alexa-Skill für den Echo Show:
 Installation, Bedienung, Datenquellen und Fehlerbehebung. Die Aufnahmen zeigen
 die tatsächlich eingerichtete Anwendung. Messwerte sind Momentaufnahmen und

@@ -1,0 +1,180 @@
+blueprint:
+  name: Solaranlage - Messwerte fuer Echo
+  description: Sensoren auswaehlen. Benoetigt vorbereiteten rest_command.pv_beta_upload und secrets.yaml; siehe Schnellstart.
+  domain: automation
+  input:
+    power_w:
+      name: PV-Gesamtleistung INKLUSIVE BKW
+      selector:
+        entity:
+          filter:
+            - domain: sensor
+    pv_dc_w:
+      name: PV-Leistung ohne BKW
+      selector:
+        entity:
+          filter:
+            - domain: sensor
+    bkw_w:
+      name: BKW-Leistung
+      selector:
+        entity:
+          filter:
+            - domain: sensor
+    home_w:
+      name: Hausverbrauch
+      selector:
+        entity:
+          filter:
+            - domain: sensor
+    grid_import_w:
+      name: Netzbezug
+      selector:
+        entity:
+          filter:
+            - domain: sensor
+    grid_export_w:
+      name: Einspeisung
+      selector:
+        entity:
+          filter:
+            - domain: sensor
+    battery_soc:
+      name: Akkustand
+      selector:
+        entity:
+          filter:
+            - domain: sensor
+    battery_charge_w:
+      name: Akku-Ladeleistung
+      selector:
+        entity:
+          filter:
+            - domain: sensor
+    battery_discharge_w:
+      name: Akku-Entladeleistung
+      selector:
+        entity:
+          filter:
+            - domain: sensor
+    energy_pv:
+      name: PV-Energiezaehler OHNE BKW
+      selector:
+        entity:
+          filter:
+            - domain: sensor
+    energy_bkw:
+      name: BKW-Energiezaehler
+      selector:
+        entity:
+          filter:
+            - domain: sensor
+    energy_import:
+      name: Netzbezug-Energiezaehler
+      selector:
+        entity:
+          filter:
+            - domain: sensor
+    energy_export:
+      name: Einspeisung-Energiezaehler
+      selector:
+        entity:
+          filter:
+            - domain: sensor
+    energy_charge:
+      name: Akku-Ladeenergiezaehler
+      selector:
+        entity:
+          filter:
+            - domain: sensor
+    energy_discharge:
+      name: Akku-Entladeenergiezaehler
+      selector:
+        entity:
+          filter:
+            - domain: sensor
+variables:
+  power_w: !input power_w
+  pv_dc_w: !input pv_dc_w
+  bkw_w: !input bkw_w
+  home_w: !input home_w
+  grid_import_w: !input grid_import_w
+  grid_export_w: !input grid_export_w
+  battery_soc: !input battery_soc
+  battery_charge_w: !input battery_charge_w
+  battery_discharge_w: !input battery_discharge_w
+  energy_pv: !input energy_pv
+  energy_bkw: !input energy_bkw
+  energy_import: !input energy_import
+  energy_export: !input energy_export
+  energy_charge: !input energy_charge
+  energy_discharge: !input energy_discharge
+triggers:
+  - trigger: time_pattern
+    minutes: '/1'
+conditions:
+  - condition: template
+    value_template: >-
+      {{ is_number(states(power_w))
+         and states(power_w) | float(0) >= 0
+         and state_attr(power_w, 'unit_of_measurement') in ['W', 'kW'] }}
+actions:
+  - variables:
+      solar_stats: {}
+  - action: recorder.get_statistics
+    continue_on_error: true
+    data:
+      statistic_ids:
+        - "{{ energy_pv }}"
+        - "{{ energy_bkw }}"
+        - "{{ energy_import }}"
+        - "{{ energy_export }}"
+        - "{{ energy_charge }}"
+        - "{{ energy_discharge }}"
+      start_time: "{{ today_at('00:00').isoformat() }}"
+      end_time: "{{ now().isoformat() }}"
+      period: day
+      types:
+        - change
+      units:
+        energy: kWh
+    response_variable: solar_stats
+  - action: rest_command.pv_beta_upload
+    data:
+      solar_data: >-
+        {% macro power(entity) -%}
+          {% set raw = states(entity) %}
+          {% set unit = state_attr(entity, 'unit_of_measurement') %}
+          {{ ((raw | float) * (1000 if unit == 'kW' else 1)) if is_number(raw) and unit in ['W', 'kW'] and raw | float >= 0 else 'null' }}
+        {%- endmacro %}
+        {% set stats = solar_stats.get('statistics', {}) %}
+        {% macro energy(entity) -%}
+          {% set rows = stats.get(entity, []) %}
+          {{ (rows | map(attribute='change') | select('number') | sum) if rows | length > 0 and rows | map(attribute='change') | select('number') | list | length == rows | length else 'null' }}
+        {%- endmacro %}
+        {% set pv = energy(energy_pv) | from_json %}
+        {% set bkw = energy(energy_bkw) | from_json %}
+        {% set imp = energy(energy_import) | from_json %}
+        {% set exp = energy(energy_export) | from_json %}
+        {% set charge = energy(energy_charge) | from_json %}
+        {% set discharge = energy(energy_discharge) | from_json %}
+        {% set complete = pv is number and bkw is number and imp is number and exp is number and charge is number and discharge is number %}
+        {{ {
+          'power_w': power(power_w) | from_json,
+          'pv_dc_w': power(pv_dc_w) | from_json,
+          'bkw_w': power(bkw_w) | from_json,
+          'home_w': power(home_w) | from_json,
+          'grid_import_w': power(grid_import_w) | from_json,
+          'grid_export_w': power(grid_export_w) | from_json,
+          'battery_soc': states(battery_soc) | float(none),
+          'battery_charge_w': power(battery_charge_w) | from_json,
+          'battery_discharge_w': power(battery_discharge_w) | from_json,
+          'today_pv_kwh': pv + bkw if pv is number and bkw is number else none,
+          'today_grid_import_kwh': imp,
+          'today_grid_export_kwh': exp,
+          'today_battery_charge_kwh': charge,
+          'today_battery_discharge_kwh': discharge,
+          'today_home_kwh': ([0, pv + bkw + imp + discharge - exp - charge] | max) if complete else none,
+          'energy_date': now().date().isoformat()
+        } }}
+mode: single

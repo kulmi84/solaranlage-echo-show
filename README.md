@@ -1,5 +1,9 @@
 # Solaranlage auf dem Echo Show
 
+> **Entwicklung: vereinfachte Einrichtung** – [zum geführten Schnellstart](docs/SCHNELLSTART.md).
+> Nur für eine getrennte Testinstallation; der bestätigte Stand bleibt im Branch
+> [`codex/stable-2026-10-17`](https://github.com/kulmi84/solaranlage-echo-show/tree/codex/stable-2026-10-17).
+
 Ein privater Alexa-Skill zeigt die Solaranlage als native APL-Ansicht auf dem
 Echo Show – ohne Silk-Browserleiste. Home Assistant überträgt ausschließlich
 die ausgewählten Messwerte per HTTPS an einen geschützten Cloudflare Worker.
