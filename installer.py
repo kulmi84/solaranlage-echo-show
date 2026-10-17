@@ -8,7 +8,7 @@ import secrets
 import uuid
 from pathlib import Path
 from urllib.parse import urlsplit
-from urllib.request import Request, urlopen, HTTPRedirectHandler, build_opener
+from urllib.request import Request, HTTPRedirectHandler, build_opener
 from urllib.error import HTTPError, URLError
 
 ROOT = Path(__file__).resolve().parent
@@ -161,7 +161,7 @@ def generate(out, mapping, relay_url, worker_name, db_id):
         raise SetupError('D1-Datenbank-ID muss eine UUID sein.')
     out = Path(out)
     # Refuse to merge with, or overwrite, an existing installation directory.
-    out.mkdir(parents=True, exist_ok=False)
+    out.mkdir(parents=True, exist_ok=False, mode=0o700)
     read_token, write_token = secrets.token_hex(32), secrets.token_hex(32)
     for folder in ['home-assistant', 'alexa', 'relay']:
         (out / folder).mkdir()
@@ -280,7 +280,7 @@ def main(argv=None):
             return int(any(level == 'FEHLER' for level, _ in problems))
         print('PV-Gesamtleistung muss BKW bereits enthalten. Energiezaehler sind kumulierte Zaehler, keine Tages-/Leistungssensoren.')
         mapping = choose_mapping(states)
-        if states:
+        if states is not None:
             problems = issues(mapping, states)
             for level, message in problems:
                 print(level + ': ' + message)
