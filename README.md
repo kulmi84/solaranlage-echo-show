@@ -11,6 +11,17 @@ Home Assistant braucht dafür keine öffentliche Adresse und keine Portfreigabe.
 
 ## Anzeige
 
+Die beiden Ausschnitte zeigen die Livewerte oben und die Tageswerte darunter
+in derselben Echo-Show-Ansicht.
+
+**Livewerte**
+
+![Solaranlage: PV inklusive BKW, Hausverbrauch, Netz und Akkustand](docs/screenshots/02-livewerte.png)
+
+**Tageswerte seit Mitternacht**
+
+![Solaranlage: heutige Erzeugung, Hausverbrauch, Netz- und Akkuenergie](docs/screenshots/03-tageswerte.png)
+
 | Bereich | Live | Heute seit Mitternacht |
 | --- | --- | --- |
 | PV + BKW | Gesamtleistung, PV-DC-Leistung, BKW-Leistung | Erzeugte Energie |
