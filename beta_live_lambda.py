@@ -1,7 +1,11 @@
 """Native Solaranlage display: live power above today's energy totals."""
 import json
+import time
 from pathlib import Path
 from beta_live_reader import read_pv
+
+REFRESH_INTERVAL_MS = 60_000
+DISPLAY_DURATION_MS = 60 * 60_000
 
 
 def number(value, unit, digits=2):
@@ -42,8 +46,23 @@ def lambda_handler(event, context):
         return {'version': '1.0', 'response': {}}
     if intent in ('AMAZON.StopIntent', 'AMAZON.CancelIntent'):
         return {'version': '1.0', 'response': {'shouldEndSession': True}}
-    if request.get('type') == 'Alexa.Presentation.APL.UserEvent' and request.get('arguments') != ['refresh']:
-        return {'version': '1.0', 'response': {}}
+    now_ms = int(time.time() * 1000)
+    expires_at = now_ms + DISPLAY_DURATION_MS
+    if request.get('type') == 'Alexa.Presentation.APL.UserEvent':
+        arguments = request.get('arguments', [])
+        if arguments == ['refresh']:
+            pass  # A deliberate touch starts a fresh display period.
+        elif (isinstance(arguments, list) and len(arguments) == 2 and arguments[0] == 'auto_refresh'
+              and type(arguments[1]) is int
+              and arguments[1] <= now_ms + DISPLAY_DURATION_MS):
+            expires_at = arguments[1]
+            if expires_at <= now_ms:
+                return {'version': '1.0', 'response': {
+                    'directives': [{'type': 'Alexa.Presentation.APL.ExecuteCommands',
+                                    'token': 'solaranlage', 'commands': [{'type': 'Finish'}]}],
+                    'shouldEndSession': True}}
+        else:
+            return {'version': '1.0', 'response': {}}
     try:
         config = json.loads(Path(__file__).with_name('relay_config.json').read_text())
         pv = read_pv(config['url'], config['read_token'])
@@ -70,9 +89,16 @@ def lambda_handler(event, context):
         card('Netz', energy('today_grid_export_kwh'), 'Einspeisung', purple, 'Bezug ' + energy('today_grid_import_kwh')),
         card('Akku', energy('today_battery_charge_kwh'), 'Geladen', teal, 'Entladen ' + energy('today_battery_discharge_kwh')),
     ]
-    status = pv['statusText'] if pv['stale'] else 'Stand ' + pv.get('receivedText', '—') + ' Uhr · Messwerte jede Minute · Tageswerte aus HA-Statistik'
+    status = pv['statusText'] if pv['stale'] else 'Stand ' + pv.get('receivedText', '—') + ' Uhr · Auto alle 60 s · Tageswerte aus HA-Statistik'
     document = {
         'type': 'APL', 'version': '1.6', 'theme': 'dark',
+        'settings': {'idleTimeout': max(1000, expires_at - now_ms)},
+        'handleTick': [{
+            'minimumDelay': REFRESH_INTERVAL_MS,
+            'when': '${displayState == "foreground" && utcTime >= ' + str(now_ms + REFRESH_INTERVAL_MS) + ' && utcTime < ' + str(expires_at) + '}',
+            'commands': [{'type': 'SendEvent', 'arguments': ['auto_refresh', expires_at],
+                          'sequencer': 'solarRefresh'}],
+        }],
         'mainTemplate': {'items': [{
             'type': 'Container', 'width': '100vw', 'height': '100vh',
             'backgroundColor': '#0C151F', 'paddingLeft': '3vw', 'paddingRight': '3vw',

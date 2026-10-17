@@ -47,14 +47,34 @@ Monats-, Jahres- oder Lebensdauerzähler.
 ## 2. Bedienung
 
 1. Auf dem Echo **„Alexa, öffne meine Solaranlage“** sagen.
-2. Zum erneuten Abrufen **Aktualisieren** oben rechts antippen.
+2. Die Werte werden im Vordergrund **alle 60 Sekunden automatisch** nachgeladen.
+   Zum sofortigen Abrufen **Aktualisieren** oben rechts antippen.
 3. Alternativ den Skill schließen und erneut öffnen.
 4. Mit **„Alexa, stopp“** beenden.
 
-Home Assistant überträgt einmal pro Minute. Die bereits geöffnete Anzeige
-aktualisiert sich im aktuellen Stand **nicht automatisch**. Nach dem Antippen
-zeigt sie den zuletzt empfangenen Datensatz; dadurch können Sensoranzeige und
-Echo-Anzeige um ungefähr ein Uploadintervall voneinander abweichen.
+Home Assistant überträgt einmal pro Minute. Die geöffnete Anzeige ruft den
+zuletzt empfangenen Datensatz automatisch alle 60 Sekunden ab. Upload und
+Abruf laufen unabhängig; einzelne Sensoränderungen können daher erst nach
+bis zu etwa zwei Intervallen auf dem Echo erscheinen. Netzwerk- und
+Recorder-Verzögerungen kommen gegebenenfalls hinzu.
+
+### Länger geöffnet lassen
+
+Der Skill fordert **60 Minuten Anzeigedauer** an. Automatische Abrufe behalten
+das ursprüngliche Ende dieser Stunde bei, statt die Anzeige bei jedem Abruf
+um eine weitere Stunde zu verlängern. Ein bewusster Tipp auf **Aktualisieren**
+oder ein erneuter Sprachaufruf startet eine neue Stunde.
+
+Die Zeitvorgabe ist laut Amazon eine Empfehlung: Das Gerät kann sie begrenzen
+oder ignorieren. Andere Alexa-Funktionen können die Ansicht unterbrechen.
+Die Funktion ist daher kein garantierter Dauer- oder Kioskbetrieb. Im
+Hintergrund werden keine regelmäßigen Abrufe angefordert.
+
+Technik: `settings.idleTimeout` fordert die verbleibende Anzeigedauer an.
+`handleTick` sendet alle 60 Sekunden ein `auto_refresh`-Ereignis an das Backend.
+Ein benannter Sequencer ermöglicht `SendEvent` aus dem Tick-Handler.
+Siehe [Amazon: Tick-Handler](https://developer.amazon.com/en-US/docs/alexa/alexa-presentation-language/apl-tick-event-handlers.html)
+und [APL-Dokumenteinstellungen](https://www.developer.amazon.com/en-US/docs/alexa/alexa-presentation-language/apl-document.html#idletimeout).
 
 Die Zeile **Stand … Uhr** bezeichnet die Empfangszeit des Datensatzes beim
 Relay. Sie ist keine Zusage, dass jeder einzelne Sensor exakt gleichzeitig
@@ -221,7 +241,8 @@ Der Skill wird hierfür nicht öffentlich im Skill Store veröffentlicht.
 | Silk öffnet sich | Der alte Browser-Skill wurde gestartet. Den Skill „Solaranlage“ mit „öffne meine Solaranlage“ aufrufen. |
 | Nur — / Verbindung prüfen | Relay-Adresse inklusive `/pv`, Leseschlüssel, Worker-Secrets und Internetverbindung prüfen. |
 | VERALTET | HA-Automation, Sensorverfügbarkeit und letzten erfolgreichen Upload prüfen; danach Aktualisieren antippen. |
-| Zahl ändert sich auf dem Echo nicht | Aktualisieren antippen. Neue HA-Uploads ändern die bereits geöffnete Ansicht noch nicht selbstständig. |
+| Zahl ändert sich auf dem Echo nicht | Bis zu zwei Minuten abwarten oder Aktualisieren antippen. Stand-Zeit prüfen; die Ansicht muss im Vordergrund sein. Bei älterem Skillstand die aktuelle Version deployen. |
+| Anzeige schließt früher als nach einer Stunde | Die 60 Minuten sind eine Anforderung an Alexa. Gerätebegrenzungen und Unterbrechungen können früher schließen; erneut öffnen und am eigenen Echo prüfen. |
 | Tageswerte unterscheiden sich von HA | Dieselben kumulierten Zähler, lokalen Tageszeitraum, Einheiten und Aktualisierungsstand der Recorder-Statistik vergleichen. |
 | Einzelner Wert fehlt | Zustand und Einheit der betreffenden Entität prüfen. `unknown` und `unavailable` werden nicht als Null ausgegeben. |
 | PV-Gesamt scheint zu groß | Prüfen, ob der Gesamtsensor das BKW bereits enthält. Die Gesamtleistung nicht nochmals um das BKW erhöhen. |

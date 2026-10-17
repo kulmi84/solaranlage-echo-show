@@ -71,4 +71,56 @@ class LiveReaderTests(unittest.TestCase):
         self.assertEqual(result['receivedText'], '17:05')
 
 
+class AutomaticDisplayTests(unittest.TestCase):
+    def event(self, arguments=None):
+        request = {'type': 'LaunchRequest'} if arguments is None else {
+            'type': 'Alexa.Presentation.APL.UserEvent', 'arguments': arguments}
+        return {'request': request, 'context': {'System': {'device': {
+            'supportedInterfaces': {'Alexa.Presentation.APL': {}}}}}}
+
+    def render(self, seconds, event, power=2000):
+        snapshot = {'metrics': {'power_w': power}, 'valueText': '2,00 kW',
+                    'statusText': 'ok', 'stale': False, 'receivedText': '12:00'}
+        with patch('beta_live_lambda.time.time', return_value=seconds), \
+             patch('beta_live_lambda.read_pv', return_value=snapshot) as reader, \
+             patch('pathlib.Path.read_text', return_value='{"url":"https://example.test/pv","read_token":"read"}'):
+            response = beta_live_lambda.lambda_handler(event, None)
+        return response, reader
+
+    def document(self, response):
+        return response['response']['directives'][0]['document']
+
+    def test_auto_refresh_fetches_new_data_without_extending_hour(self):
+        first, _ = self.render(1000, self.event())
+        document = self.document(first)
+        self.assertEqual(document['settings']['idleTimeout'], 3_600_000)
+        tick = document['handleTick'][0]
+        self.assertEqual(tick['minimumDelay'], 60_000)
+        self.assertIn('foreground', tick['when'])
+        command = tick['commands'][0]
+        self.assertTrue(command['sequencer'])  # SendEvent must leave fast mode.
+        response, reader = self.render(1060, self.event(command['arguments']), power=3100)
+        reader.assert_called_once()
+        updated = self.document(response)
+        self.assertEqual(updated['settings']['idleTimeout'], 3_540_000)
+        self.assertEqual(updated['handleTick'][0]['commands'][0]['arguments'], command['arguments'])
+        self.assertIn('3,10 kW', json.dumps(updated))
+
+    def test_touch_starts_new_hour(self):
+        response, _ = self.render(1060, self.event(['refresh']))
+        self.assertEqual(self.document(response)['settings']['idleTimeout'], 3_600_000)
+
+    def test_expired_automatic_event_stops_without_fetch(self):
+        response, reader = self.render(4600, self.event(['auto_refresh', 4_600_000]))
+        reader.assert_not_called()
+        self.assertTrue(response['response']['shouldEndSession'])
+        self.assertEqual(response['response']['directives'][0]['commands'], [{'type': 'Finish'}])
+
+    def test_invalid_automatic_event_is_ignored(self):
+        for args in [['auto_refresh', True], ['auto_refresh', 99_000_000], ['other'], 'refresh']:
+            response, reader = self.render(1000, self.event(args))
+            reader.assert_not_called()
+            self.assertEqual(response['response'], {})
+
+
 if __name__ == '__main__': unittest.main()

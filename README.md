@@ -30,8 +30,14 @@ in derselben Echo-Show-Ansicht.
 | Akku | Ladestand, Lade- und Entladeleistung | Geladene und entladene Energie |
 
 Leistungen erscheinen in W bzw. kW, Energiemengen in kWh. HA überträgt jede
-Minute. Die Anzeige holt neue Werte beim Öffnen oder per **Aktualisieren**;
-sie aktualisiert sich noch nicht selbstständig im Hintergrund.
+Minute. Solange die Anzeige im Vordergrund geöffnet ist, lädt sie die Werte
+**automatisch alle 60 Sekunden** nach. **Aktualisieren** bleibt zusätzlich verfügbar.
+
+Der Skill fordert eine Anzeigedauer von **60 Minuten** an. Automatische Abrufe
+verlängern diese Zeit nicht; ein erneuter Sprachaufruf oder ein bewusster Tipp
+auf **Aktualisieren** startet eine neue Stunde. Alexa kann die angeforderte
+Dauer je nach Gerät begrenzen oder ignorieren. Eine dauerhafte Kiosk-Anzeige
+ist deshalb nicht garantiert.
 
 Tageswerte stammen aus der HA-Recorder-Statistik und können gegenüber den
 Livewerten verzögert sein. Fehlende optionale Werte erscheinen als „—“.
