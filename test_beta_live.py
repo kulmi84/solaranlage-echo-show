@@ -133,4 +133,56 @@ class AutomaticDisplayTests(unittest.TestCase):
             self.assertEqual(response['response'], {})
 
 
+class SpokenReadingTests(unittest.TestCase):
+    def invoke(self, intent, metrics, stale=False, screen=False, failure=False):
+        event = {'request': {'type': 'IntentRequest', 'intent': {'name': intent}},
+                 'context': {'System': {'device': {'supportedInterfaces':
+                     {'Alexa.Presentation.APL': {}} if screen else {}}}}}
+        pv = {'metrics': metrics, 'valueText': '2,00 kW', 'statusText': 'ok',
+              'stale': stale, 'receivedText': '12:00'}
+        with patch('beta_live_lambda.read_pv', side_effect=OSError() if failure else None,
+                   return_value=pv), patch('pathlib.Path.read_text', return_value=
+                   '{"url":"https://example.test/pv","read_token":"read"}'):
+            return beta_live_lambda.lambda_handler(event, None)['response']
+
+    def test_production_uses_total_including_bkw_and_spoken_units(self):
+        for value, spoken in [(2310, '2,31 Kilowatt'), (239, '239 Watt'), (0, '0 Watt')]:
+            response = self.invoke('ProductionIntent', {'power_w': value, 'pv_dc_w': 100})
+            self.assertIn(spoken, response['outputSpeech']['text'])
+            self.assertIn('inklusive Balkonkraftwerk', response['outputSpeech']['text'])
+            self.assertTrue(response['shouldEndSession'])
+            self.assertNotIn('directives', response)
+
+    def test_battery_only_answers_requested_value(self):
+        response = self.invoke('BatteryIntent', {'battery_soc': 87, 'power_w': 2000})
+        self.assertEqual(response['outputSpeech']['text'], 'Der Akkustand beträgt 87 Prozent.')
+
+    def test_unavailable_does_not_speak_dash_or_fake_zero(self):
+        for intent in ['ProductionIntent', 'BatteryIntent']:
+            for failure in [False, True]:
+                speech = self.invoke(intent, {}, failure=failure)['outputSpeech']['text']
+                self.assertIn('keine Daten', speech)
+                self.assertNotIn('—', speech)
+                self.assertNotIn('0 Watt', speech)
+
+    def test_stale_reading_is_clearly_historical(self):
+        speech = self.invoke('BatteryIntent', {'battery_soc': 87}, stale=True)['outputSpeech']['text']
+        self.assertIn('veraltet', speech)
+        self.assertIn('zuletzt', speech)
+
+    def test_explicit_question_on_show_speaks_without_prompting(self):
+        response = self.invoke('BatteryIntent', {'battery_soc': 87}, screen=True)
+        self.assertIn('87 Prozent', response['outputSpeech']['text'])
+        self.assertNotIn('shouldEndSession', response)
+        self.assertEqual(response['directives'][0]['type'], 'Alexa.Presentation.APL.RenderDocument')
+
+    def test_interaction_model_includes_both_queries(self):
+        from pathlib import Path
+        model = json.loads(Path('alexa/interaction-model.de-DE.json').read_text(encoding='utf-8'))
+        intents = {i['name']: i for i in model['interactionModel']['languageModel']['intents']}
+        self.assertIn('nach der aktuellen produktion', intents['ProductionIntent']['samples'])
+        self.assertIn('nach dem akkustand', intents['BatteryIntent']['samples'])
+        self.assertIn('nach dem akku stand', intents['BatteryIntent']['samples'])
+
+
 if __name__ == '__main__': unittest.main()

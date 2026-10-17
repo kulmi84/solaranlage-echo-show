@@ -24,6 +24,20 @@ def text(value, size, color='#F4F6FA', **extra):
     return dict(type='Text', text=value, fontSize=size, color=color, maxLines=1, **extra)
 
 
+def spoken_reading(pv, intent):
+    metrics = pv.get('metrics', {})
+    key = 'battery_soc' if intent == 'BatteryIntent' else 'power_w'
+    label = 'Der Akkustand' if key == 'battery_soc' else 'Die Produktion inklusive Balkonkraftwerk'
+    value = metrics.get(key)
+    if value is None:
+        return 'Für ' + ('den Akkustand' if key == 'battery_soc' else 'die Produktion') + ' liegen keine Daten vor.'
+    unit_value = (number(value, 'Prozent', 0) if key == 'battery_soc' else
+                  number(value / 1000, 'Kilowatt') if value >= 1000 else number(value, 'Watt', 0))
+    if pv.get('stale', True):
+        return 'Achtung, die Daten sind veraltet. ' + label + ' lag zuletzt bei ' + unit_value + '.'
+    return label + ' beträgt ' + unit_value + '.'
+
+
 def card(label, value, detail, color, extra=''):
     return {
         'type': 'Frame', 'width': '23vw', 'height': '100%',
@@ -46,6 +60,11 @@ def lambda_handler(event, context):
         return {'version': '1.0', 'response': {}}
     if intent in ('AMAZON.StopIntent', 'AMAZON.CancelIntent'):
         return {'version': '1.0', 'response': {'shouldEndSession': True}}
+    if intent in ('AMAZON.HelpIntent', 'AMAZON.FallbackIntent'):
+        return {'version': '1.0', 'response': {
+            'outputSpeech': {'type': 'PlainText', 'text':
+                'Frage meine Solaranlage nach der Produktion oder nach dem Akkustand.'},
+            'shouldEndSession': True}}
     now_ms = int(time.time() * 1000)
     expires_at = now_ms + DISPLAY_DURATION_MS
     if request.get('type') == 'Alexa.Presentation.APL.UserEvent':
@@ -71,9 +90,10 @@ def lambda_handler(event, context):
     m = pv.get('metrics', {})
     g = m.get
     interfaces = event.get('context', {}).get('System', {}).get('device', {}).get('supportedInterfaces', {})
+    speech = spoken_reading(pv, intent) if intent in ('ProductionIntent', 'BatteryIntent') else None
     if 'Alexa.Presentation.APL' not in interfaces:
         return {'version': '1.0', 'response': {
-            'outputSpeech': {'type': 'PlainText', 'text': 'Solaranlage. PV-Leistung: ' + pv['valueText'] + '. Hausverbrauch: ' + power(g('home_w')) + '. Akkustand: ' + number(g('battery_soc'), 'Prozent', 0) + '. ' + pv['statusText']},
+            'outputSpeech': {'type': 'PlainText', 'text': speech or 'Solaranlage. PV-Leistung: ' + pv['valueText'] + '. Hausverbrauch: ' + power(g('home_w')) + '. Akkustand: ' + number(g('battery_soc'), 'Prozent', 0) + '. ' + pv['statusText']},
             'shouldEndSession': True}}
     gold, blue, purple, teal = '#FFD166', '#8BCBFF', '#C3A0FF', '#51D3C5'
     live = [
@@ -117,5 +137,7 @@ def lambda_handler(event, context):
     }
     # Omit shouldEndSession: show APL without opening the microphone for a reply.
     # True would close the skill; False would request speech after every refresh.
-    return {'version': '1.0', 'response': {
-        'directives': [{'type': 'Alexa.Presentation.APL.RenderDocument', 'token': 'solaranlage', 'document': document}]}}
+    response = {'directives': [{'type': 'Alexa.Presentation.APL.RenderDocument', 'token': 'solaranlage', 'document': document}]}
+    if speech:
+        response['outputSpeech'] = {'type': 'PlainText', 'text': speech}
+    return {'version': '1.0', 'response': response}

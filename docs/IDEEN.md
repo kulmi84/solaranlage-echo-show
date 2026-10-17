@@ -2,7 +2,7 @@
 
 ## Idee 1: Solarwerte auf weiteren Alexa-Geräten per Sprache abfragen
 
-**Status:** aufgenommen, noch nicht umgesetzt.
+**Status:** umgesetzt am 17. Oktober 2026.
 
 Quelle: Chat „Solaranlage Echo Show Chat“, 17. Oktober 2026.
 
@@ -14,7 +14,7 @@ Gewünschte Abfragen:
 - Aktuelle Produktion / PV-Gesamtleistung inklusive Balkonkraftwerk.
 - Akkustand der Solaranlage in Prozent.
 
-Beispiele für die geplante Bedienung:
+Bedienung:
 
 - „Alexa, frage meine Solaranlage nach der aktuellen Produktion.“
 - „Alexa, frage meine Solaranlage nach dem Akkustand.“
@@ -27,6 +27,12 @@ Die Echo-Show-Ansicht bleibt beim normalen Öffnen eine stille Anzeige mit
 automatischer Aktualisierung. Gezielte Sprachabfragen sollen zusätzlich möglich
 sein und keine Spracheingabe nach jedem Anzeigeabruf auslösen.
 
-Bereits vorhanden ist eine allgemeine gesprochene Zusammenfassung für Geräte
-ohne APL-Display. Idee 1 ergänzt gezielte Abfragen einzelner Werte; eigene
-Intents, Formulierungen und Tests auf einem Echo stehen dafür noch aus.
+`ProductionIntent` und `BatteryIntent` beantworten gezielte Abfragen mit
+gesprochenen Einheiten. Ohne Display endet die Sitzung nach der Antwort.
+Auf einem Echo Show werden bei einer gezielten Frage die Antwort gesprochen
+und die Anzeige geöffnet bzw. aktualisiert, ohne anschließend eine weitere
+Spracheingabe anzufordern. Normales Öffnen und automatische Abrufe bleiben still.
+
+Fehlende Werte werden als nicht verfügbar angesagt. Bei veralteten Daten
+wird vor dem letzten bekannten Wert ausdrücklich gewarnt. Backend- und
+Interaktionsmodell-Tests decken beide Abfragen sowie diese Fehlerfälle ab.

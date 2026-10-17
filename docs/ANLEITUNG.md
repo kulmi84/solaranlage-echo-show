@@ -193,6 +193,23 @@ mit einem anderen HA-Dateieditor bearbeiten.
 Zum manuellen Test die **Automation** ausführen. Der REST-Befehl erwartet den
 von ihr zusammengestellten Datensatz und ist kein eigenständiger Testknopf.
 
+## Solarwerte per Sprache abfragen
+
+Auch auf einem Echo ohne Display:
+
+- **„Alexa, frage meine Solaranlage nach der aktuellen Produktion.“**
+- **„Alexa, frage meine Solaranlage nach dem Akkustand.“**
+
+Die Produktion ist die aktuelle Gesamtleistung inklusive BKW, keine
+Tagesenergiemenge. Antworten nennen Watt bzw. Kilowatt oder Prozent.
+Ohne Display endet der Skill nach der Antwort. Auf einem Echo Show wird bei
+gezielten Fragen zusätzlich die Anzeige dargestellt; normales Öffnen und
+Minutenabrufe bleiben still. Fehlende Daten und veraltete Messwerte werden
+ausdrücklich angesagt.
+
+Bei einem Update auf diese Version sowohl das Interaktionsmodell erneut
+importieren und bauen als auch den neu erzeugten Python-Code deployen.
+
 ## 6. Alexa-Skill einrichten
 
 ### Skill und Aufrufname

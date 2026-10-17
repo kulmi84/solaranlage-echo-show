@@ -7,6 +7,15 @@ Home Assistant braucht dafür keine öffentliche Adresse und keine Portfreigabe.
 
 **Sprachaufruf:** „Alexa, öffne meine Solaranlage.“
 
+**Gezielt abfragen, auch auf einem Echo ohne Display:**
+
+- „Alexa, frage meine Solaranlage nach der aktuellen Produktion.“
+- „Alexa, frage meine Solaranlage nach dem Akkustand.“
+
+Die Produktion umfasst PV und BKW. Alexa antwortet kurz mit Leistung bzw.
+Akkustand; fehlende und veraltete Daten werden benannt. Auf dem Echo Show bleibt
+das normale Öffnen eine stille Anzeige; nur gezielte Fragen werden gesprochen.
+
 📖 **[Bebilderte Anleitung: Einrichtung, Bedienung und Fehlerbehebung](docs/ANLEITUNG.md)**
 
 ## Anzeige
@@ -209,10 +218,10 @@ Die `beta_`-Dateinamen bleiben zur Kompatibilität mit dem ursprünglichen Proto
 erhalten. Alte Silk-Launcher, Testbilder, produktive Konfigurationen und
 Zugangsdaten gehören nicht zur veröffentlichten Projektversion.
 
-## Geplante Erweiterungen
+## Ideen und Erweiterungen
 
 [Idee 1: Produktion und Akkustand auf weiteren Alexa-Geräten per Sprache abfragen](docs/IDEEN.md)
-ist als nächste mögliche Erweiterung dokumentiert.
+ist umgesetzt und dokumentiert.
 
 ## Lizenz
 

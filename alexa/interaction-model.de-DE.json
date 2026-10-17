@@ -3,11 +3,63 @@
     "languageModel": {
       "invocationName": "meine solaranlage",
       "intents": [
-        { "name": "AMAZON.CancelIntent", "samples": [] },
-        { "name": "AMAZON.StopIntent", "samples": [] },
-        { "name": "AMAZON.HelpIntent", "samples": [] },
-        { "name": "AMAZON.FallbackIntent", "samples": [] },
-        { "name": "RefreshIntent", "slots": [], "samples": ["aktualisieren", "zeige die werte", "wie ist der stand"] }
+        {
+          "name": "AMAZON.CancelIntent",
+          "samples": []
+        },
+        {
+          "name": "AMAZON.StopIntent",
+          "samples": []
+        },
+        {
+          "name": "AMAZON.HelpIntent",
+          "samples": []
+        },
+        {
+          "name": "AMAZON.FallbackIntent",
+          "samples": []
+        },
+        {
+          "name": "RefreshIntent",
+          "slots": [],
+          "samples": [
+            "aktualisieren",
+            "zeige die werte",
+            "wie ist der stand"
+          ]
+        },
+        {
+          "name": "ProductionIntent",
+          "slots": [],
+          "samples": [
+            "produktion",
+            "die produktion",
+            "nach der produktion",
+            "nach der aktuellen produktion",
+            "wie viel strom wird produziert",
+            "wie hoch ist die produktion",
+            "wie viel produziert die solaranlage",
+            "wie hoch ist die aktuelle leistung"
+          ]
+        },
+        {
+          "name": "BatteryIntent",
+          "slots": [],
+          "samples": [
+            "akkustand",
+            "den akkustand",
+            "nach dem akkustand",
+            "wie voll ist der akku",
+            "wie hoch ist der akkustand",
+            "wie voll ist die batterie",
+            "batteriestand",
+            "akku stand",
+            "nach dem akku stand",
+            "wie hoch ist der akku stand",
+            "batterie stand",
+            "nach dem batteriestand"
+          ]
+        }
       ],
       "types": []
     }
