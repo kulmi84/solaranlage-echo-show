@@ -5,6 +5,27 @@ Installation, Bedienung, Datenquellen und Fehlerbehebung. Die Aufnahmen zeigen
 die tatsächlich eingerichtete Anwendung. Messwerte sind Momentaufnahmen und
 keine fest eingestellten Beispielwerte.
 
+## 🗣️ Sprachbefehle auf einen Blick
+
+**Anzeige auf dem Echo Show öffnen:**
+
+> **„Alexa, öffne meine Solaranlage.“**
+
+**Werte direkt abfragen – auch auf einem Echo ohne Display:**
+
+| Gewünschter Wert | Sag einfach … |
+| --- | --- |
+| **Aktuelle Produktion · PV + BKW** | **„Alexa, frage meine Solaranlage nach der aktuellen Produktion.“** |
+| **Akkustand** | **„Alexa, frage meine Solaranlage nach dem Akkustand.“** |
+| **Aktueller Hausverbrauch** | **„Alexa, frage meine Solaranlage nach dem aktuellen Verbrauch.“** |
+| **Heutige Gesamtproduktion · PV + BKW** | **„Alexa, frage meine Solaranlage nach der heutigen Gesamtproduktion.“** |
+| **Heutige Einspeisung** | **„Alexa, frage meine Solaranlage nach der heutigen Einspeisung.“** |
+
+**Direkt fragen genügt – der Skill muss vorher nicht geöffnet werden.**
+Die Anzeige bleibt beim normalen Öffnen still; gezielte Fragen beantwortet Alexa laut.
+
+**Beenden:** „Alexa, stopp.“
+
 ## 1. Was auf dem Echo zu sehen ist
 
 Die native Alexa-Ansicht benötigt keinen Silk-Browser. Sie besteht aus zwei

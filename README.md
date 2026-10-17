@@ -5,15 +5,26 @@ Echo Show – ohne Silk-Browserleiste. Home Assistant überträgt ausschließlic
 die ausgewählten Messwerte per HTTPS an einen geschützten Cloudflare Worker.
 Home Assistant braucht dafür keine öffentliche Adresse und keine Portfreigabe.
 
-**Sprachaufruf:** „Alexa, öffne meine Solaranlage.“
+## 🗣️ Sprachbefehle auf einen Blick
 
-**Gezielt abfragen, auch auf einem Echo ohne Display:**
+**Anzeige auf dem Echo Show öffnen:**
 
-- „Alexa, frage meine Solaranlage nach der aktuellen Produktion.“
-- „Alexa, frage meine Solaranlage nach dem Akkustand.“
-- „Alexa, frage meine Solaranlage nach dem aktuellen Verbrauch.“
-- „Alexa, frage meine Solaranlage nach der heutigen Gesamtproduktion.“
-- „Alexa, frage meine Solaranlage nach der heutigen Einspeisung.“
+> **„Alexa, öffne meine Solaranlage.“**
+
+**Werte direkt abfragen – auch auf einem Echo ohne Display:**
+
+| Gewünschter Wert | Sag einfach … |
+| --- | --- |
+| **Aktuelle Produktion · PV + BKW** | **„Alexa, frage meine Solaranlage nach der aktuellen Produktion.“** |
+| **Akkustand** | **„Alexa, frage meine Solaranlage nach dem Akkustand.“** |
+| **Aktueller Hausverbrauch** | **„Alexa, frage meine Solaranlage nach dem aktuellen Verbrauch.“** |
+| **Heutige Gesamtproduktion · PV + BKW** | **„Alexa, frage meine Solaranlage nach der heutigen Gesamtproduktion.“** |
+| **Heutige Einspeisung** | **„Alexa, frage meine Solaranlage nach der heutigen Einspeisung.“** |
+
+**Direkt fragen genügt – der Skill muss vorher nicht geöffnet werden.**
+Die Anzeige bleibt beim normalen Öffnen still; gezielte Fragen beantwortet Alexa laut.
+
+**Beenden:** „Alexa, stopp.“
 
 Die Produktion umfasst PV und BKW. Alexa antwortet kurz mit Leistung bzw.
 Akkustand. Tagesproduktion und Tageseinspeisung werden seit Mitternacht in
