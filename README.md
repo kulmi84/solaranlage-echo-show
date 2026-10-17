@@ -11,9 +11,14 @@ Home Assistant braucht dafür keine öffentliche Adresse und keine Portfreigabe.
 
 - „Alexa, frage meine Solaranlage nach der aktuellen Produktion.“
 - „Alexa, frage meine Solaranlage nach dem Akkustand.“
+- „Alexa, frage meine Solaranlage nach dem aktuellen Verbrauch.“
+- „Alexa, frage meine Solaranlage nach der heutigen Gesamtproduktion.“
+- „Alexa, frage meine Solaranlage nach der heutigen Einspeisung.“
 
 Die Produktion umfasst PV und BKW. Alexa antwortet kurz mit Leistung bzw.
-Akkustand; fehlende und veraltete Daten werden benannt. Auf dem Echo Show bleibt
+Akkustand. Tagesproduktion und Tageseinspeisung werden seit Mitternacht in
+Kilowattstunden angesagt, der aktuelle Hausverbrauch in Watt bzw. Kilowatt.
+Fehlende und veraltete Daten werden benannt. Auf dem Echo Show bleibt
 das normale Öffnen eine stille Anzeige; nur gezielte Fragen werden gesprochen.
 
 📖 **[Bebilderte Anleitung: Einrichtung, Bedienung und Fehlerbehebung](docs/ANLEITUNG.md)**

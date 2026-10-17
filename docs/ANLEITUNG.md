@@ -199,9 +199,16 @@ Auch auf einem Echo ohne Display:
 
 - **„Alexa, frage meine Solaranlage nach der aktuellen Produktion.“**
 - **„Alexa, frage meine Solaranlage nach dem Akkustand.“**
+- **„Alexa, frage meine Solaranlage nach dem aktuellen Verbrauch.“**
+- **„Alexa, frage meine Solaranlage nach der heutigen Gesamtproduktion.“**
+- **„Alexa, frage meine Solaranlage nach der heutigen Einspeisung.“**
 
 Die Produktion ist die aktuelle Gesamtleistung inklusive BKW, keine
-Tagesenergiemenge. Antworten nennen Watt bzw. Kilowatt oder Prozent.
+Tagesenergiemenge. Der aktuelle Verbrauch ist die Hausleistung in Watt bzw.
+Kilowatt. Heutige Gesamtproduktion inklusive BKW und heutige Einspeisung sind
+Tagesenergiemengen seit Mitternacht in Kilowattstunden. Sie stammen wie die
+Anzeige aus der HA-Tagesstatistik und können verzögert sein. Der Akkustand
+wird in Prozent angesagt.
 Ohne Display endet der Skill nach der Antwort. Auf einem Echo Show wird bei
 gezielten Fragen zusätzlich die Anzeige dargestellt; normales Öffnen und
 Minutenabrufe bleiben still. Fehlende Daten und veraltete Messwerte werden

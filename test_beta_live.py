@@ -158,7 +158,7 @@ class SpokenReadingTests(unittest.TestCase):
         self.assertEqual(response['outputSpeech']['text'], 'Der Akkustand beträgt 87 Prozent.')
 
     def test_unavailable_does_not_speak_dash_or_fake_zero(self):
-        for intent in ['ProductionIntent', 'BatteryIntent']:
+        for intent in beta_live_lambda.SPOKEN_METRICS:
             for failure in [False, True]:
                 speech = self.invoke(intent, {}, failure=failure)['outputSpeech']['text']
                 self.assertIn('keine Daten', speech)
@@ -183,6 +183,25 @@ class SpokenReadingTests(unittest.TestCase):
         self.assertIn('nach der aktuellen produktion', intents['ProductionIntent']['samples'])
         self.assertIn('nach dem akkustand', intents['BatteryIntent']['samples'])
         self.assertIn('nach dem akku stand', intents['BatteryIntent']['samples'])
+        self.assertIn('nach dem aktuellen verbrauch', intents['ConsumptionIntent']['samples'])
+        self.assertIn('nach der heutigen gesamtproduktion', intents['TodayProductionIntent']['samples'])
+        self.assertIn('nach der heutigen einspeisung', intents['TodayExportIntent']['samples'])
+
+    def test_consumption_uses_current_house_power(self):
+        response = self.invoke('ConsumptionIntent', {'home_w': 1520, 'power_w': 3000})
+        self.assertEqual(response['outputSpeech']['text'], 'Der aktuelle Hausverbrauch beträgt 1,52 Kilowatt.')
+
+    def test_daily_queries_use_energy_not_live_power(self):
+        metrics = {'today_pv_kwh': 22.87, 'today_grid_export_kwh': 6.72,
+                   'power_w': 3000, 'grid_export_w': 1000}
+        for intent, expected in [('TodayProductionIntent', '22,87 Kilowattstunden'),
+                                 ('TodayExportIntent', '6,72 Kilowattstunden')]:
+            speech = self.invoke(intent, metrics)['outputSpeech']['text']
+            self.assertIn(expected, speech)
+            self.assertNotIn('3000', speech)
+            self.assertIn('veraltet', self.invoke(intent, metrics, stale=True)['outputSpeech']['text'])
+            zero = {key: 0 for key in metrics}
+            self.assertIn('0,00 Kilowattstunden', self.invoke(intent, zero)['outputSpeech']['text'])
 
 
 if __name__ == '__main__': unittest.main()

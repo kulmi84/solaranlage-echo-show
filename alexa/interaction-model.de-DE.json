@@ -59,6 +59,45 @@
             "batterie stand",
             "nach dem batteriestand"
           ]
+        },
+        {
+          "name": "ConsumptionIntent",
+          "slots": [],
+          "samples": [
+            "verbrauch",
+            "aktueller verbrauch",
+            "nach dem aktuellen verbrauch",
+            "nach dem hausverbrauch",
+            "wie hoch ist der aktuelle verbrauch",
+            "wie viel strom verbraucht das haus",
+            "wie hoch ist der hausverbrauch"
+          ]
+        },
+        {
+          "name": "TodayProductionIntent",
+          "slots": [],
+          "samples": [
+            "heutige gesamtproduktion",
+            "nach der heutigen gesamtproduktion",
+            "nach der heutigen gesamt produktion",
+            "nach der heutigen produktion",
+            "wie viel strom wurde heute produziert",
+            "wie viel hat die solaranlage heute produziert",
+            "wie hoch ist die heutige gesamtproduktion",
+            "heutiger ertrag"
+          ]
+        },
+        {
+          "name": "TodayExportIntent",
+          "slots": [],
+          "samples": [
+            "heutige einspeisung",
+            "nach der heutigen einspeisung",
+            "wie viel strom wurde heute eingespeist",
+            "wie viel habe ich heute eingespeist",
+            "wie hoch ist die heutige einspeisung",
+            "einspeisung heute"
+          ]
         }
       ],
       "types": []

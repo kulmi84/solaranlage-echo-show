@@ -6,6 +6,13 @@ from beta_live_reader import read_pv
 
 REFRESH_INTERVAL_MS = 60_000
 DISPLAY_DURATION_MS = 60 * 60_000
+SPOKEN_METRICS = {
+    'ProductionIntent': ('power_w', 'Die Produktion inklusive Balkonkraftwerk', 'die Produktion', 'power'),
+    'BatteryIntent': ('battery_soc', 'Der Akkustand', 'den Akkustand', 'percent'),
+    'ConsumptionIntent': ('home_w', 'Der aktuelle Hausverbrauch', 'den Hausverbrauch', 'power'),
+    'TodayProductionIntent': ('today_pv_kwh', 'Die heutige Gesamtproduktion inklusive Balkonkraftwerk', 'die heutige Gesamtproduktion', 'energy'),
+    'TodayExportIntent': ('today_grid_export_kwh', 'Die heutige Einspeisung', 'die heutige Einspeisung', 'energy'),
+}
 
 
 def number(value, unit, digits=2):
@@ -26,12 +33,12 @@ def text(value, size, color='#F4F6FA', **extra):
 
 def spoken_reading(pv, intent):
     metrics = pv.get('metrics', {})
-    key = 'battery_soc' if intent == 'BatteryIntent' else 'power_w'
-    label = 'Der Akkustand' if key == 'battery_soc' else 'Die Produktion inklusive Balkonkraftwerk'
+    key, label, missing_label, kind = SPOKEN_METRICS[intent]
     value = metrics.get(key)
     if value is None:
-        return 'Für ' + ('den Akkustand' if key == 'battery_soc' else 'die Produktion') + ' liegen keine Daten vor.'
-    unit_value = (number(value, 'Prozent', 0) if key == 'battery_soc' else
+        return 'Für ' + missing_label + ' liegen keine Daten vor.'
+    unit_value = (number(value, 'Kilowattstunden') if kind == 'energy' else
+                  number(value, 'Prozent', 0) if kind == 'percent' else
                   number(value / 1000, 'Kilowatt') if value >= 1000 else number(value, 'Watt', 0))
     if pv.get('stale', True):
         return 'Achtung, die Daten sind veraltet. ' + label + ' lag zuletzt bei ' + unit_value + '.'
@@ -63,7 +70,7 @@ def lambda_handler(event, context):
     if intent in ('AMAZON.HelpIntent', 'AMAZON.FallbackIntent'):
         return {'version': '1.0', 'response': {
             'outputSpeech': {'type': 'PlainText', 'text':
-                'Frage meine Solaranlage nach der Produktion oder nach dem Akkustand.'},
+                'Frage meine Solaranlage nach der aktuellen Produktion, dem Akkustand, dem aktuellen Verbrauch, der heutigen Gesamtproduktion oder der heutigen Einspeisung.'},
             'shouldEndSession': True}}
     now_ms = int(time.time() * 1000)
     expires_at = now_ms + DISPLAY_DURATION_MS
@@ -90,7 +97,7 @@ def lambda_handler(event, context):
     m = pv.get('metrics', {})
     g = m.get
     interfaces = event.get('context', {}).get('System', {}).get('device', {}).get('supportedInterfaces', {})
-    speech = spoken_reading(pv, intent) if intent in ('ProductionIntent', 'BatteryIntent') else None
+    speech = spoken_reading(pv, intent) if intent in SPOKEN_METRICS else None
     if 'Alexa.Presentation.APL' not in interfaces:
         return {'version': '1.0', 'response': {
             'outputSpeech': {'type': 'PlainText', 'text': speech or 'Solaranlage. PV-Leistung: ' + pv['valueText'] + '. Hausverbrauch: ' + power(g('home_w')) + '. Akkustand: ' + number(g('battery_soc'), 'Prozent', 0) + '. ' + pv['statusText']},

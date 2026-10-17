@@ -13,11 +13,17 @@ Gewünschte Abfragen:
 
 - Aktuelle Produktion / PV-Gesamtleistung inklusive Balkonkraftwerk.
 - Akkustand der Solaranlage in Prozent.
+- Aktueller Hausverbrauch in Watt bzw. Kilowatt.
+- Heutige Gesamtproduktion inklusive BKW seit Mitternacht in Kilowattstunden.
+- Heutige Einspeisung seit Mitternacht in Kilowattstunden.
 
 Bedienung:
 
 - „Alexa, frage meine Solaranlage nach der aktuellen Produktion.“
 - „Alexa, frage meine Solaranlage nach dem Akkustand.“
+- „Alexa, frage meine Solaranlage nach dem aktuellen Verbrauch.“
+- „Alexa, frage meine Solaranlage nach der heutigen Gesamtproduktion.“
+- „Alexa, frage meine Solaranlage nach der heutigen Einspeisung.“
 
 Die Antwort soll kurz gesprochen werden und den jeweiligen aktuellen Wert
 mit Einheit nennen. Fehlende oder veraltete Daten müssen erkennbar bleiben.
@@ -27,7 +33,8 @@ Die Echo-Show-Ansicht bleibt beim normalen Öffnen eine stille Anzeige mit
 automatischer Aktualisierung. Gezielte Sprachabfragen sollen zusätzlich möglich
 sein und keine Spracheingabe nach jedem Anzeigeabruf auslösen.
 
-`ProductionIntent` und `BatteryIntent` beantworten gezielte Abfragen mit
+`ProductionIntent`, `BatteryIntent`, `ConsumptionIntent`,
+`TodayProductionIntent` und `TodayExportIntent` beantworten gezielte Abfragen mit
 gesprochenen Einheiten. Ohne Display endet die Sitzung nach der Antwort.
 Auf einem Echo Show werden bei einer gezielten Frage die Antwort gesprochen
 und die Anzeige geöffnet bzw. aktualisiert, ohne anschließend eine weitere
