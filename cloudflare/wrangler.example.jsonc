@@ -1,0 +1,13 @@
+{
+  "name": "homeassistant-pv-beta",
+  "main": "worker.mjs",
+  "compatibility_date": "2026-10-17",
+  "workers_dev": true,
+  "preview_urls": false,
+  "observability": { "enabled": false },
+  "d1_databases": [{
+    "binding": "DB",
+    "database_name": "homeassistant-pv-beta",
+    "database_id": "REPLACE_WITH_YOUR_D1_DATABASE_ID"
+  }]
+}

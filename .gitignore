@@ -1,0 +1,22 @@
+.dev.vars
+.env
+.env.*
+!.env.example
+**/node_modules/
+**/.wrangler/
+**/__pycache__/
+**/secrets.yaml
+**/*credentials*
+**/.secrets.json
+**/relay_config.json
+.private/
+dist/
+cloudflare/wrangler.jsonc
+# Local prototypes and screenshots are deliberately excluded from publication.
+/*.png
+/lambda_function.py
+/echo_launcher.py
+/beta_lambda_function.py
+/template.json
+/pv-display.json
+/home-assistant/pv_beta_package.yaml

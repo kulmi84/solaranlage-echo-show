@@ -1,0 +1,15 @@
+{
+  "interactionModel": {
+    "languageModel": {
+      "invocationName": "meine solaranlage",
+      "intents": [
+        { "name": "AMAZON.CancelIntent", "samples": [] },
+        { "name": "AMAZON.StopIntent", "samples": [] },
+        { "name": "AMAZON.HelpIntent", "samples": [] },
+        { "name": "AMAZON.FallbackIntent", "samples": [] },
+        { "name": "RefreshIntent", "slots": [], "samples": ["aktualisieren", "zeige die werte", "wie ist der stand"] }
+      ],
+      "types": []
+    }
+  }
+}

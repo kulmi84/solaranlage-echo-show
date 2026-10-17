@@ -1,0 +1,4 @@
+{
+  "url": "https://YOUR-WORKER.YOUR-SUBDOMAIN.workers.dev/pv",
+  "read_token": "REPLACE_WITH_SEPARATE_READ_TOKEN"
+}

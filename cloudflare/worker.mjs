@@ -1,0 +1,57 @@
+const reply = (data, status = 200) => Response.json(data, {
+  status, headers: { 'Cache-Control': 'no-store', 'X-Content-Type-Options': 'nosniff' }
+});
+
+async function authorized(request, secret) {
+  if (!secret || secret.length < 32) return false;
+  const supplied = request.headers.get('Authorization') || '';
+  const digest = async s => new Uint8Array(await crypto.subtle.digest('SHA-256', new TextEncoder().encode(s)));
+  const [a, b] = await Promise.all([digest(supplied), digest(`Bearer ${secret}`)]);
+  let different = 0;
+  for (let i = 0; i < a.length; i++) different |= a[i] ^ b[i];
+  return different === 0;
+}
+
+export default {
+  async fetch(request, env) {
+    const url = new URL(request.url);
+    if (url.pathname !== '/pv') return reply({ error: 'not_found' }, 404);
+    if (!['GET', 'POST'].includes(request.method)) return reply({ error: 'method_not_allowed' }, 405);
+    const secret = request.method === 'POST' ? env.WRITE_TOKEN : env.READ_TOKEN;
+    if (!await authorized(request, secret)) return reply({ error: 'unauthorized' }, 401);
+    try {
+      if (request.method === 'POST') {
+        if (!request.headers.get('Content-Type')?.startsWith('application/json')) return reply({ error: 'json_required' }, 415);
+        const body = await request.text();
+        if (new TextEncoder().encode(body).length > 4096) return reply({ error: 'too_large' }, 413);
+        let input;
+        try { input = JSON.parse(body); } catch { return reply({ error: 'invalid_json' }, 400); }
+        if (!input || typeof input.power_w !== 'number' || !Number.isFinite(input.power_w) || input.power_w < 0 || input.power_w > 10000000) {
+          return reply({ error: 'invalid_power_w' }, 400);
+        }
+        const now = new Date().toISOString();
+        const metrics = {};
+        for (const key of ['pv_dc_w', 'bkw_w', 'home_w', 'grid_import_w', 'grid_export_w', 'battery_soc', 'battery_charge_w', 'battery_discharge_w', 'today_pv_kwh', 'today_home_kwh', 'today_grid_import_kwh', 'today_grid_export_kwh', 'today_battery_charge_kwh', 'today_battery_discharge_kwh']) {
+          const value = input[key];
+          if (value === undefined || value === null) { metrics[key] = null; continue; }
+          if (typeof value !== 'number' || !Number.isFinite(value) || value < 0 || value > (key === 'battery_soc' ? 100 : 10000000)) return reply({ error: 'invalid_metric' }, 400);
+          metrics[key] = value;
+        }
+        if (input.energy_date !== undefined && (typeof input.energy_date !== 'string' || !/^\d{4}-\d{2}-\d{2}$/.test(input.energy_date))) return reply({ error: 'invalid_energy_date' }, 400);
+        metrics.energy_date = input.energy_date ?? null;
+        await env.DB.prepare('INSERT INTO pv (id, power_w, received_at, payload_json) VALUES (1, ?, ?, ?) ON CONFLICT(id) DO UPDATE SET power_w=excluded.power_w, received_at=excluded.received_at, payload_json=excluded.payload_json').bind(input.power_w, now, JSON.stringify(metrics)).run();
+        return reply({ ok: true, received_at: now });
+      }
+      const row = await env.DB.prepare('SELECT power_w, received_at, payload_json FROM pv WHERE id = 1').first();
+      if (!row) return reply({ error: 'no_data' }, 404);
+      const age = Math.max(0, Math.floor((Date.now() - Date.parse(row.received_at)) / 1000));
+      const parts = new Intl.DateTimeFormat('en-CA', { timeZone: 'Europe/Berlin', year: 'numeric', month: '2-digit', day: '2-digit' }).formatToParts(new Date());
+      const part = type => parts.find(p => p.type === type).value;
+      const local_date = `${part('year')}-${part('month')}-${part('day')}`;
+      const received_local = new Intl.DateTimeFormat('en-GB', { timeZone: 'Europe/Berlin', hour: '2-digit', minute: '2-digit', hour12: false }).format(new Date(row.received_at));
+      return reply({ ...JSON.parse(row.payload_json || '{}'), power_w: row.power_w, received_at: row.received_at, local_date, received_local, age_seconds: age, stale: age > 180 });
+    } catch {
+      return reply({ error: 'storage_unavailable' }, 503);
+    }
+  }
+};

@@ -1,0 +1,1 @@
+ALTER TABLE pv ADD COLUMN payload_json TEXT NOT NULL DEFAULT '{}';

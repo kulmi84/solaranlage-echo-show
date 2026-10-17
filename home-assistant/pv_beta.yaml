@@ -1,0 +1,85 @@
+# Existing package: /config/integrations/pv_beta.yaml
+# Solar live values and today's recorder statistics, including BKW.
+rest_command:
+  pv_beta_upload:
+    url: !secret pv_beta_url
+    method: POST
+    headers:
+      authorization: !secret pv_beta_write_authorization
+    content_type: application/json
+    verify_ssl: true
+    timeout: 10
+    payload: "{{ solar_data | to_json }}"
+
+automation:
+  - id: pv_beta_upload_every_minute
+    alias: PV Beta – Messwert übertragen
+    triggers:
+      - trigger: time_pattern
+        minutes: '/1'
+    conditions:
+      - condition: template
+        value_template: >-
+          {{ is_number(states('sensor.pv_gesamt'))
+             and states('sensor.pv_gesamt') | float(0) >= 0
+             and state_attr('sensor.pv_gesamt', 'unit_of_measurement') in ['W', 'kW'] }}
+    actions:
+      - variables:
+          solar_stats: {}
+      - action: recorder.get_statistics
+        continue_on_error: true
+        data:
+          statistic_ids:
+            - sensor.total_pv_generation
+            - sensor.bkw_energie
+            - sensor.bitshake_verbrauch
+            - sensor.bitshake_einspeisung
+            - sensor.total_battery_charge
+            - sensor.total_battery_discharge
+          start_time: "{{ today_at('00:00').isoformat() }}"
+          end_time: "{{ now().isoformat() }}"
+          period: day
+          types:
+            - change
+          units:
+            energy: kWh
+        response_variable: solar_stats
+      - action: rest_command.pv_beta_upload
+        data:
+          solar_data: >-
+            {% macro power(entity) -%}
+              {% set raw = states(entity) %}
+              {% set unit = state_attr(entity, 'unit_of_measurement') %}
+              {{ ((raw | float) * (1000 if unit == 'kW' else 1)) if is_number(raw) and unit in ['W', 'kW'] and raw | float >= 0 else 'null' }}
+            {%- endmacro %}
+            {% set stats = solar_stats.get('statistics', {}) %}
+            {% macro energy(entity) -%}
+              {% set rows = stats.get(entity, []) %}
+              {{ (rows | map(attribute='change') | select('number') | sum) if rows | length > 0 and rows | map(attribute='change') | select('number') | list | length == rows | length else 'null' }}
+            {%- endmacro %}
+            {% set pv = energy('sensor.total_pv_generation') | from_json %}
+            {% set bkw = energy('sensor.bkw_energie') | from_json %}
+            {% set imp = energy('sensor.bitshake_verbrauch') | from_json %}
+            {% set exp = energy('sensor.bitshake_einspeisung') | from_json %}
+            {% set charge = energy('sensor.total_battery_charge') | from_json %}
+            {% set discharge = energy('sensor.total_battery_discharge') | from_json %}
+            {% set complete = pv is number and bkw is number and imp is number and exp is number and charge is number and discharge is number %}
+            {{ {
+              'power_w': power('sensor.pv_gesamt') | from_json,
+              'pv_dc_w': power('sensor.total_dc_power') | from_json,
+              'bkw_w': power('sensor.bkw_leistung') | from_json,
+              'home_w': power('sensor.stromverbrauch_haus') | from_json,
+              'grid_import_w': power('sensor.import_power') | from_json,
+              'grid_export_w': power('sensor.export_power') | from_json,
+              'battery_soc': states('sensor.battery_level') | float(none),
+              'battery_charge_w': power('sensor.battery_charging_power') | from_json,
+              'battery_discharge_w': power('sensor.battery_discharging_power') | from_json,
+              'today_pv_kwh': pv + bkw if pv is number and bkw is number else none,
+              'today_grid_import_kwh': imp,
+              'today_grid_export_kwh': exp,
+              'today_battery_charge_kwh': charge,
+              'today_battery_discharge_kwh': discharge,
+              'today_home_kwh': ([0, pv + bkw + imp + discharge - exp - charge] | max) if complete else none,
+              'energy_date': now().date().isoformat()
+            } }}
+    mode: single
