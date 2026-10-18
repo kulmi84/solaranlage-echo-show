@@ -1,5 +1,20 @@
 # Solaranlage auf dem Echo Show
 
+## Einfach einrichten
+
+**Unter Windows: `Einrichtung-starten.bat` doppelklicken.**
+
+Der lokale Assistent lädt HA-Sensoren zur Auswahl, erstellt auf Knopfdruck
+ein neues Cloudflare-Relay und erzeugt alle Dateien für HA und Alexa.
+Datenbank-IDs, Relay-Adresse und Schlüssel werden automatisch übernommen.
+Voraussetzungen: Python mit Tcl/Tk, Node.js/npm und die beiden Anbieter-Konten.
+
+➡️ **[Kurze Anleitung zum Einrichtungsfenster](docs/EINFACH-EINRICHTEN.md)**
+
+HA-Packages und der eigene Alexa-Entwickler-Skill müssen anschließend noch
+einmalig übernommen bzw. angelegt werden. Bestehende Anlagen werden durch
+das Starten des Assistenten nicht verändert.
+
 Ein privater Alexa-Skill zeigt die Solaranlage als native APL-Ansicht auf dem
 Echo Show – ohne Silk-Browserleiste. Home Assistant überträgt ausschließlich
 die ausgewählten Messwerte per HTTPS an einen geschützten Cloudflare Worker.

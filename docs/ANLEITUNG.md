@@ -5,6 +5,12 @@ Installation, Bedienung, Datenquellen und Fehlerbehebung. Die Aufnahmen zeigen
 die tatsächlich eingerichtete Anwendung. Messwerte sind Momentaufnahmen und
 keine fest eingestellten Beispielwerte.
 
+## Neu installieren
+
+Beginne mit dem [Einrichtungsfenster](EINFACH-EINRICHTEN.md). Es übernimmt
+Sensorauswahl, neues Relay und Dateierzeugung. Die folgenden manuellen
+Abschnitte dienen als Referenz und zur Wartung bestehender Installationen.
+
 ## 🗣️ Sprachbefehle auf einen Blick
 
 **Anzeige auf dem Echo Show öffnen:**
