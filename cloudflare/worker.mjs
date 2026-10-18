@@ -15,7 +15,8 @@ async function authorized(request, secret) {
 export default {
   async fetch(request, env) {
     const url = new URL(request.url);
-    if (url.pathname !== '/pv') return reply({ error: 'not_found' }, 404);
+    if (!['/pv', '/pv/history'].includes(url.pathname)) return reply({ error: 'not_found' }, 404);
+    if (url.pathname === '/pv/history' && request.method !== 'POST') return reply({ error: 'method_not_allowed' }, 405);
     if (!['GET', 'POST'].includes(request.method)) return reply({ error: 'method_not_allowed' }, 405);
     const secret = request.method === 'POST' ? env.WRITE_TOKEN : env.READ_TOKEN;
     if (!await authorized(request, secret)) return reply({ error: 'unauthorized' }, 401);
@@ -26,6 +27,20 @@ export default {
         if (new TextEncoder().encode(body).length > 4096) return reply({ error: 'too_large' }, 413);
         let input;
         try { input = JSON.parse(body); } catch { return reply({ error: 'invalid_json' }, 400); }
+        if (url.pathname === '/pv/history' || input?.kind === 'history') {
+          if (!input || typeof input !== 'object' || typeof input.month_id !== 'string' || typeof input.year_id !== 'string' || !/^\d{4}-(0[1-9]|1[0-2])$/.test(input.month_id || '') || !/^\d{4}$/.test(input.year_id || '') || !input.month_id.startsWith(input.year_id + '-')) return reply({ error: 'invalid_period' }, 400);
+          const history = { month_id: input.month_id, year_id: input.year_id };
+          for (const prefix of ['month', 'year']) {
+            for (const name of ['pv', 'home', 'grid_import', 'grid_export', 'battery_charge', 'battery_discharge']) {
+              const key = `${prefix}_${name}_kwh`, value = input[key];
+              if (value === undefined || value === null) { history[key] = null; continue; }
+              if (typeof value !== 'number' || !Number.isFinite(value) || value < 0 || value > 10000000) return reply({ error: 'invalid_history_metric' }, 400);
+              history[key] = value;
+            }
+          }
+          await env.DB.prepare('INSERT INTO solar_history (id, received_at, history_json) VALUES (1, ?, ?) ON CONFLICT(id) DO UPDATE SET received_at=excluded.received_at, history_json=excluded.history_json').bind(new Date().toISOString(), JSON.stringify(history)).run();
+          return reply({ ok: true });
+        }
         if (!input || typeof input.power_w !== 'number' || !Number.isFinite(input.power_w) || input.power_w < 0 || input.power_w > 10000000) {
           return reply({ error: 'invalid_power_w' }, 400);
         }
@@ -49,7 +64,12 @@ export default {
       const part = type => parts.find(p => p.type === type).value;
       const local_date = `${part('year')}-${part('month')}-${part('day')}`;
       const received_local = new Intl.DateTimeFormat('en-GB', { timeZone: 'Europe/Berlin', hour: '2-digit', minute: '2-digit', hour12: false }).format(new Date(row.received_at));
-      return reply({ ...JSON.parse(row.payload_json || '{}'), power_w: row.power_w, received_at: row.received_at, local_date, received_local, age_seconds: age, stale: age > 180 });
+      let history = null;
+      try {
+        const saved = await env.DB.prepare('SELECT received_at, history_json FROM solar_history WHERE id = 1').first();
+        if (saved?.history_json) history = { ...JSON.parse(saved.history_json), received_at: saved.received_at };
+      } catch { /* Old installations without the additive table keep working. */ }
+      return reply({ ...JSON.parse(row.payload_json || '{}'), power_w: row.power_w, received_at: row.received_at, local_date, received_local, age_seconds: age, stale: age > 180, history });
     } catch {
       return reply({ error: 'storage_unavailable' }, 503);
     }

@@ -1,6 +1,6 @@
 # Ideen und geplante Erweiterungen
 
-## Idee 1: Solarwerte auf weiteren Alexa-Geräten per Sprache abfragen
+## ~~Idee 1: Solarwerte auf weiteren Alexa-Geräten per Sprache abfragen~~
 
 **Status:** umgesetzt am 17. Oktober 2026.
 
@@ -43,3 +43,15 @@ Spracheingabe anzufordern. Normales Öffnen und automatische Abrufe bleiben stil
 Fehlende Werte werden als nicht verfügbar angesagt. Bei veralteten Daten
 wird vor dem letzten bekannten Wert ausdrücklich gewarnt. Backend- und
 Interaktionsmodell-Tests decken beide Abfragen sowie diese Fehlerfälle ab.
+
+## Idee 2: Einstellungen in der Alexa-App
+
+Geprüft: Die nativen Skill-Einstellungen der Alexa-App lassen sich für einen
+Custom Skill nicht um eigene Felder wie Anzeigedauer ergänzen. Keine Umsetzung.
+
+## Idee 3: Zweiter Bildschirm mit Monats- und Jahreswerten
+
+Umgesetzt: Rechts wischen öffnet Monat/Jahr, links wischen führt zurück.
+Die Seite zeigt Energiewerte für PV/BKW, Haus, Netz und Akku. Neue Ermittlung
+alle sechs Stunden; Live-/Tageswerte bleiben auf der ersten Seite im Minutentakt.
+Datenquellen, Zeiträume und Rückkehr stehen in [MONAT-JAHR.md](MONAT-JAHR.md).

@@ -65,6 +65,21 @@ HA-Energiekarte. Sie stammen aus der Recorder-Statistik. Dadurch können sie
 gegenüber aktuellen Sensorwerten verzögert sein. Es handelt sich nicht um
 Monats-, Jahres- oder Lebensdauerzähler.
 
+## Monats- und Jahreswerte
+
+Die zweite Seite öffnet sich durch **Wischen nach rechts** oder **Monat/Jahr →**.
+Sie zeigt Erzeugung inklusive BKW, Hausverbrauch, Netzbezug/-einspeisung und
+Akku-Lade-/Entladeenergie für den angezeigten Monat und das angezeigte Jahr.
+
+Die Ermittlung erfolgt alle sechs Stunden unabhängig vom Minuten-Upload.
+Der Zeitstempel der zweiten Seite gehört zum langsamen Datensatz; ihre Werte
+müssen daher nicht mit den aktuellen Tageswerten übereinstimmen. Während die
+zweite Seite sichtbar ist, fordert die Anzeige keine Minutenabrufe an.
+Die vorhandene, vom Gerät begrenzbare Anzeigedauer von 60 Minuten bleibt.
+Bei einem späteren erneuten Öffnen wird der aktuelle gespeicherte Stand geladen.
+
+[Installation, Datenquellen und Rückkehr zum alten Stand](MONAT-JAHR.md).
+
 ## 2. Bedienung
 
 1. Auf dem Echo **„Alexa, öffne meine Solaranlage“** sagen.

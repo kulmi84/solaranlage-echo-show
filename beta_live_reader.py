@@ -37,8 +37,39 @@ def read_pv(url, read_token):
     if energy_date != today:
         for key in metrics:
             if key.startswith('today_'): metrics[key] = None
+    history = {}
+    history_status = 'Noch keine Monats- und Jahreswerte'
+    raw_history = data.get('history')
+    if isinstance(raw_history, dict):
+        try:
+            if not isinstance(raw_history.get('received_at'), str):
+                raise ValueError('Invalid history timestamp')
+            h_received = datetime.fromisoformat(raw_history['received_at'].replace('Z', '+00:00'))
+            h_age = (datetime.now(timezone.utc) - h_received).total_seconds()
+            if h_age < -60:
+                raise ValueError('Invalid history timestamp')
+            for prefix, period in [('month', (today or '')[:7]), ('year', (today or '')[:4])]:
+                valid_period = bool(period) and raw_history.get(prefix + '_id') == period
+                for name in ['pv', 'home', 'grid_import', 'grid_export', 'battery_charge', 'battery_discharge']:
+                    key = prefix + '_' + name + '_kwh'
+                    value = raw_history.get(key)
+                    if value is not None and (isinstance(value, bool) or not isinstance(value, (int, float)) or not math.isfinite(value) or value < 0 or value > 10000000):
+                        raise ValueError('Invalid history value')
+                    history[key] = value if valid_period else None
+            history_status = 'Stand ' + raw_history['received_at'][:16].replace('T', ' ') + ' UTC · alle 6 Stunden'
+            if h_age > 6 * 3600 + 600:
+                history_status = 'VERALTET · Monats-/Jahreswerte seit über 6 Stunden ohne Upload'
+            if raw_history.get('month_id') != (today or '')[:7]:
+                history_status = 'Neuer Monat · aktuelle Monatswerte stehen noch aus'
+        except (ValueError, KeyError, TypeError):
+            history = {}
+            history_status = 'Monats- und Jahreswerte nicht verfügbar'
     return {
         'metrics': metrics,
+        'history': history,
+        'historyStatus': history_status,
+        'monthLabel': (today or '')[:7],
+        'yearLabel': (today or '')[:4],
         'energyDate': energy_date,
         'receivedText': data.get('received_local', '—'),
         'valueText': f'{power / 1000:.2f}'.replace('.', ',') + ' kW',

@@ -68,6 +68,26 @@ Tageswerte stammen aus der HA-Recorder-Statistik und können gegenüber den
 Livewerten verzögert sein. Fehlende optionale Werte erscheinen als „—“.
 Beim Abruf mehr als drei Minuten alter Daten erscheint eine Warnung.
 
+## Zweite Seite: Monat und Jahr
+
+**Auf der Live-Seite nach rechts wischen**, um Monats- und Jahreswerte zu sehen.
+Alternativ **Monat/Jahr →** antippen. Nach links wischen oder **Live/Heute →**
+bringt dich zurück. Beide Seiten zeigen PV inklusive BKW, Haus, Netz und Akku.
+
+Die erste Seite aktualisiert sich weiterhin jede Minute. Monats-/Jahresmengen
+werden von HA **alle sechs Stunden** (00, 06, 12 und 18 Uhr HA-Ortszeit) sowie
+beim HA-Start neu ermittelt und getrennt gespeichert. Die zweite Seite löst
+keine Minutenabrufe aus; beim erneuten Öffnen wird der letzte gespeicherte Stand
+angezeigt. Monatswerte zählen ab Monatsbeginn, Jahreswerte ab dem 1. Januar.
+Alle Mengen sind kWh. Der Stand-Zeitpunkt ist auf der zweiten Seite sichtbar.
+
+Für das Upgrade zuerst `cloudflare/history-schema.sql` auf die bestehende D1
+anwenden, dann Worker und Alexa-Code aktualisieren. Das zusätzliche HA-Package
+`home-assistant/pv_history.yaml` neben dem bisherigen Package installieren;
+vorhandene Secrets werden wiederverwendet. REST-Befehle und Automationen neu
+laden und die neue Automation einmal manuell ausführen. Details und Rückkehr:
+[Monats-/Jahreswerte einrichten](docs/MONAT-JAHR.md).
+
 ## Aufbau
 
 ```mermaid

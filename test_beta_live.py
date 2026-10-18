@@ -94,16 +94,16 @@ class AutomaticDisplayTests(unittest.TestCase):
         first, _ = self.render(1000, self.event())
         document = self.document(first)
         self.assertEqual(document['settings']['idleTimeout'], 3_600_000)
-        tick = document['handleTick'][0]
+        tick = document['mainTemplate']['items'][0]['handleTick'][0]
         self.assertEqual(tick['minimumDelay'], 60_000)
         self.assertIn('foreground', tick['when'])
         command = tick['commands'][0]
         self.assertTrue(command['sequencer'])  # SendEvent must leave fast mode.
-        response, reader = self.render(1060, self.event(command['arguments']), power=3100)
+        response, reader = self.render(1060, self.event(command['arguments'][:2] + [0]), power=3100)
         reader.assert_called_once()
         updated = self.document(response)
         self.assertEqual(updated['settings']['idleTimeout'], 3_540_000)
-        self.assertEqual(updated['handleTick'][0]['commands'][0]['arguments'], command['arguments'])
+        self.assertEqual(updated['mainTemplate']['items'][0]['handleTick'][0]['commands'][0]['arguments'], command['arguments'])
         self.assertIn('3,10 kW', json.dumps(updated))
 
     def test_touch_starts_new_hour(self):

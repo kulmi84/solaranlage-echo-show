@@ -6,6 +6,7 @@ from beta_live_reader import read_pv
 
 REFRESH_INTERVAL_MS = 60_000
 DISPLAY_DURATION_MS = 60 * 60_000
+HISTORY_INTERVAL_MS = 6 * 60 * 60_000
 SPOKEN_METRICS = {
     'ProductionIntent': ('power_w', 'Die aktuelle Leistung inklusive Balkonkraftwerk', 'die aktuelle Leistung', 'power'),
     'BatteryIntent': ('battery_soc', 'Der Akkustand', 'den Akkustand', 'percent'),
@@ -77,14 +78,17 @@ def lambda_handler(event, context):
             'shouldEndSession': True}}
     now_ms = int(time.time() * 1000)
     expires_at = now_ms + DISPLAY_DURATION_MS
+    page = 0
     if request.get('type') == 'Alexa.Presentation.APL.UserEvent':
         arguments = request.get('arguments', [])
         if arguments == ['refresh']:
             pass  # A deliberate touch starts a fresh display period.
-        elif (isinstance(arguments, list) and len(arguments) == 2 and arguments[0] == 'auto_refresh'
+        elif (isinstance(arguments, list) and len(arguments) in (2, 3) and arguments[0] == 'auto_refresh'
               and type(arguments[1]) is int
-              and arguments[1] <= now_ms + DISPLAY_DURATION_MS):
+              and arguments[1] <= now_ms + DISPLAY_DURATION_MS
+              and (len(arguments) == 2 or (type(arguments[2]) is int and arguments[2] in (0, 1)))):
             expires_at = arguments[1]
+            page = arguments[2] if len(arguments) == 3 else 0
             if expires_at <= now_ms:
                 return {'version': '1.0', 'response': {
                     'directives': [{'type': 'Alexa.Presentation.APL.ExecuteCommands',
@@ -145,6 +149,58 @@ def lambda_handler(event, context):
             ]
         }]}
     }
+    # Wrap navigation allows a right swipe from the first page to the second.
+    history = pv.get('history', {})
+    def history_cards(prefix):
+        def n(key):
+            value = history.get(prefix + '_' + key + '_kwh')
+            return '—' if value is None else f'{value:,.2f}'.replace(',', '_').replace('.', ',').replace('_', '.')
+        cards = [card('PV + BKW', n('pv'), 'kWh · Erzeugung', gold),
+                 card('Haus', n('home'), 'kWh · Verbrauch', blue),
+                 card('Netz', n('grid_export'), 'kWh · Einspeisung', purple, 'Bezug ' + n('grid_import') + ' kWh'),
+                 card('Akku', n('battery_charge'), 'kWh · Geladen', teal, '↓ ' + n('battery_discharge') + ' kWh')]
+        for item in cards:
+            item['item']['items'][1]['fontSize'] = '5vh'
+        return cards
+    live_page = document['mainTemplate']['items'][0]
+    live_page['id'] = 'livePage'
+    live_page['items'][0]['items'].append({
+        'type': 'TouchWrapper', 'onPress': [{'type': 'SetPage', 'componentId': 'solarPager',
+                                           'position': 'absolute', 'value': 1}],
+        'item': text('Monat/Jahr →', '3vh', blue, padding='1vh')})
+    live_page['items'].append(text('1/2 · Nach rechts wischen: Monat/Jahr', '2.3vh', '#8FA8BC', spacing='1vh'))
+    history_page = {
+        'type': 'Container', 'id': 'historyPage', 'width': '100vw', 'height': '100vh',
+        'backgroundColor': '#0C151F', 'paddingLeft': '3vw', 'paddingRight': '3vw', 'paddingTop': '2vh',
+        'items': [
+            {'type': 'Container', 'direction': 'row', 'height': '10vh', 'alignItems': 'center',
+             'justifyContent': 'spaceBetween', 'items': [
+                text('Monat & Jahr', '5.5vh', fontWeight='700'),
+                {'type': 'TouchWrapper', 'onPress': [{'type': 'SetPage', 'componentId': 'solarPager',
+                 'position': 'absolute', 'value': 0}], 'item': text('Live/Heute →', '3vh', blue, padding='1vh')}]},
+            text('MONAT · ' + pv.get('monthLabel', '—'), '3vh', '#8FA8BC', spacing='1vh'),
+            {'type': 'Container', 'direction': 'row', 'height': '30vh', 'justifyContent': 'spaceBetween',
+             'spacing': '1vh', 'items': history_cards('month')},
+            text('JAHR · ' + pv.get('yearLabel', '—'), '3vh', '#8FA8BC', spacing='2vh'),
+            {'type': 'Container', 'direction': 'row', 'height': '30vh', 'justifyContent': 'spaceBetween',
+             'spacing': '1vh', 'items': history_cards('year')},
+            text(pv.get('historyStatus', 'Noch keine Monats- und Jahreswerte'), '2.5vh', '#8FA8BC', spacing='2vh'),
+            text('2/2 · Nach links wischen: Live/Heute', '2.3vh', '#8FA8BC', spacing='1vh'),
+        ]}
+    document['mainTemplate']['items'] = [{
+        'type': 'Container', 'id': 'solarRoot', 'width': '100vw', 'height': '100vh',
+        'bind': [{'name': 'currentPage', 'value': page}],
+        'items': [{'type': 'Pager', 'id': 'solarPager', 'width': '100vw', 'height': '100vh',
+                   'navigation': 'wrap', 'pageDirection': 'horizontal', 'initialPage': page,
+                   'onPageChanged': [{'type': 'SetValue', 'componentId': 'solarRoot',
+                                      'property': 'currentPage', 'value': '${event.source.page}'}],
+                   'items': [live_page, history_page]}]}]
+    tick = document['handleTick'][0]
+    tick['when'] = ('${displayState == "foreground" && utcTime < ' + str(expires_at) +
+                    ' && ((currentPage == 0 && utcTime >= ' + str(now_ms + REFRESH_INTERVAL_MS) +
+                    ') || (currentPage == 1 && utcTime >= ' + str(now_ms + HISTORY_INTERVAL_MS) + '))}')
+    tick['commands'][0]['arguments'] = ['auto_refresh', expires_at, '${currentPage}']
+    document['mainTemplate']['items'][0]['handleTick'] = document.pop('handleTick')
     # Omit shouldEndSession: show APL without opening the microphone for a reply.
     # True would close the skill; False would request speech after every refresh.
     response = {'directives': [{'type': 'Alexa.Presentation.APL.RenderDocument', 'token': 'solaranlage', 'document': document}]}

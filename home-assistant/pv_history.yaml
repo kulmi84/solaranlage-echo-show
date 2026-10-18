@@ -1,0 +1,90 @@
+# Add alongside pv_beta.yaml. Reuses existing secrets; no second live uploader.
+rest_command:
+  pv_history_upload:
+    url: !secret pv_beta_url
+    method: POST
+    headers:
+      authorization: !secret pv_beta_write_authorization
+    content_type: application/json
+    verify_ssl: true
+    timeout: 10
+    payload: "{{ solar_data | to_json }}"
+
+automation:
+  - id: pv_history_upload_every_six_hours
+    alias: Solaranlage - Monats- und Jahreswerte alle 6 Stunden
+    triggers:
+      - trigger: time_pattern
+        hours: '/6'
+        minutes: '0'
+        seconds: '0'
+      - trigger: homeassistant
+        event: start
+    actions:
+      - variables:
+          history_now: "{{ now().isoformat() }}"
+          month_stats: {}
+          year_stats: {}
+      - action: recorder.get_statistics
+        continue_on_error: true
+        data:
+          statistic_ids:
+            - sensor.total_pv_generation
+            - sensor.bkw_energie
+            - sensor.bitshake_verbrauch
+            - sensor.bitshake_einspeisung
+            - sensor.total_battery_charge
+            - sensor.total_battery_discharge
+          start_time: "{{ as_datetime(history_now).replace(day=1, hour=0, minute=0, second=0, microsecond=0).isoformat() }}"
+          end_time: "{{ history_now }}"
+          period: month
+          types:
+            - change
+          units:
+            energy: kWh
+        response_variable: month_stats
+      - action: recorder.get_statistics
+        continue_on_error: true
+        data:
+          statistic_ids:
+            - sensor.total_pv_generation
+            - sensor.bkw_energie
+            - sensor.bitshake_verbrauch
+            - sensor.bitshake_einspeisung
+            - sensor.total_battery_charge
+            - sensor.total_battery_discharge
+          start_time: "{{ as_datetime(history_now).replace(month=1, day=1, hour=0, minute=0, second=0, microsecond=0).isoformat() }}"
+          end_time: "{{ history_now }}"
+          period: year
+          types:
+            - change
+          units:
+            energy: kWh
+        response_variable: year_stats
+      - action: rest_command.pv_history_upload
+        data:
+          solar_data: >-
+            {% macro energy(stats, entity) -%}
+              {% set rows = stats.get('statistics', {}).get(entity, []) %}
+              {{ (rows | map(attribute='change') | select('number') | sum) if rows | length > 0 and rows | map(attribute='change') | select('number') | list | length == rows | length else 'null' }}
+            {%- endmacro %}
+            {% set ns = namespace(data={'kind': 'history', 'month_id': as_datetime(history_now).strftime('%Y-%m'), 'year_id': as_datetime(history_now).strftime('%Y')}) %}
+            {% for prefix, stats in [('month', month_stats), ('year', year_stats)] %}
+              {% set pv = energy(stats, 'sensor.total_pv_generation') | from_json %}
+              {% set bkw = energy(stats, 'sensor.bkw_energie') | from_json %}
+              {% set imp = energy(stats, 'sensor.bitshake_verbrauch') | from_json %}
+              {% set exp = energy(stats, 'sensor.bitshake_einspeisung') | from_json %}
+              {% set charge = energy(stats, 'sensor.total_battery_charge') | from_json %}
+              {% set discharge = energy(stats, 'sensor.total_battery_discharge') | from_json %}
+              {% set complete = pv is number and bkw is number and imp is number and exp is number and charge is number and discharge is number %}
+              {% set ns.data = dict(ns.data, **{
+                prefix + '_pv_kwh': pv + bkw if pv is number and bkw is number else none,
+                prefix + '_home_kwh': ([0, pv + bkw + imp + discharge - exp - charge] | max) if complete else none,
+                prefix + '_grid_import_kwh': imp,
+                prefix + '_grid_export_kwh': exp,
+                prefix + '_battery_charge_kwh': charge,
+                prefix + '_battery_discharge_kwh': discharge
+              }) %}
+            {% endfor %}
+            {{ ns.data }}
+    mode: single
