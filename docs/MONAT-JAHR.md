@@ -5,6 +5,13 @@ Ein horizontaler Pager mit zwei umlaufenden Seiten erlaubt den Wechsel auch
 in der anderen Richtung. Zusätzlich gibt es **Monat/Jahr →** und
 **Live/Heute →** als große Touch-Ziele.
 
+## Ansicht
+
+![Jahresreihe der zweiten Seite mit Stand-Zeit und Wischhinweis](screenshots/05-jahreswerte.png)
+
+Die Monatsreihe befindet sich darüber und verwendet dieselben vier Karten.
+Die Zahlen zeigen den tatsächlichen Stand der Aufnahme, keine festen Antworten.
+
 ## Zeiträume und Werte
 
 Die Reihen **MONAT · JJJJ-MM** und **JAHR · JJJJ** verwenden HA-Ortszeit:

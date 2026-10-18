@@ -28,7 +28,7 @@ Die Anzeige bleibt beim normalen Öffnen still; gezielte Fragen beantwortet Alex
 
 ## 1. Was auf dem Echo zu sehen ist
 
-Die native Alexa-Ansicht benötigt keinen Silk-Browser. Sie besteht aus zwei
+Die native Alexa-Ansicht benötigt keinen Silk-Browser. Ihre erste Seite besteht aus zwei
 Reihen mit jeweils vier Karten. Die folgenden Bilder zeigen Ausschnitte der
 oberen und unteren Hälfte **derselben Ansicht**.
 
@@ -66,6 +66,10 @@ gegenüber aktuellen Sensorwerten verzögert sein. Es handelt sich nicht um
 Monats-, Jahres- oder Lebensdauerzähler.
 
 ## Monats- und Jahreswerte
+
+![Jahreswerte auf der zweiten Seite](screenshots/05-jahreswerte.png)
+
+Der Ausschnitt zeigt die Jahresreihe; die Monatsreihe steht direkt darüber.
 
 Die zweite Seite öffnet sich durch **Wischen nach rechts** oder **Monat/Jahr →**.
 Sie zeigt Erzeugung inklusive BKW, Hausverbrauch, Netzbezug/-einspeisung und
@@ -355,10 +359,10 @@ oder Alexa bereitgestellt. Die produktive Konfiguration bleibt lokal.
 Vor einem Update können die lokalen Tests ausgeführt werden:
 
 ```sh
-python -m unittest test_beta_live.py
+python -m unittest test_beta_live.py test_history.py
 node --test cloudflare/worker.test.mjs
 python build_skill.py
 ```
 
-Die Screenshots wurden am **17. Oktober 2026** aufgenommen. Bezeichnungen und
+Die Screenshots wurden am **17. und 18. Oktober 2026** aufgenommen. Bezeichnungen und
 Menüs können je nach Sprache und Produktversion abweichen.

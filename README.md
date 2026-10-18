@@ -70,6 +70,11 @@ Beim Abruf mehr als drei Minuten alter Daten erscheint eine Warnung.
 
 ## Zweite Seite: Monat und Jahr
 
+![Jahreswerte: Erzeugung inklusive BKW, Hausverbrauch, Netz und Akku](docs/screenshots/05-jahreswerte.png)
+
+Der Ausschnitt zeigt die Jahresreihe der zweiten Seite; die Monatsreihe steht
+direkt darüber. Die Messwerte sind eine Momentaufnahme vom 18. Oktober 2026.
+
 **Auf der Live-Seite nach rechts wischen**, um Monats- und Jahreswerte zu sehen.
 Alternativ **Monat/Jahr →** antippen. Nach links wischen oder **Live/Heute →**
 bringt dich zurück. Beide Seiten zeigen PV inklusive BKW, Haus, Netz und Akku.
