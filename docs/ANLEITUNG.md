@@ -87,6 +87,15 @@ Abruf laufen unabhängig; einzelne Sensoränderungen können daher erst nach
 bis zu etwa zwei Intervallen auf dem Echo erscheinen. Netzwerk- und
 Recorder-Verzögerungen kommen gegebenenfalls hinzu.
 
+### Normale Alexa-Befehle bei geöffneter Anzeige
+
+Alexa kann normale Befehle noch an die aktive Skill-Sitzung weitergeben.
+Unbekannte Befehle beenden diese Sitzung jetzt still, statt die Liste der
+Solarbefehle vorzulesen. **Den gewünschten normalen Alexa-Befehl danach erneut
+sagen.** Der Skill kann den abgefangenen Befehl nicht an Alexa zurückreichen.
+Die Anzeige kann beim Beenden verschwinden. Eine ausdrücklich angeforderte
+Hilfe nennt weiterhin die verfügbaren Solarabfragen.
+
 ### Länger geöffnet lassen
 
 Der Skill fordert **60 Minuten Anzeigedauer** an. Automatische Abrufe behalten

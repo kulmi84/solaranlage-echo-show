@@ -67,7 +67,10 @@ def lambda_handler(event, context):
         return {'version': '1.0', 'response': {}}
     if intent in ('AMAZON.StopIntent', 'AMAZON.CancelIntent'):
         return {'version': '1.0', 'response': {'shouldEndSession': True}}
-    if intent in ('AMAZON.HelpIntent', 'AMAZON.FallbackIntent'):
+    if intent == 'AMAZON.FallbackIntent':
+        # Do not recite help for a general Alexa request caught by this session.
+        return {'version': '1.0', 'response': {'shouldEndSession': True}}
+    if intent == 'AMAZON.HelpIntent':
         return {'version': '1.0', 'response': {
             'outputSpeech': {'type': 'PlainText', 'text':
                 'Frage meine Solaranlage nach der aktuellen Produktion, dem Akkustand, dem aktuellen Verbrauch, der heutigen Gesamtproduktion oder der heutigen Einspeisung.'},

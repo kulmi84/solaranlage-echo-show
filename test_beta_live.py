@@ -204,4 +204,21 @@ class SpokenReadingTests(unittest.TestCase):
             self.assertIn('0,00 Kilowattstunden', self.invoke(intent, zero)['outputSpeech']['text'])
 
 
+class FallbackTests(unittest.TestCase):
+    def test_unknown_request_exits_silently_without_fetching(self):
+        with patch('beta_live_lambda.read_pv') as reader:
+            result = beta_live_lambda.lambda_handler({'request': {
+                'type': 'IntentRequest', 'intent': {'name': 'AMAZON.FallbackIntent'}}}, None)
+        reader.assert_not_called()
+        self.assertEqual(result['response'], {'shouldEndSession': True})
+
+    def test_explicit_help_still_explains_commands(self):
+        with patch('beta_live_lambda.read_pv') as reader:
+            result = beta_live_lambda.lambda_handler({'request': {
+                'type': 'IntentRequest', 'intent': {'name': 'AMAZON.HelpIntent'}}}, None)
+        reader.assert_not_called()
+        self.assertIn('Produktion', result['response']['outputSpeech']['text'])
+        self.assertTrue(result['response']['shouldEndSession'])
+
+
 if __name__ == '__main__': unittest.main()
