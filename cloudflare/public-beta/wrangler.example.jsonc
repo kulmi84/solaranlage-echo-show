@@ -1,0 +1,12 @@
+{
+  "name": "solaranlage-public-beta",
+  "main": "worker.mjs",
+  "compatibility_date": "2026-10-17",
+  "workers_dev": true,
+  "preview_urls": false,
+  "observability": { "enabled": false },
+  "vars": { "MAX_HOUSEHOLDS": "20", "OAUTH_CLIENT_ID": "solaranlage-public-beta", "OAUTH_REDIRECT_URIS": "[]" },
+  "d1_databases": [{ "binding": "DB", "database_name": "solaranlage-public-beta", "database_id": "REPLACE_WITH_NEW_D1_ID" }],
+  "ratelimits": [{ "name": "LIMITER", "namespace_id": "10077", "simple": { "limit": 120, "period": 60 } }],
+  "triggers": { "crons": ["17 3 * * *"] }
+}

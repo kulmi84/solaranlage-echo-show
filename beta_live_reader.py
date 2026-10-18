@@ -2,7 +2,16 @@
 import json
 import math
 from datetime import datetime, timezone
-from urllib.request import Request, urlopen
+from urllib.request import Request, build_opener, HTTPRedirectHandler
+
+
+class NoRelayRedirect(HTTPRedirectHandler):
+    def redirect_request(self, *args, **kwargs):
+        return None
+
+
+def urlopen(request, timeout):
+    return build_opener(NoRelayRedirect).open(request, timeout=timeout)
 
 
 def read_pv(url, read_token):

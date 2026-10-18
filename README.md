@@ -1,5 +1,19 @@
 # Solaranlage auf dem Echo Show
 
+## HACS und gemeinsamer Alexa-Skill: Beta-Entwicklung
+
+Die neue HA-Integration ersetzt YAML-Dateien, den PC-Assistenten und eigene
+Cloudflare-Konten durch Sensorauswahl in Home Assistant. Ein gemeinsamer
+Alexa-Skill verknüpft jeden Haushalt über einen einmaligen Code.
+
+**[Stand, Einrichtung und Betreiber-Schritte für HACS](docs/HACS.md)**
+
+Der gemeinsame Alexa-Skill ist noch nicht veröffentlicht. Die HACS-Integration
+liegt als frühe Beta vor; sie benötigt eine Einladung. Die bestehende
+Einzelanlagen-Version und ihre Rückkehrpunkte bleiben erhalten.
+
+Nach öffentlicher Freigabe des Repositorys: **[In HACS hinzufügen](https://my.home-assistant.io/redirect/hacs_repository/?owner=kulmi84&repository=solaranlage-echo-show&category=integration)**.
+
 ## Einfach einrichten
 
 **Unter Windows: `Einrichtung-starten.bat` doppelklicken.**

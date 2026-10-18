@@ -1,0 +1,130 @@
+{
+  "title": "Solar Dashboard for Echo Show",
+  "config": {
+    "step": {
+      "user": {
+        "title": "Connect to the beta relay",
+        "description": "Configure the selected solar dashboard settings.",
+        "data": {
+          "relay_url": "Relay address",
+          "invite": "Beta invitation"
+        }
+      },
+      "live": {
+        "title": "Select live sensors",
+        "description": "Configure the selected solar dashboard settings.",
+        "data": {
+          "power_w": "PV power including balcony solar",
+          "pv_dc_w": "PV power excluding balcony solar",
+          "bkw_w": "Balcony solar power",
+          "home_w": "Home consumption",
+          "grid_import_w": "Grid import power",
+          "grid_export_w": "Grid export power",
+          "battery_soc": "Battery state of charge",
+          "battery_charge_w": "Battery charge power",
+          "battery_discharge_w": "Battery discharge power"
+        }
+      },
+      "energy": {
+        "title": "Select cumulative energy counters",
+        "description": "Configure the selected solar dashboard settings.",
+        "data": {
+          "energy_pv": "PV energy excluding balcony solar",
+          "energy_bkw": "Balcony solar energy",
+          "energy_import": "Grid import energy",
+          "energy_export": "Grid export energy",
+          "energy_charge": "Battery charge energy",
+          "energy_discharge": "Battery discharge energy"
+        }
+      },
+      "consent": {
+        "title": "Confirm data transfer",
+        "description": "Send the selected power, battery and energy readings to the relay over HTTPS. Live and daily values are sent every minute; month and year values every six hours. No HA access token or entity names are uploaded.",
+        "data": {
+          "consent": "I consent to transmitting my selected readings."
+        }
+      }
+    },
+    "error": {
+      "invalid_url": "Enter an HTTPS relay origin without a path or credentials.",
+      "cannot_connect": "Cannot connect. Check the relay, network and TLS certificate.",
+      "invalid_auth": "Access has been revoked or credentials are invalid.",
+      "invalid_invite": "Invitation invalid, already used, or the beta is full.",
+      "beta_full": "The beta is full.",
+      "rate_limited": "Too many requests. Try again shortly.",
+      "invalid_sensor": "Sensor missing or incompatible unit.",
+      "invalid_energy": "Select a cumulative energy counter.",
+      "duplicate_energy": "Do not select the same energy counter twice.",
+      "consent_required": "Consent is required before transmitting data."
+    },
+    "abort": {
+      "already_configured": "Solar dashboard is already configured."
+    }
+  },
+  "options": {
+    "step": {
+      "init": {
+        "title": "Configure solar dashboard",
+        "menu_options": {
+          "live": "Change sensors",
+          "link": "Link Alexa",
+          "erase": "Delete relay data and revoke access"
+        }
+      },
+      "live": {
+        "title": "Select live sensors",
+        "description": "Configure the selected solar dashboard settings.",
+        "data": {
+          "power_w": "PV power including balcony solar",
+          "pv_dc_w": "PV power excluding balcony solar",
+          "bkw_w": "Balcony solar power",
+          "home_w": "Home consumption",
+          "grid_import_w": "Grid import power",
+          "grid_export_w": "Grid export power",
+          "battery_soc": "Battery state of charge",
+          "battery_charge_w": "Battery charge power",
+          "battery_discharge_w": "Battery discharge power"
+        }
+      },
+      "energy": {
+        "title": "Select cumulative energy counters",
+        "description": "Configure the selected solar dashboard settings.",
+        "data": {
+          "energy_pv": "PV energy excluding balcony solar",
+          "energy_bkw": "Balcony solar energy",
+          "energy_import": "Grid import energy",
+          "energy_export": "Grid export energy",
+          "energy_charge": "Battery charge energy",
+          "energy_discharge": "Battery discharge energy"
+        }
+      },
+      "link": {
+        "title": "Link Alexa",
+        "description": "Paste this one-time code into Alexa account linking: **{code}**. Valid for {expires} minutes."
+      },
+      "erase": {
+        "title": "Delete relay data and revoke access",
+        "description": "Permanently delete stored readings and all Alexa credentials for this household. Local HA sensors remain unchanged. Remove the integration afterwards; enrolling again requires a new invitation.",
+        "data": {
+          "confirm": "Permanently delete my relay data and account links."
+        }
+      }
+    },
+    "error": {
+      "invalid_url": "Enter an HTTPS relay origin without a path or credentials.",
+      "cannot_connect": "Cannot connect. Check the relay, network and TLS certificate.",
+      "invalid_auth": "Access has been revoked or credentials are invalid.",
+      "invalid_invite": "Invitation invalid, already used, or the beta is full.",
+      "beta_full": "The beta is full.",
+      "rate_limited": "Too many requests. Try again shortly.",
+      "invalid_sensor": "Sensor missing or incompatible unit.",
+      "invalid_energy": "Select a cumulative energy counter.",
+      "duplicate_energy": "Do not select the same energy counter twice.",
+      "consent_required": "Consent is required before transmitting data."
+    },
+    "abort": {
+      "link_ready": "Copy the code and continue account linking in the Alexa app.",
+      "cannot_connect": "Cannot connect to the relay."
+    }
+  }
+}

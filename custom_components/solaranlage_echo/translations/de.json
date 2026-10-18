@@ -1,0 +1,130 @@
+{
+  "title": "Solaranlage Echo Show",
+  "config": {
+    "step": {
+      "user": {
+        "title": "Mit dem Beta-Relay verbinden",
+        "description": "Du brauchst kein Cloudflare-Konto und keinen HA-Zugangstoken. Verwende die Einladung des Beta-Betreibers. Die Beta ist noch nicht öffentlich freigegeben.",
+        "data": {
+          "relay_url": "Relay-Adresse",
+          "invite": "Einladungscode"
+        }
+      },
+      "live": {
+        "title": "Live-Sensoren auswählen",
+        "description": "PV-Gesamtleistung muss das BKW bereits enthalten. Optionale Sensoren dürfen leer bleiben.",
+        "data": {
+          "power_w": "PV-Gesamtleistung inklusive BKW",
+          "pv_dc_w": "PV-Leistung ohne BKW",
+          "bkw_w": "BKW-Leistung",
+          "home_w": "Hausverbrauch",
+          "grid_import_w": "Netzbezug",
+          "grid_export_w": "Einspeisung",
+          "battery_soc": "Akkustand",
+          "battery_charge_w": "Akku-Ladeleistung",
+          "battery_discharge_w": "Akku-Entladeleistung"
+        }
+      },
+      "energy": {
+        "title": "Energiezähler auswählen",
+        "description": "Kumulierte Zähler aus dem HA-Energie-Dashboard verwenden, keine Tageshelfer. PV-Zähler ohne das separat gewählte BKW. Fehlende Quellen bleiben unbekannt; für Bilanzwerte werden alle Quellen benötigt.",
+        "data": {
+          "energy_pv": "PV-Energie ohne BKW",
+          "energy_bkw": "BKW-Energie",
+          "energy_import": "Netzbezugsenergie",
+          "energy_export": "Einspeiseenergie",
+          "energy_charge": "Akku-Ladeenergie",
+          "energy_discharge": "Akku-Entladeenergie"
+        }
+      },
+      "consent": {
+        "title": "Datenübertragung bestätigen",
+        "description": "Die ausgewählten Leistungs-, Akku- und Energiewerte werden per HTTPS an das Relay übertragen: Live/Heute minütlich, Monat/Jahr alle sechs Stunden. Es werden keine HA-Zugangsdaten oder Entitätsnamen übertragen. Deine HA-Instanz bleibt von außen unerreichbar. Die Relay-Zugangsdaten werden lokal in HA gespeichert.",
+        "data": {
+          "consent": "Ich stimme der Übertragung der ausgewählten Messwerte zu."
+        }
+      }
+    },
+    "error": {
+      "invalid_url": "Bitte eine HTTPS-Relay-Adresse ohne Pfad oder Zugangsdaten verwenden.",
+      "cannot_connect": "Verbindung fehlgeschlagen. Adresse, Netzwerk und TLS-Zertifikat prüfen.",
+      "invalid_auth": "Verbindung widerrufen oder ungültige Zugangsdaten.",
+      "invalid_invite": "Einladung ungültig, bereits verwendet oder Beta voll.",
+      "beta_full": "Die Beta ist derzeit voll.",
+      "rate_limited": "Zu viele Anfragen. Bitte kurz warten.",
+      "invalid_sensor": "Sensor fehlt oder hat eine unpassende Einheit.",
+      "invalid_energy": "Bitte einen kumulierten Energiezähler wählen.",
+      "duplicate_energy": "Einen Energiezähler nicht doppelt auswählen.",
+      "consent_required": "Bitte der Übertragung zustimmen."
+    },
+    "abort": {
+      "already_configured": "Solaranlage ist bereits eingerichtet."
+    }
+  },
+  "options": {
+    "step": {
+      "init": {
+        "title": "Solaranlage einrichten",
+        "menu_options": {
+          "live": "Sensoren ändern",
+          "link": "Alexa verbinden",
+          "erase": "Relay-Daten und Verknüpfung löschen"
+        }
+      },
+      "live": {
+        "title": "Live-Sensoren auswählen",
+        "description": "PV-Gesamtleistung muss das BKW bereits enthalten. Optionale Sensoren dürfen leer bleiben.",
+        "data": {
+          "power_w": "PV-Gesamtleistung inklusive BKW",
+          "pv_dc_w": "PV-Leistung ohne BKW",
+          "bkw_w": "BKW-Leistung",
+          "home_w": "Hausverbrauch",
+          "grid_import_w": "Netzbezug",
+          "grid_export_w": "Einspeisung",
+          "battery_soc": "Akkustand",
+          "battery_charge_w": "Akku-Ladeleistung",
+          "battery_discharge_w": "Akku-Entladeleistung"
+        }
+      },
+      "energy": {
+        "title": "Energiezähler auswählen",
+        "description": "Kumulierte Zähler aus dem HA-Energie-Dashboard verwenden, keine Tageshelfer. PV-Zähler ohne das separat gewählte BKW. Fehlende Quellen bleiben unbekannt; für Bilanzwerte werden alle Quellen benötigt.",
+        "data": {
+          "energy_pv": "PV-Energie ohne BKW",
+          "energy_bkw": "BKW-Energie",
+          "energy_import": "Netzbezugsenergie",
+          "energy_export": "Einspeiseenergie",
+          "energy_charge": "Akku-Ladeenergie",
+          "energy_discharge": "Akku-Entladeenergie"
+        }
+      },
+      "link": {
+        "title": "Alexa verbinden",
+        "description": "Aktiviere den Beta-Skill in der Alexa-App und öffne Kontoverknüpfung. Kopiere diesen einmaligen Code in die Verknüpfungsseite:\n\n**{code}**\n\nGültig für {expires} Minuten. Nicht weitergeben. Ein neuer Code macht ältere Codes ungültig."
+      },
+      "erase": {
+        "title": "Relay-Daten dauerhaft löschen",
+        "description": "Löscht deine gespeicherten Messwerte und alle Alexa-Verknüpfungen unwiderruflich. HA-Sensoren bleiben bestehen. Danach diese Integration entfernen; zum erneuten Einrichten ist eine neue Einladung nötig.",
+        "data": {
+          "confirm": "Meine Relay-Daten und Verknüpfungen dauerhaft löschen."
+        }
+      }
+    },
+    "error": {
+      "invalid_url": "Bitte eine HTTPS-Relay-Adresse ohne Pfad oder Zugangsdaten verwenden.",
+      "cannot_connect": "Verbindung fehlgeschlagen. Adresse, Netzwerk und TLS-Zertifikat prüfen.",
+      "invalid_auth": "Verbindung widerrufen oder ungültige Zugangsdaten.",
+      "invalid_invite": "Einladung ungültig, bereits verwendet oder Beta voll.",
+      "beta_full": "Die Beta ist derzeit voll.",
+      "rate_limited": "Zu viele Anfragen. Bitte kurz warten.",
+      "invalid_sensor": "Sensor fehlt oder hat eine unpassende Einheit.",
+      "invalid_energy": "Bitte einen kumulierten Energiezähler wählen.",
+      "duplicate_energy": "Einen Energiezähler nicht doppelt auswählen.",
+      "consent_required": "Bitte der Übertragung zustimmen."
+    },
+    "abort": {
+      "link_ready": "Verbindungscode wurde angezeigt. Jetzt in der Alexa-App fortfahren.",
+      "cannot_connect": "Verbindung fehlgeschlagen. Adresse, Netzwerk und TLS-Zertifikat prüfen."
+    }
+  }
+}

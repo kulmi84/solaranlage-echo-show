@@ -98,7 +98,22 @@ def lambda_handler(event, context):
             return {'version': '1.0', 'response': {}}
     try:
         config = json.loads(Path(__file__).with_name('relay_config.json').read_text())
-        pv = read_pv(config['url'], config['read_token'])
+        if config.get('mode') == 'public_beta':
+            access_token = event.get('context', {}).get('System', {}).get('user', {}).get('accessToken')
+            if not access_token:
+                return {'version': '1.0', 'response': {
+                    'outputSpeech': {'type': 'PlainText', 'text': 'Bitte verbinde deine Anlage zuerst in der Alexa-App mit dem Skill.'},
+                    'card': {'type': 'LinkAccount'}, 'shouldEndSession': True}}
+            try:
+                pv = read_pv(config['url'], access_token)
+            except Exception as error:
+                if getattr(error, 'code', None) == 401:
+                    return {'version': '1.0', 'response': {
+                        'outputSpeech': {'type': 'PlainText', 'text': 'Bitte verbinde deine Anlage erneut in der Alexa-App.'},
+                        'card': {'type': 'LinkAccount'}, 'shouldEndSession': True}}
+                raise
+        else:
+            pv = read_pv(config['url'], config['read_token'])
     except Exception:
         pv = {'metrics': {}, 'valueText': '—', 'statusText': 'Keine aktuellen Daten · Verbindung prüfen', 'stale': True}
     m = pv.get('metrics', {})
