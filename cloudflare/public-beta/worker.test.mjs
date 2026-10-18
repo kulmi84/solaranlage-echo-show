@@ -145,3 +145,15 @@ test('Alexa long opaque states round-trip without loosening OAuth validation', a
     assert.equal(r.status, 400); assert.equal(r.value.error, error);
   }
 });
+
+
+test('mobile pasted pairing codes accept whitespace and case, but remain one-use', async () => {
+  const env = environment(), a = await enroll(env);
+  const { params } = await link(env, a);
+  const fresh = await invoke(env, '/v1/pair', 'POST', a.write_token, {});
+  const code = fresh.value.pair_code;
+  const pasted = '  ' + code.slice(0, 40).toUpperCase() + '\n' + code.slice(40) + '  ';
+  const input = { ...params, pair_code: pasted };
+  assert.equal((await worker.fetch(request('/oauth/authorize', 'POST', null, input, true), env)).status, 302);
+  assert.equal((await worker.fetch(request('/oauth/authorize', 'POST', null, input, true), env)).status, 403);
+});
