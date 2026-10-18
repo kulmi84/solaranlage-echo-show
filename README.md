@@ -1,5 +1,7 @@
 # Solaranlage auf dem Echo Show
 
+<p align="center"><img src="assets/branding/solaranlage-icon-512.png" width="192" alt="Solaranlage: weiße Sonne und Solarpanel auf schwarzem Hintergrund"></p>
+
 ## HACS und gemeinsamer Alexa-Skill: Beta-Entwicklung
 
 Die neue HA-Integration ersetzt YAML-Dateien, den PC-Assistenten und eigene
