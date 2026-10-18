@@ -181,6 +181,7 @@ class SpokenReadingTests(unittest.TestCase):
         model = json.loads(Path('alexa/interaction-model.de-DE.json').read_text(encoding='utf-8'))
         intents = {i['name']: i for i in model['interactionModel']['languageModel']['intents']}
         self.assertIn('nach der aktuellen produktion', intents['ProductionIntent']['samples'])
+        self.assertIn('nach der aktuellen leistung', intents['ProductionIntent']['samples'])
         self.assertIn('nach dem akkustand', intents['BatteryIntent']['samples'])
         self.assertIn('nach dem akku stand', intents['BatteryIntent']['samples'])
         self.assertIn('nach dem aktuellen verbrauch', intents['ConsumptionIntent']['samples'])
@@ -217,7 +218,7 @@ class FallbackTests(unittest.TestCase):
             result = beta_live_lambda.lambda_handler({'request': {
                 'type': 'IntentRequest', 'intent': {'name': 'AMAZON.HelpIntent'}}}, None)
         reader.assert_not_called()
-        self.assertIn('Produktion', result['response']['outputSpeech']['text'])
+        self.assertIn('Leistung', result['response']['outputSpeech']['text'])
         self.assertTrue(result['response']['shouldEndSession'])
 
 

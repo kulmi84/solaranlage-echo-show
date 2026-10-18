@@ -15,7 +15,7 @@ keine fest eingestellten Beispielwerte.
 
 | Gewünschter Wert | Sag einfach … |
 | --- | --- |
-| **Aktuelle Produktion · PV + BKW** | **„Alexa, frage meine Solaranlage nach der aktuellen Produktion.“** |
+| **Aktuelle Leistung · PV + BKW** | **„Alexa, frage meine Solaranlage nach der aktuellen Leistung.“** |
 | **Akkustand** | **„Alexa, frage meine Solaranlage nach dem Akkustand.“** |
 | **Aktueller Hausverbrauch** | **„Alexa, frage meine Solaranlage nach dem aktuellen Verbrauch.“** |
 | **Heutige Gesamtproduktion · PV + BKW** | **„Alexa, frage meine Solaranlage nach der heutigen Gesamtproduktion.“** |
@@ -227,7 +227,7 @@ von ihr zusammengestellten Datensatz und ist kein eigenständiger Testknopf.
 
 Auch auf einem Echo ohne Display:
 
-- **„Alexa, frage meine Solaranlage nach der aktuellen Produktion.“**
+- **„Alexa, frage meine Solaranlage nach der aktuellen Leistung.“**
 - **„Alexa, frage meine Solaranlage nach dem Akkustand.“**
 - **„Alexa, frage meine Solaranlage nach dem aktuellen Verbrauch.“**
 - **„Alexa, frage meine Solaranlage nach der heutigen Gesamtproduktion.“**
@@ -249,7 +249,7 @@ importieren und bauen als auch den neu erzeugten Python-Code deployen.
 
 | Frage nach … | Bedeutung | Gesprochene Einheit |
 | --- | --- | --- |
-| aktueller Produktion | PV-Gesamtleistung inklusive BKW | Watt / Kilowatt |
+| aktueller Leistung | PV-Gesamtleistung inklusive BKW | Watt / Kilowatt |
 | Akkustand | Ladezustand der Batterie | Prozent |
 | aktuellem Verbrauch | Momentaner Hausverbrauch | Watt / Kilowatt |
 | heutiger Gesamtproduktion | PV und BKW seit lokaler Mitternacht | Kilowattstunden |

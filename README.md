@@ -15,7 +15,7 @@ Home Assistant braucht dafür keine öffentliche Adresse und keine Portfreigabe.
 
 | Gewünschter Wert | Sag einfach … |
 | --- | --- |
-| **Aktuelle Produktion · PV + BKW** | **„Alexa, frage meine Solaranlage nach der aktuellen Produktion.“** |
+| **Aktuelle Leistung · PV + BKW** | **„Alexa, frage meine Solaranlage nach der aktuellen Leistung.“** |
 | **Akkustand** | **„Alexa, frage meine Solaranlage nach dem Akkustand.“** |
 | **Aktueller Hausverbrauch** | **„Alexa, frage meine Solaranlage nach dem aktuellen Verbrauch.“** |
 | **Heutige Gesamtproduktion · PV + BKW** | **„Alexa, frage meine Solaranlage nach der heutigen Gesamtproduktion.“** |

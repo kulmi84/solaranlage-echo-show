@@ -39,7 +39,10 @@
             "wie viel strom wird produziert",
             "wie hoch ist die produktion",
             "wie viel produziert die solaranlage",
-            "wie hoch ist die aktuelle leistung"
+            "wie hoch ist die aktuelle leistung",
+            "nach der aktuellen leistung",
+            "aktuelle leistung",
+            "die aktuelle leistung"
           ]
         },
         {

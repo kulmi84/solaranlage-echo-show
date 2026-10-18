@@ -19,7 +19,7 @@ Gewünschte Abfragen:
 
 Bedienung:
 
-- „Alexa, frage meine Solaranlage nach der aktuellen Produktion.“
+- „Alexa, frage meine Solaranlage nach der aktuellen Leistung.“
 - „Alexa, frage meine Solaranlage nach dem Akkustand.“
 - „Alexa, frage meine Solaranlage nach dem aktuellen Verbrauch.“
 - „Alexa, frage meine Solaranlage nach der heutigen Gesamtproduktion.“

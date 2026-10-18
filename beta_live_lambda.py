@@ -7,7 +7,7 @@ from beta_live_reader import read_pv
 REFRESH_INTERVAL_MS = 60_000
 DISPLAY_DURATION_MS = 60 * 60_000
 SPOKEN_METRICS = {
-    'ProductionIntent': ('power_w', 'Die Produktion inklusive Balkonkraftwerk', 'die Produktion', 'power'),
+    'ProductionIntent': ('power_w', 'Die aktuelle Leistung inklusive Balkonkraftwerk', 'die aktuelle Leistung', 'power'),
     'BatteryIntent': ('battery_soc', 'Der Akkustand', 'den Akkustand', 'percent'),
     'ConsumptionIntent': ('home_w', 'Der aktuelle Hausverbrauch', 'den Hausverbrauch', 'power'),
     'TodayProductionIntent': ('today_pv_kwh', 'Die heutige Gesamtproduktion inklusive Balkonkraftwerk', 'die heutige Gesamtproduktion', 'energy'),
@@ -73,7 +73,7 @@ def lambda_handler(event, context):
     if intent == 'AMAZON.HelpIntent':
         return {'version': '1.0', 'response': {
             'outputSpeech': {'type': 'PlainText', 'text':
-                'Frage meine Solaranlage nach der aktuellen Produktion, dem Akkustand, dem aktuellen Verbrauch, der heutigen Gesamtproduktion oder der heutigen Einspeisung.'},
+                'Frage meine Solaranlage nach der aktuellen Leistung, dem Akkustand, dem aktuellen Verbrauch, der heutigen Gesamtproduktion oder der heutigen Einspeisung.'},
             'shouldEndSession': True}}
     now_ms = int(time.time() * 1000)
     expires_at = now_ms + DISPLAY_DURATION_MS
