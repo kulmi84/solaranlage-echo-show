@@ -63,8 +63,12 @@ function oauthContext(params, env) {
   let allowed;
   try { allowed = JSON.parse(env.OAUTH_REDIRECT_URIS || '[]'); } catch { failure('oauth_not_ready', 503); }
   if (!Array.isArray(allowed) || !allowed.length || !env.OAUTH_CLIENT_SECRET) failure('oauth_not_ready', 503);
-  if (params.client_id !== env.OAUTH_CLIENT_ID || !allowed.includes(params.redirect_uri)
-      || params.response_type !== 'code' || params.scope !== 'solar:read' || !params.state || params.state.length > 512) failure('invalid_oauth');
+  if (params.client_id !== env.OAUTH_CLIENT_ID) failure('invalid_oauth_client');
+  if (!allowed.includes(params.redirect_uri)) failure('invalid_oauth_redirect');
+  if (params.response_type !== 'code') failure('invalid_oauth_response_type');
+  if (params.scope !== 'solar:read') failure('invalid_oauth_scope');
+  // Alexa owns this opaque value. Preserve it verbatim, including long app states.
+  if (!params.state || params.state.length > 4096) failure('invalid_oauth_state');
   if (params.code_challenge && (params.code_challenge_method !== 'S256' || !/^[A-Za-z0-9_-]{43}$/.test(params.code_challenge))) failure('invalid_pkce');
   return params;
 }

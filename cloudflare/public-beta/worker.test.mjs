@@ -47,7 +47,7 @@ async function link(env, account, options = {}) {
   const response = await worker.fetch(request('/oauth/authorize', 'POST', null, params, true), env);
   assert.equal(response.status, 302);
   const target = new URL(response.headers.get('Location'));
-  assert.equal(target.searchParams.get('state'), 'state-check');
+  assert.equal(target.searchParams.get('state'), params.state);
   const grant = { client_id: env.OAUTH_CLIENT_ID, client_secret: env.OAUTH_CLIENT_SECRET, grant_type: 'authorization_code', code: target.searchParams.get('code'), redirect_uri: params.redirect_uri };
   return { pair: pair.value, params, grant };
 }
@@ -126,4 +126,22 @@ test('unconfigured OAuth and limiter fail closed; expiry cleanup retains valid t
   assert.equal((await worker.fetch(request('/oauth/authorize'), env)).status, 503);
   delete env.LIMITER;
   assert.equal((await invoke(env, '/v1/health', 'GET')).status, 503);
+});
+
+
+test('Alexa long opaque states round-trip without loosening OAuth validation', async () => {
+  const env = environment(), account = await enroll(env);
+  const { grant } = await link(env, account, { state: 'a'.repeat(2048) });
+  assert.equal((await invoke(env, '/oauth/token', 'POST', null, grant, true)).status, 200);
+  const valid = { client_id: env.OAUTH_CLIENT_ID, redirect_uri: JSON.parse(env.OAUTH_REDIRECT_URIS)[0], response_type: 'code', scope: 'solar:read', state: 's' };
+  for (const [key, value, error] of [
+    ['client_id', 'wrong', 'invalid_oauth_client'],
+    ['redirect_uri', 'https://evil.test', 'invalid_oauth_redirect'],
+    ['scope', 'admin', 'invalid_oauth_scope'],
+    ['response_type', 'token', 'invalid_oauth_response_type'],
+    ['state', 'x'.repeat(4097), 'invalid_oauth_state'],
+  ]) {
+    const r = await invoke(env, '/oauth/authorize', 'POST', null, { ...valid, [key]: value }, true);
+    assert.equal(r.status, 400); assert.equal(r.value.error, error);
+  }
 });
