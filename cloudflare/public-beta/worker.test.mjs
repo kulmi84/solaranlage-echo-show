@@ -157,3 +157,15 @@ test('mobile pasted pairing codes accept whitespace and case, but remain one-use
   assert.equal((await worker.fetch(request('/oauth/authorize', 'POST', null, input, true), env)).status, 302);
   assert.equal((await worker.fetch(request('/oauth/authorize', 'POST', null, input, true), env)).status, 403);
 });
+
+
+test('link form CSP permits only configured Amazon redirect origins', async () => {
+  const env = environment();
+  const q = new URLSearchParams({ client_id: env.OAUTH_CLIENT_ID, response_type: 'code', scope: 'solar:read', state: 'test-state', redirect_uri: JSON.parse(env.OAUTH_REDIRECT_URIS)[0] });
+  const response = await worker.fetch(request('/oauth/authorize?' + q), env);
+  assert.equal(response.status, 200);
+  const csp = response.headers.get('Content-Security-Policy');
+  assert.ok(csp.includes("form-action 'self' https://alexa.amazon.de;"));
+  assert.ok(csp.includes("default-src 'none'"));
+  assert.ok(!csp.includes('*'));
+});
