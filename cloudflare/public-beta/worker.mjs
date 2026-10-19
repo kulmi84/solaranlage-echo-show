@@ -1,4 +1,6 @@
-// Separate beta backend. No access to the production single-household tables.
+// Separate multi-household backend. No access to the single-household tables.
+import { publicPage } from './public-pages.mjs';
+import { reviewerRoute, reviewerEnabled, demoValues } from './reviewer.mjs';
 const headers = { 'Cache-Control': 'no-store', 'X-Content-Type-Options': 'nosniff', 'Referrer-Policy': 'no-referrer' };
 const reply = (value, status = 200) => Response.json(value, { status, headers });
 const now = () => Math.floor(Date.now() / 1000);
@@ -86,9 +88,13 @@ export default {
     try {
       const url = new URL(request.url), path = url.pathname, method = request.method;
       if (url.protocol !== 'https:') return reply({ error: 'https_required' }, 400);
+      const page = method === 'GET' || method === 'HEAD' ? publicPage(path) : null;
+      if (page) return new Response(method === 'HEAD' ? null : page, { headers: { ...headers, 'Content-Type': 'text/html; charset=utf-8', 'Content-Security-Policy': "default-src 'none'; style-src 'unsafe-inline'; frame-ancestors 'none'; base-uri 'none'; form-action 'none'" } });
       if (!env.LIMITER) return reply({ error: 'limiter_not_ready' }, 503);
       const limit = await env.LIMITER.limit({ key: request.headers.get('CF-Connecting-IP') || 'unknown' });
       if (!limit.success) return reply({ error: 'rate_limited' }, 429);
+      const review = await reviewerRoute(request, env, { headers, body, hash, equal, random, now, failure });
+      if (review) return review;
       if (path === '/v1/health' && method === 'GET') return reply({ ok: true, api: 1 });
       if (path === '/admin/invites' && method === 'POST') {
         if (!env.ADMIN_TOKEN || env.ADMIN_TOKEN.length < 32 || !await equal(bearer(request), env.ADMIN_TOKEN)) failure('unauthorized', 401);
@@ -138,6 +144,11 @@ export default {
         if (!/^[a-f0-9]{64}$/.test(token)) failure('unauthorized', 401);
         const row = await env.DB.prepare('SELECT h.* FROM households h JOIN access_tokens a ON h.id=a.tenant WHERE a.hash=? AND a.expires>? AND h.disabled=0').bind(await hash(token), now()).first();
         if (!row) failure('unauthorized', 401);
+        if (row.id.startsWith('review-')) {
+          if (!reviewerEnabled(env) || row.id !== env.REVIEW_TENANT_ID) failure('unauthorized', 401);
+          const demo = demoValues(), timestamp = new Date().toISOString();
+          Object.assign(row, { live_json: JSON.stringify(demo.live), history_json: JSON.stringify(demo.history), live_at: timestamp, history_at: timestamp });
+        }
         if (!row.live_json) failure('no_data', 404);
         const parts = new Intl.DateTimeFormat('en-CA', { timeZone: row.timezone, year: 'numeric', month: '2-digit', day: '2-digit' }).formatToParts(new Date());
         const part = type => parts.find(p => p.type === type).value;

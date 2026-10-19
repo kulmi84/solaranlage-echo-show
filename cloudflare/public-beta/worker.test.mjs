@@ -169,3 +169,49 @@ test('link form CSP permits only configured Amazon redirect origins', async () =
   assert.ok(csp.includes("default-src 'none'"));
   assert.ok(!csp.includes('*'));
 });
+
+test('public information is readable without credentials or a database and never exposes configuration', async () => {
+  for (const path of ['/', '/privacy', '/contact']) {
+    const response = await worker.fetch(request(path), {});
+    assert.equal(response.status, 200);
+    assert.match(response.headers.get('Content-Type'), /text\/html/);
+    const html = await response.text();
+    assert.ok(html.includes('support@dorisundmarcin.de'));
+    assert.ok(!html.includes('ADMIN_TOKEN'));
+    assert.ok(response.headers.get('Content-Security-Policy').includes("frame-ancestors 'none'"));
+  }
+  assert.equal((await worker.fetch(request('/privacy','HEAD'), {})).status, 200);
+});
+
+test('review credentials link only a separate synthetic household and expire closed', async () => {
+  const env = environment(), real = await enroll(env);
+  const secret = 'ab'.repeat(32);
+  Object.assign(env, { REVIEW_TENANT_ID: 'review-certification-20261019', REVIEW_KEY_HASH: await hash(secret), REVIEW_EXPIRES: String(Math.floor(Date.now()/1000)+86400) });
+  env.raw.prepare('INSERT INTO households(id,write_hash,timezone,created) VALUES(?,?,?,?)').run(env.REVIEW_TENANT_ID, await hash('unknown-writer'), 'Europe/Berlin', 1);
+  assert.equal((await worker.fetch(request('/review'), env)).status, 200);
+  assert.equal((await invoke(env, '/review','POST',null,{review_key:'ff'.repeat(32)},true)).status, 401);
+  const form = await worker.fetch(request('/review','POST',null,{review_key:secret},true),env);
+  assert.equal(form.status,200);
+  const code = (await form.text()).match(/<pre>([a-f0-9]{64})<\/pre>/)[1];
+  const params={client_id:env.OAUTH_CLIENT_ID,response_type:'code',redirect_uri:JSON.parse(env.OAUTH_REDIRECT_URIS)[0],scope:'solar:read',state:'demo-test',pair_code:code};
+  const redirect=await worker.fetch(request('/oauth/authorize','POST',null,params,true),env);
+  const authcode=new URL(redirect.headers.get('Location')).searchParams.get('code');
+  const grant=await invoke(env,'/oauth/token','POST',null,{client_id:env.OAUTH_CLIENT_ID,client_secret:env.OAUTH_CLIENT_SECRET,grant_type:'authorization_code',code:authcode,redirect_uri:params.redirect_uri},true);
+  assert.equal(grant.status,200);
+  const measurement=await invoke(env,'/v1/pv','GET',grant.value.access_token);
+  assert.equal(measurement.value.power_w,3200);
+  assert.equal(measurement.value.home_w,1200);
+  assert.equal(measurement.value.history.month_home_kwh,200);
+  assert.equal((await invoke(env,'/v1/pv','POST',grant.value.access_token,live(5))).status,401);
+  assert.equal(env.raw.prepare('SELECT live_json FROM households WHERE id=?').get(real.tenant_id).live_json,null);
+  env.REVIEW_EXPIRES='1';
+  assert.equal((await invoke(env,'/review')).status,404);
+  assert.equal((await invoke(env,'/v1/pv','GET',grant.value.access_token)).status,401);
+});
+
+test('review mode cannot target normal customer identifiers and is disabled without complete configuration', async () => {
+  const env=environment();
+  assert.equal((await invoke(env,'/review')).status,404);
+  Object.assign(env,{REVIEW_TENANT_ID:crypto.randomUUID(),REVIEW_KEY_HASH:await hash('ab'.repeat(32)),REVIEW_EXPIRES:String(Math.floor(Date.now()/1000)+86400)});
+  assert.equal((await invoke(env,'/review')).status,404);
+});
