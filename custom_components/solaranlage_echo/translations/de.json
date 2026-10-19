@@ -3,8 +3,8 @@
   "config": {
     "step": {
       "user": {
-        "title": "Mit dem Beta-Relay verbinden",
-        "description": "Du brauchst kein Cloudflare-Konto und keinen HA-Zugangstoken. Verwende die Einladung des Beta-Betreibers. Die Beta ist noch nicht öffentlich freigegeben.",
+        "title": "Mit dem Solaranlage-Relay verbinden",
+        "description": "Du brauchst kein Cloudflare-Konto und keinen HA-Zugangstoken. Verwende die Einladung des Relay-Betreibers. Der Alexa-Skill läuft derzeit im Entwicklerbetrieb.",
         "data": {
           "relay_url": "Relay-Adresse",
           "invite": "Einladungscode"
@@ -49,8 +49,8 @@
       "invalid_url": "Bitte eine HTTPS-Relay-Adresse ohne Pfad oder Zugangsdaten verwenden.",
       "cannot_connect": "Verbindung fehlgeschlagen. Adresse, Netzwerk und TLS-Zertifikat prüfen.",
       "invalid_auth": "Verbindung widerrufen oder ungültige Zugangsdaten.",
-      "invalid_invite": "Einladung ungültig, bereits verwendet oder Beta voll.",
-      "beta_full": "Die Beta ist derzeit voll.",
+      "invalid_invite": "Einladung ungültig, bereits verwendet oder Relay-Kapazität erreicht.",
+      "beta_full": "Das Relay nimmt derzeit keine weiteren Anlagen auf.",
       "rate_limited": "Zu viele Anfragen. Bitte kurz warten.",
       "invalid_sensor": "Sensor fehlt oder hat eine unpassende Einheit.",
       "invalid_energy": "Bitte einen kumulierten Energiezähler wählen.",
@@ -100,7 +100,7 @@
       },
       "link": {
         "title": "Alexa verbinden",
-        "description": "Aktiviere den Beta-Skill in der Alexa-App und öffne Kontoverknüpfung. Kopiere diesen einmaligen Code in die Verknüpfungsseite:\n\n**{code}**\n\nGültig für {expires} Minuten. Nicht weitergeben. Ein neuer Code macht ältere Codes ungültig."
+        "description": "Aktiviere den Skill „Solaranlage“ in der Alexa-App und öffne Kontoverknüpfung. Kopiere diesen einmaligen Code in die Verknüpfungsseite:\n\n**{code}**\n\nGültig für {expires} Minuten. Nicht weitergeben. Ein neuer Code macht ältere Codes ungültig."
       },
       "erase": {
         "title": "Relay-Daten dauerhaft löschen",
@@ -114,8 +114,8 @@
       "invalid_url": "Bitte eine HTTPS-Relay-Adresse ohne Pfad oder Zugangsdaten verwenden.",
       "cannot_connect": "Verbindung fehlgeschlagen. Adresse, Netzwerk und TLS-Zertifikat prüfen.",
       "invalid_auth": "Verbindung widerrufen oder ungültige Zugangsdaten.",
-      "invalid_invite": "Einladung ungültig, bereits verwendet oder Beta voll.",
-      "beta_full": "Die Beta ist derzeit voll.",
+      "invalid_invite": "Einladung ungültig, bereits verwendet oder Relay-Kapazität erreicht.",
+      "beta_full": "Das Relay nimmt derzeit keine weiteren Anlagen auf.",
       "rate_limited": "Zu viele Anfragen. Bitte kurz warten.",
       "invalid_sensor": "Sensor fehlt oder hat eine unpassende Einheit.",
       "invalid_energy": "Bitte einen kumulierten Energiezähler wählen.",

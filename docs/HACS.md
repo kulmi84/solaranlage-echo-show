@@ -11,7 +11,7 @@ ist öffentlich und kann in HACS als benutzerdefiniertes Repository hinzugefügt
 1. `https://github.com/kulmi84/solaranlage-echo-show` als benutzerdefiniertes Repository in HACS
    hinzufügen und **Solaranlage Echo Show** herunterladen. HA neu starten.
 2. Einstellungen → Geräte & Dienste → Integration hinzufügen →
-   **Solaranlage Echo Show**. Eine Einladung zur begrenzten Beta eingeben.
+   **Solaranlage Echo Show**. Die Einladung des Relay-Betreibers eingeben.
 3. Live-Sensoren und kumulierte Energiezähler auswählen und der Übertragung
    zustimmen. Keine YAML-Dateien, HA-Zugangstoken oder eigenen Cloudflare-Konten.
 4. In den Integrationsoptionen **Alexa verbinden** wählen. Den einmaligen,
@@ -66,7 +66,7 @@ Das bloße Entfernen der lokalen HA-Integration löscht Remote-Daten nicht. Wenn
 HA nicht mehr erreichbar ist, muss der Betreiber den betreffenden Haushalt auf
 Anfrage aus der Relay-Datenbank entfernen. Deshalb erst im Optionsdialog löschen.
 
-## Betreiber: getrenntes Beta-Relay
+## Betreiber: gemeinsames Relay
 
 Der neue Code liegt in `cloudflare/public-beta/`; er verwendet eine **neue**
 D1-Datenbank und andere Tabellen. Den bestehenden Einzelanlagen-Worker nicht
@@ -94,7 +94,7 @@ ersetzen und die bisherige Datenbank nicht für diese Migration verwenden.
    Liste bleibt OAuth gesperrt. Worker deployen. `LIMITER` muss gebunden sein;
    ohne dieses Binding verweigert die API Anfragen.
 5. In `custom_components/solaranlage_echo/const.py` den neuen Relay-Origin
-   prüfen. Die Voreinstellung bezeichnet den vorgesehenen Beta-Worker und ist
+   prüfen. Die Voreinstellung bezeichnet den bestehenden Relay-Worker und ist
    keine Zusicherung, dass er bereits bereitgestellt wurde.
 6. Separate Alexa-Konfiguration nach `alexa/relay_config.public.example.json`
    erstellen, `mode: public_beta` und die neue `/v1/pv`-Adresse verwenden.
@@ -114,7 +114,7 @@ ersetzen und die bisherige Datenbank nicht für diese Migration verwenden.
 
 ```mermaid
 flowchart LR
-  HA[HA-Integration] -->|Haushalts-Schreibschlüssel| W[Getrenntes Beta-Relay]
+  HA[HA-Integration] -->|Haushalts-Schreibschlüssel| W[Gemeinsames Relay]
   W --> D[(D1: Datensatz je Haushalt)]
   A[Gemeinsamer Alexa-Skill] -->|OAuth-Lesetoken des Aufrufers| W
   HA -. einmaliger Verbindungscode .-> O[OAuth-Verknüpfung]
@@ -127,7 +127,7 @@ Refresh-Tokens rotieren und gelten maximal 90 Tage. Verknüpfungs- und
 Autorisierungscodes sind einmalig. Löschung eines Haushalts widerruft alle Tokens.
 IP-Limits und zeitliche Upload-Limits schützen vor einfachen Wiederholungen;
 sie sind keine Garantie gegen verteilten Missbrauch oder gegen das Erreichen
-der gemeinsamen Cloudflare-Kontolimits. Das Beta-Relay ist keine Steuer-API.
+der gemeinsamen Cloudflare-Kontolimits. Das Relay ist keine Steuer-API.
 
 Es werden jeweils nur letzte Messwerte und aktuelle Tages-/Monats-/Jahresmengen
 gespeichert, keine komplette Messwerthistorie. Ohne ausdrückliche Löschung
@@ -144,21 +144,33 @@ Die Worker-Tests führen Registrierung, OAuth, PKCE, Token-Erneuerung und
 Haushaltstrennung gegen eine echte lokale SQLite-Datenbank aus. Bestehende
 Anzeige- und Sprachtests werden zusätzlich ausgeführt.
 
-Das getrennte Beta-Relay wurde am 18. Oktober 2026 bereitgestellt. Ein Cloud-Smoke-Test
-mit künstlichen Daten bestätigte Registrierung, Upload, Rollentrennung, Pairing
-und widerrufende Löschung. Die Testdaten wurden entfernt. OAuth bleibt bis zur
-Einrichtung der exakten Alexa-Rücksprungadressen gesperrt.
+Das gemeinsame Relay wurde am 18. Oktober 2026 bereitgestellt. Installation
+über HACS, minütliche Übertragung, iOS-Kontoverknüpfung und beide Anzeigeseiten
+wurden mit einer echten Anlage geprüft. Die getestete Version wurde am
+19. Oktober als v1.0.0 veröffentlicht. v1.0.1 aktualisiert Anleitungen,
+Einrichtungstexte und die im Release enthaltenen Bildschirmaufnahmen.
 
-Vor dem öffentlichen Start fehlen:
+## Anzeige in HACS aktualisieren
 
-- Installation und Kontoverknüpfung mit zwei getrennten echten Testhaushalten.
-- Sichtbarkeit des geprüften Repositorys auf öffentlich umstellen; gegebenenfalls Brands-Beitrag.
-- Betreiber-/Datenschutzseite und öffentliche Skill-Beschreibung.
+HACS liest Repository- und Release-Daten nicht immer sofort neu ein. Im
+Repository-Menü **Informationen aktualisieren** verwenden, sofern angeboten,
+und die Ansicht neu laden. Prüfe, ob **1.0.1** als aktuelle Version angezeigt wird.
+**Herunterladen/Erneut herunterladen** aktualisiert die Integration; damit neue
+Einrichtungsübersetzungen geladen werden, kann anschließend ein HA-Neustart
+nötig sein. Die README in HACS und die installierte Integrationsversion sind
+unterschiedliche Dinge. Bestehende Sensoren und die Kontoverknüpfung bleiben erhalten.
+
+## Vor einer öffentlichen Alexa-Store-Freigabe
+
+- Kontoverknüpfung mit zwei getrennten echten Testhaushalten prüfen.
+- Betreiber-/Datenschutzseite und Store-Beschreibung vervollständigen.
 - Amazon-Zertifizierung und anschließende Veröffentlichung des gemeinsamen Skills.
+- Optional Aufnahme in den HACS-Standardkatalog; das öffentliche benutzerdefinierte
+  Repository ist bereits nutzbar.
 
-Eine GitHub-Aktualisierung veröffentlicht weder den Skill noch das Repository
-und stellt keine weiteren Cloud-Dienste bereit. Die lokalen privaten Konfigurationen
-bleiben außerhalb von Git; die Rückkehrpunkte bleiben erhalten.
+Interne Namen wie `public-beta`, `public_beta` und ältere `pv_beta`-Dateien bleiben
+für bestehende Verknüpfungen und Installationen erhalten. Sie sind keine
+Versionsangabe. Private Konfigurationen bleiben außerhalb von Git.
 
 Quellen: [HACS-Anforderungen](https://www.hacs.dev/docs/publish/integration/),
 [Private Repositories](https://www.hacs.dev/docs/faq/private_repositories/),

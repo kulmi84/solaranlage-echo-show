@@ -1,5 +1,8 @@
 # Einrichtung mit Fenster statt Terminalbefehlen
 
+> Aktuelle Standardinstallation: **[HACS-Anleitung](HACS.md)**. Dieser PC-Assistent ist die Alternative für ein eigenes Relay und einen eigenen Entwickler-Skill.
+
+
 Die neue Einrichtung läuft lokal auf deinem PC. Die bestehende Anlage wird
 nicht umgestellt. Für die neue Installation werden ein eigener Worker und eine
 eigene Datenbank mit zufälligem Namen erstellt.

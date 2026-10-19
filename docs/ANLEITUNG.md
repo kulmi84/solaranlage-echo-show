@@ -5,11 +5,27 @@ Installation, Bedienung, Datenquellen und Fehlerbehebung. Die Aufnahmen zeigen
 die tatsächlich eingerichtete Anwendung. Messwerte sind Momentaufnahmen und
 keine fest eingestellten Beispielwerte.
 
-## Neu installieren
+## Neu installieren: HACS
 
-Beginne mit dem [Einrichtungsfenster](EINFACH-EINRICHTEN.md). Es übernimmt
-Sensorauswahl, neues Relay und Dateierzeugung. Die folgenden manuellen
-Abschnitte dienen als Referenz und zur Wartung bestehender Installationen.
+Die aktuelle v1 wird über **[HACS eingerichtet](HACS.md)**:
+
+1. Repository in HACS hinzufügen, **Solaranlage Echo Show** herunterladen und HA neu starten.
+2. Unter Geräte & Dienste die Integration hinzufügen, Relay-Einladung eingeben
+   und die eigenen Live-Sensoren sowie kumulierten Energiezähler auswählen.
+3. In den Integrationsoptionen **Alexa verbinden** öffnen. Den Code in der
+   Alexa-App beim Skill **Solaranlage** unter **Konto verknüpfen** einfügen.
+4. **„Alexa, öffne meine Solaranlage.“**
+
+Der Skill ist derzeit ein Entwickler-Skill; eine öffentliche Store-Freigabe
+steht noch aus. Bestehende Nutzer brauchen keine neue Kontoverknüpfung.
+
+![Aktuelle v1 mit Live- und Tageswerten](screenshots/v1-live-heute.webp)
+
+![Aktuelle v1 mit Monats- und Jahreswerten](screenshots/v1-monat-jahr.webp)
+
+Der [PC-Assistent](EINFACH-EINRICHTEN.md) und die manuellen Schritte weiter unten
+sind eine **Alternative für eine eigene Relay-/Skill-Installation**. Sie sind
+für die HACS-Installation am bestehenden Relay nicht erforderlich.
 
 ## 🗣️ Sprachbefehle auf einen Blick
 

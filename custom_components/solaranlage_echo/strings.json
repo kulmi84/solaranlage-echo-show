@@ -3,11 +3,11 @@
   "config": {
     "step": {
       "user": {
-        "title": "Connect to the beta relay",
+        "title": "Connect to the solar relay",
         "description": "Configure the selected solar dashboard settings.",
         "data": {
           "relay_url": "Relay address",
-          "invite": "Beta invitation"
+          "invite": "Relay invitation"
         }
       },
       "live": {
@@ -49,8 +49,8 @@
       "invalid_url": "Enter an HTTPS relay origin without a path or credentials.",
       "cannot_connect": "Cannot connect. Check the relay, network and TLS certificate.",
       "invalid_auth": "Access has been revoked or credentials are invalid.",
-      "invalid_invite": "Invitation invalid, already used, or the beta is full.",
-      "beta_full": "The beta is full.",
+      "invalid_invite": "Invitation invalid, already used, or relay capacity reached.",
+      "beta_full": "The relay is at capacity.",
       "rate_limited": "Too many requests. Try again shortly.",
       "invalid_sensor": "Sensor missing or incompatible unit.",
       "invalid_energy": "Select a cumulative energy counter.",
@@ -114,8 +114,8 @@
       "invalid_url": "Enter an HTTPS relay origin without a path or credentials.",
       "cannot_connect": "Cannot connect. Check the relay, network and TLS certificate.",
       "invalid_auth": "Access has been revoked or credentials are invalid.",
-      "invalid_invite": "Invitation invalid, already used, or the beta is full.",
-      "beta_full": "The beta is full.",
+      "invalid_invite": "Invitation invalid, already used, or relay capacity reached.",
+      "beta_full": "The relay is at capacity.",
       "rate_limited": "Too many requests. Try again shortly.",
       "invalid_sensor": "Sensor missing or incompatible unit.",
       "invalid_energy": "Select a cumulative energy counter.",

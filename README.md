@@ -16,7 +16,7 @@ Aktuelle Bildschirmaufnahmen der v1 im Alexa-Simulator vom 19. Oktober 2026.
 Live-Aufnahme: 09:21 Uhr; Monats-/Jahresdaten: letzter HA-Upload 08:15 Uhr.
 Die abgebildeten Messwerte sind Momentaufnahmen der verbundenen Anlage.
 
-## Version 1.0.0 · HACS
+## Version 1.0.1 · HACS
 
 Die auf dem Echo Show getestete HACS-Version ist die v1. Der Skill heißt
 **Solaranlage** und wird mit **„Alexa, öffne meine Solaranlage.“** gestartet.
