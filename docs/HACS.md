@@ -75,6 +75,13 @@ Anfrage aus der Relay-Datenbank entfernen. Deshalb erst im Optionsdialog lösche
 
 ## Betreiber: gemeinsames Relay
 
+**Betriebsstand vom 19. Oktober 2026:** Die aktive D1-Datenbank heißt
+`solaranlage`, das Worker-Binding weiterhin `DB`. Der bisherige Datenbankstand
+wurde vollständig übertragen und geprüft; `solaranlage-public-beta` wurde danach
+gelöscht. Worker-Name, Relay-URL und OAuth-Client-ID bleiben zur Kompatibilität
+unverändert. Bestehende Nutzer müssen nichts neu verknüpfen.
+Details und Wiederherstellung: [Datenbank und Sicherung](DATENBANK.md).
+
 Der neue Code liegt in `cloudflare/public-beta/`; er verwendet eine **neue**
 D1-Datenbank und andere Tabellen. Den bestehenden Einzelanlagen-Worker nicht
 ersetzen und die bisherige Datenbank nicht für diese Migration verwenden.
