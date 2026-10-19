@@ -2,6 +2,20 @@
 
 <p align="center"><img src="assets/branding/solaranlage-icon-512.png" width="192" alt="Solaranlage: weiße Sonne und Solarpanel auf schwarzem Hintergrund"></p>
 
+## So sieht Solaranlage aus
+
+**Live-Leistung und Tageswerte**
+
+![Solaranlage v1: aktuelle Leistung von PV und BKW, Hausverbrauch, Netz und Akku sowie Tagesenergie](docs/screenshots/v1-live-heute.webp)
+
+**Monats- und Jahresübersicht**
+
+![Solaranlage v1: Energieerzeugung, Hausverbrauch, Einspeisung, Netzbezug und Akku für Monat und Jahr](docs/screenshots/v1-monat-jahr.webp)
+
+Aktuelle Bildschirmaufnahmen der v1 im Alexa-Simulator vom 19. Oktober 2026.
+Live-Aufnahme: 09:21 Uhr; Monats-/Jahresdaten: letzter HA-Upload 08:15 Uhr.
+Die abgebildeten Messwerte sind Momentaufnahmen der verbundenen Anlage.
+
 ## Version 1.0.0 · HACS
 
 Die auf dem Echo Show getestete HACS-Version ist die v1. Der Skill heißt
