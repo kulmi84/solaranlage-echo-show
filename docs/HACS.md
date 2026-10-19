@@ -1,10 +1,10 @@
-# Solaranlage über HACS – öffentliche Beta vorbereiten
+# Solaranlage v1 über HACS
 
-**Entwicklungsstand, noch kein veröffentlichter Alexa-Skill.** Die laufende
-Einzelanlage wird nicht automatisch umgestellt. HACS kann private Repositories
-nicht installieren. Auf Wunsch wird das bestehende Repository
-`kulmi84/solaranlage-echo-show` nach Prüfung öffentlich geschaltet.
-Die gesicherten Quellcode-Stände bleiben als Branches erhalten.
+Die HACS-Version wurde mit echten Messwerten und Kontoverknüpfung auf einem Echo
+Show geprüft. Der Skill heißt **Solaranlage**, Sprachaufruf **meine solaranlage**.
+Der Alexa-Store-Skill ist noch nicht öffentlich freigegeben. Entwickler-Skill und
+Einladung zum bestehenden Relay sind bis dahin erforderlich. Das GitHub-Repository
+ist öffentlich und kann in HACS als benutzerdefiniertes Repository hinzugefügt werden.
 
 ## Der neue Ablauf für Nutzer
 
@@ -24,17 +24,19 @@ Der Verbindungscode ist lang, damit er nicht erraten werden kann. Er wird
 kopiert und eingefügt, nicht auf dem Echo diktiert. Er ersetzt einen eigenen
 Benutzernamen und ein Passwort beim Relay.
 
-Die Skill-URL wird nach der Amazon-Freigabe ergänzt. Das Repository muss
-für den HACS-Import öffentlich sein.
-Bis dahin ist ein Test durch Kopieren des Ordners `custom_components/solaranlage_echo`
-nach `/config/custom_components/solaranlage_echo` auf einer **getrennten Testinstanz**
-möglich. Der HACS-Katalogeintrag ist ein späterer Schritt; zunächst reicht ein
-öffentliches benutzerdefiniertes Repository.
+Die Skill-URL wird nach der Amazon-Freigabe ergänzt. Für den derzeitigen
+Entwicklerbetrieb muss der Echo dasselbe Amazon-Konto wie die Developer Console
+verwenden. Eine neue Kontoverknüpfung ist bei der Umbenennung der HACS-Beta nicht nötig.
 
 ## Sensorauswahl
 
 - PV-Gesamtleistung in W/kW ist Pflicht und enthält das BKW bereits.
 - Weitere Leistungen und Akkustand in Prozent sind optional.
+- **Hausverbrauch prüfen:** Eine Energieflusskarte kann diesen Wert selbst berechnen.
+  Ein gleichnamiger Sensor muss nicht dieselbe Berechnung liefern. Vergleiche die
+  Auswahl mit der Karte. Die Bilanz lautet: PV inklusive BKW + Netzbezug +
+  Akkuentladung − Einspeisung − Akkuladung. Für die getestete Anlage wird ein
+  eigener Template-Helfer mit dieser Bilanz als Hausverbrauch ausgewählt.
 - Energiezähler in Wh/kWh/MWh müssen kumulierte Recorder-Zähler sein
   (`total`/`total_increasing`). Keine täglich zurückgesetzten Anzeigehelfer.
 - Der PV-Energiezähler enthält das separat gewählte BKW nicht bereits.

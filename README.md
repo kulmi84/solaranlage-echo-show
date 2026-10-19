@@ -2,21 +2,22 @@
 
 <p align="center"><img src="assets/branding/solaranlage-icon-512.png" width="192" alt="Solaranlage: weiße Sonne und Solarpanel auf schwarzem Hintergrund"></p>
 
-## HACS und gemeinsamer Alexa-Skill: Beta-Entwicklung
+## Version 1.0.0 · HACS
 
-Die neue HA-Integration ersetzt YAML-Dateien, den PC-Assistenten und eigene
-Cloudflare-Konten durch Sensorauswahl in Home Assistant. Ein gemeinsamer
-Alexa-Skill verknüpft jeden Haushalt über einen einmaligen Code.
+Die auf dem Echo Show getestete HACS-Version ist die v1. Der Skill heißt
+**Solaranlage** und wird mit **„Alexa, öffne meine Solaranlage.“** gestartet.
+Die bestehende Kontoverknüpfung der bisherigen HACS-Beta bleibt erhalten.
 
-**[Stand, Einrichtung und Betreiber-Schritte für HACS](docs/HACS.md)**
+**[Einrichtung über HACS und Kontoverknüpfung](docs/HACS.md)** ·
+**[Änderungen und Rückkehr zur Vorversion](docs/V1.md)**
 
-Der gemeinsame Alexa-Skill ist noch nicht veröffentlicht. Die HACS-Integration
-liegt als frühe Beta vor; sie benötigt eine Einladung. Die bestehende
-Einzelanlagen-Version und ihre Rückkehrpunkte bleiben erhalten.
+Das Repository ist öffentlich. Der Alexa-Skill läuft derzeit als Entwickler-Skill;
+eine Veröffentlichung im Alexa-Store und Aufnahme in den HACS-Standardkatalog
+sind damit noch nicht erfolgt. Das gemeinsame Relay benötigt weiterhin eine Einladung.
 
-Nach öffentlicher Freigabe des Repositorys: **[In HACS hinzufügen](https://my.home-assistant.io/redirect/hacs_repository/?owner=kulmi84&repository=solaranlage-echo-show&category=integration)**.
+**[In HACS hinzufügen](https://my.home-assistant.io/redirect/hacs_repository/?owner=kulmi84&repository=solaranlage-echo-show&category=integration)**
 
-## Einfach einrichten
+## Alternative: eigene Infrastruktur einrichten
 
 **Unter Windows: `Einrichtung-starten.bat` doppelklicken.**
 

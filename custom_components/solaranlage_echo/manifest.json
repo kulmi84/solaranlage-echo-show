@@ -1,10 +1,14 @@
 {
   "domain": "solaranlage_echo",
   "name": "Solaranlage Echo Show",
-  "version": "0.1.0-beta.1",
-  "codeowners": ["@kulmi84"],
+  "version": "1.0.0",
+  "codeowners": [
+    "@kulmi84"
+  ],
   "config_flow": true,
-  "dependencies": ["recorder"],
+  "dependencies": [
+    "recorder"
+  ],
   "documentation": "https://github.com/kulmi84/solaranlage-echo-show/blob/main/docs/HACS.md",
   "issue_tracker": "https://github.com/kulmi84/solaranlage-echo-show/issues",
   "integration_type": "service",
