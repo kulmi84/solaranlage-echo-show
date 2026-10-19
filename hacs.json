@@ -1,5 +1,5 @@
 {
   "name": "Solaranlage Echo Show",
   "homeassistant": "2025.3.0",
-  "render_readme": true
+  "render_readme": false
 }
