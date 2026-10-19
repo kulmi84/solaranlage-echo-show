@@ -160,6 +160,21 @@ Einrichtungsübersetzungen geladen werden, kann anschließend ein HA-Neustart
 nötig sein. Die README in HACS und die installierte Integrationsversion sind
 unterschiedliche Dinge. Bestehende Sensoren und die Kontoverknüpfung bleiben erhalten.
 
+## Integrationssymbol und HACS-Platzhalter
+
+Das weiße Logo auf schwarzem Hintergrund wird als lokale Brand-Datei unter
+`custom_components/solaranlage_echo/brand/` mitgeliefert. Home Assistant unterstützt
+diese Symbole ab Version 2026.3. Das Logo in der Beschreibung ist davon unabhängig.
+
+Ältere HACS-Versionen laden das Listensymbol weiterhin von einem zentralen CDN
+und zeigen für neue Integrationen deshalb „icon not available“. Erneutes Laden
+der Beschreibung behebt diesen HACS-Fehler nicht. Laut den Entwicklern ist die
+Korrektur im Marketplace von Home Assistant 2026.11 enthalten; dafür keine
+Vorabversion auf einem produktiven System installieren.
+
+Quellen: [Lokale Integrationssymbole](https://contributors.home-assistant.io/blog/2026/02/24/brands-proxy-api/),
+[HACS-Fehlerbericht #5402](https://github.com/hacs/integration/issues/5402).
+
 ## Vor einer öffentlichen Alexa-Store-Freigabe
 
 - Kontoverknüpfung mit zwei getrennten echten Testhaushalten prüfen.
