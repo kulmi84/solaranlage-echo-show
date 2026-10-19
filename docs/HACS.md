@@ -2,11 +2,18 @@
 
 Die HACS-Version wurde mit echten Messwerten und Kontoverknüpfung auf einem Echo
 Show geprüft. Der Skill heißt **Solaranlage**, Sprachaufruf **meine solaranlage**.
-Der Alexa-Store-Skill ist noch nicht öffentlich freigegeben. Entwickler-Skill und
-Einladung zum bestehenden Relay sind bis dahin erforderlich. Das GitHub-Repository
+Der Alexa-Skill wurde am 19. Oktober 2026 zur Zertifizierung eingereicht;
+der zuletzt bestätigte Status lautet **„Wird überprüft“**. Eine öffentliche
+Store-Freigabe steht noch aus. Neue Nutzer können den gemeinsamen Skill erst
+danach regulär aktivieren; bestehender Entwicklerzugriff funktioniert weiter.
+Das Relay erfordert eine Einladung und erlaubt zunächst maximal 20 Haushalte.
+Bitte vor der Einrichtung unter support@dorisundmarcin.de nachfragen. Das GitHub-Repository
 ist öffentlich und kann in HACS als benutzerdefiniertes Repository hinzugefügt werden.
 
 ## Der neue Ablauf für Nutzer
+
+Die Skill-Aktivierung in Schritt 4 setzt die Amazon-Freigabe oder bereits
+vorhandenen Entwicklerzugriff voraus. [Status und Voraussetzungen](ALEXA-STATUS.md).
 
 1. `https://github.com/kulmi84/solaranlage-echo-show` als benutzerdefiniertes Repository in HACS
    hinzufügen und **Solaranlage Echo Show** herunterladen. HA neu starten.
@@ -154,7 +161,7 @@ Einrichtungstexte und die im Release enthaltenen Bildschirmaufnahmen.
 
 HACS liest Repository- und Release-Daten nicht immer sofort neu ein. Im
 Repository-Menü **Informationen aktualisieren** verwenden, sofern angeboten,
-und die Ansicht neu laden. Prüfe, ob **1.0.1** als aktuelle Version angezeigt wird.
+und die Ansicht neu laden. Prüfe, ob **1.0.4** als aktuelle Version angezeigt wird.
 **Herunterladen/Erneut herunterladen** aktualisiert die Integration; damit neue
 Einrichtungsübersetzungen geladen werden, kann anschließend ein HA-Neustart
 nötig sein. Die README in HACS und die installierte Integrationsversion sind
@@ -175,13 +182,20 @@ Vorabversion auf einem produktiven System installieren.
 Quellen: [Lokale Integrationssymbole](https://contributors.home-assistant.io/blog/2026/02/24/brands-proxy-api/),
 [HACS-Fehlerbericht #5402](https://github.com/hacs/integration/issues/5402).
 
-## Vor einer öffentlichen Alexa-Store-Freigabe
+## Einreichung und verbleibende Freigabe
 
 - Kontoverknüpfung mit zwei getrennten echten Testhaushalten prüfen.
-- Betreiber-/Datenschutzseite und Store-Beschreibung vervollständigen.
-- Amazon-Zertifizierung und anschließende Veröffentlichung des gemeinsamen Skills.
+- Datenschutz- und Kontaktseite sind erreichbar; die Store-Beschreibung ist ergänzt.
+- Die automatische Amazon-Validierung hat keine Fehler gemeldet. Ein eigener,
+  zeitlich begrenzter Demo-Zugang mit künstlichen Werten ist für das Prüfteam hinterlegt.
+- Am 19. Oktober 2026 erfolgreich eingereicht. Amazons Entscheidung steht aus;
+  automatische Veröffentlichung nach erfolgreicher Zertifizierung ist gewählt.
 - Optional Aufnahme in den HACS-Standardkatalog; das öffentliche benutzerdefinierte
   Repository ist bereits nutzbar.
+
+[Datenschutz](https://solaranlage-public-beta.kulmi84.workers.dev/privacy) ·
+[Kontakt](https://solaranlage-public-beta.kulmi84.workers.dev/contact) ·
+[Technische Einreichungsdokumentation](STORE-PUBLISHING.md)
 
 Interne Namen wie `public-beta`, `public_beta` und ältere `pv_beta`-Dateien bleiben
 für bestehende Verknüpfungen und Installationen erhalten. Sie sind keine

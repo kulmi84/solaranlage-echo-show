@@ -1,13 +1,17 @@
 # Solaranlage – bebilderte Anleitung
 
-Diese Anleitung beschreibt den privaten Alexa-Skill für den Echo Show:
+Diese Anleitung beschreibt den Alexa-Skill Solaranlage für den Echo Show:
 Installation, Bedienung, Datenquellen und Fehlerbehebung. Die Aufnahmen zeigen
 die tatsächlich eingerichtete Anwendung. Messwerte sind Momentaufnahmen und
 keine fest eingestellten Beispielwerte.
 
 ## Neu installieren: HACS
 
-Die aktuelle v1 wird über **[HACS eingerichtet](HACS.md)**:
+Die aktuelle v1 wird über **[HACS eingerichtet](HACS.md)**.
+Der gemeinsame Alexa-Skill wurde am 19. Oktober 2026 bei Amazon eingereicht und
+wird geprüft. Der folgende Ablauf setzt die noch ausstehende Store-Freigabe
+oder bereits vorhandenen Entwicklerzugriff voraus. HACS installiert nur die
+Home-Assistant-Integration. [Aktueller dokumentierter Status](ALEXA-STATUS.md).
 
 1. Repository in HACS hinzufügen, **Solaranlage Echo Show** herunterladen und HA neu starten.
 2. Unter Geräte & Dienste die Integration hinzufügen, Relay-Einladung eingeben
@@ -16,8 +20,9 @@ Die aktuelle v1 wird über **[HACS eingerichtet](HACS.md)**:
    Alexa-App beim Skill **Solaranlage** unter **Konto verknüpfen** einfügen.
 4. **„Alexa, öffne meine Solaranlage.“**
 
-Der Skill ist derzeit ein Entwickler-Skill; eine öffentliche Store-Freigabe
-steht noch aus. Bestehende Nutzer brauchen keine neue Kontoverknüpfung.
+Bestehende Nutzer brauchen keine neue Kontoverknüpfung. Das gemeinsame Relay
+ist zunächst auf 20 eingeladene Haushalte begrenzt; Einladungen über
+support@dorisundmarcin.de anfragen. [Datenschutz](https://solaranlage-public-beta.kulmi84.workers.dev/privacy).
 
 ![Aktuelle v1 mit Live- und Tageswerten](screenshots/v1-live-heute.webp)
 

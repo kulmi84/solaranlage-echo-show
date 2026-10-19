@@ -3,6 +3,14 @@
 Stand: 19. Oktober 2026. Eine erfolgreiche automatische Validierung ist noch
 keine Amazon-Zertifizierung und keine Zusage einer Store-Freigabe.
 
+**Einreichung erfolgt:** Amazon bestätigt am 19. Oktober 2026 die Übermittlung;
+der Skill-Status lautet „Wird überprüft“. Modus: Zertifizieren und veröffentlichen.
+Die automatische Validierung meldet keine Fehler. 40 Python-Tests und 12 Worker-
+Tests bestehen; der bereitgestellte Demo-OAuth-/PKCE-Ablauf, fünf Sprachabfragen
+und ein stiller APL-Start wurden zusätzlich geprüft. Die Entscheidung von Amazon
+steht aus. Der Demo-Zugang gilt bis zum 18. Dezember 2026 und muss bei einer
+längeren Prüfung kontrolliert erneuert werden.
+
 ## Öffentliche Angaben
 
 - Datenschutz: https://solaranlage-public-beta.kulmi84.workers.dev/privacy

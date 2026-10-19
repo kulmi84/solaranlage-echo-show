@@ -16,7 +16,7 @@ Aktuelle Bildschirmaufnahmen der v1 im Alexa-Simulator vom 19. Oktober 2026.
 Live-Aufnahme: 09:21 Uhr; Monats-/Jahresdaten: letzter HA-Upload 08:15 Uhr.
 Die abgebildeten Messwerte sind Momentaufnahmen der verbundenen Anlage.
 
-## Version 1.0.2 · HACS
+## Version 1.0.4 · HACS
 
 Die auf dem Echo Show getestete HACS-Version ist die v1. Der Skill heißt
 **Solaranlage** und wird mit **„Alexa, öffne meine Solaranlage.“** gestartet.
@@ -25,9 +25,20 @@ Die bestehende Kontoverknüpfung der bisherigen HACS-Beta bleibt erhalten.
 **[Einrichtung über HACS und Kontoverknüpfung](docs/HACS.md)** ·
 **[Änderungen und Rückkehr zur Vorversion](docs/V1.md)**
 
-Das Repository ist öffentlich. Der Alexa-Skill läuft derzeit als Entwickler-Skill;
-eine Veröffentlichung im Alexa-Store und Aufnahme in den HACS-Standardkatalog
-sind damit noch nicht erfolgt. Das gemeinsame Relay benötigt weiterhin eine Einladung.
+**Alexa-Store: am 19. Oktober 2026 zur Zertifizierung eingereicht.**
+Der zuletzt bestätigte Amazon-Status lautet **„Wird überprüft“**. Der Skill ist
+noch nicht als öffentlich verfügbar bestätigt; bei erfolgreicher Zertifizierung
+ist die automatische Veröffentlichung gewählt. Ein Store-Link folgt nach der Freigabe.
+HACS installiert die HA-Integration, nicht den Alexa-Skill. Neue Nutzer können
+den gemeinsamen Skill erst nach seiner Freigabe regulär aktivieren. Das Relay
+benötigt eine persönliche Einladung und ist zunächst auf **20 Haushalte** begrenzt.
+
+[Verfügbarkeit und Einrichtung](docs/ALEXA-STATUS.md) ·
+[Datenschutz](https://solaranlage-public-beta.kulmi84.workers.dev/privacy) ·
+[Kontakt und Einladung](https://solaranlage-public-beta.kulmi84.workers.dev/contact)
+
+Das Repository ist öffentlich und als benutzerdefiniertes HACS-Repository nutzbar.
+Eine Aufnahme in den HACS-Standardkatalog ist noch nicht erfolgt.
 
 **[In HACS hinzufügen](https://my.home-assistant.io/redirect/hacs_repository/?owner=kulmi84&repository=solaranlage-echo-show&category=integration)**
 

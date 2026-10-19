@@ -16,6 +16,11 @@ Native Anzeige für PV und BKW, Hausverbrauch, Netz und Akku.
 
 ## Installation
 
+**Stand 19. Oktober 2026:** Der gemeinsame Alexa-Skill wurde bei Amazon eingereicht
+und wird geprüft. Eine öffentliche Store-Freigabe ist noch nicht bestätigt.
+Die folgenden Schritte zur Aktivierung des gemeinsamen Skills gelten nach der
+Freigabe; HACS allein installiert den Skill nicht.
+
 1. Solaranlage Echo Show über HACS herunterladen und HA neu starten.
 2. Unter Geräte & Dienste die Integration hinzufügen, Relay-Einladung eingeben und Sensoren auswählen.
 3. In den Optionen **Alexa verbinden** öffnen und den einmaligen Code in der Alexa-App beim Skill **Solaranlage** einfügen.
@@ -23,4 +28,11 @@ Native Anzeige für PV und BKW, Hausverbrauch, Netz und Akku.
 
 [Ausführliche HACS-Anleitung](https://github.com/kulmi84/solaranlage-echo-show/blob/main/docs/HACS.md)
 
-Der Alexa-Skill läuft derzeit im Entwicklerbetrieb. Eine öffentliche Store-Freigabe steht noch aus. Die bestehende Kontoverknüpfung bleibt bei Updates erhalten. Interne Dateinamen mit „beta“ sind aus Kompatibilitätsgründen unverändert.
+Das gemeinsame Relay benötigt eine persönliche Einladung und ist zunächst auf
+20 Haushalte begrenzt. Bitte vor der Einrichtung unter support@dorisundmarcin.de
+nach einer freien Einladung fragen. Die bestehende Kontoverknüpfung bleibt bei
+Updates erhalten. Interne Dateinamen mit „beta“ sind aus Kompatibilitätsgründen unverändert.
+
+[Alexa-Veröffentlichungsstatus](https://github.com/kulmi84/solaranlage-echo-show/blob/main/docs/ALEXA-STATUS.md) ·
+[Datenschutz](https://solaranlage-public-beta.kulmi84.workers.dev/privacy) ·
+[Kontakt](https://solaranlage-public-beta.kulmi84.workers.dev/contact)
