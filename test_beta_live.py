@@ -114,7 +114,7 @@ class AutomaticDisplayTests(unittest.TestCase):
         for args in [None, ['refresh'], ['auto_refresh', 4_600_000]]:
             with self.subTest(arguments=args):
                 response, _ = self.render(1060, self.event(args))
-                self.assertNotIn('shouldEndSession', response['response'])
+                self.assertTrue(response['response']['shouldEndSession'])
                 self.assertNotIn('reprompt', response['response'])
                 self.assertNotIn('outputSpeech', response['response'])
                 self.assertEqual(response['response']['directives'][0]['type'],
@@ -206,12 +206,18 @@ class SpokenReadingTests(unittest.TestCase):
 
 
 class FallbackTests(unittest.TestCase):
-    def test_unknown_request_exits_silently_without_fetching(self):
+    def test_unknown_request_is_silent_without_fetching(self):
         with patch('beta_live_lambda.read_pv') as reader:
             result = beta_live_lambda.lambda_handler({'request': {
                 'type': 'IntentRequest', 'intent': {'name': 'AMAZON.FallbackIntent'}}}, None)
         reader.assert_not_called()
-        self.assertEqual(result['response'], {'shouldEndSession': True})
+        self.assertEqual(result['response'], {})
+
+    def test_stop_and_cancel_are_silent(self):
+        for name in ('AMAZON.StopIntent', 'AMAZON.CancelIntent'):
+            response = beta_live_lambda.lambda_handler({'request': {
+                'type': 'IntentRequest', 'intent': {'name': name}}}, None)['response']
+            self.assertEqual(response, {'shouldEndSession': True})
 
     def test_explicit_help_still_explains_commands(self):
         with patch('beta_live_lambda.read_pv') as reader:

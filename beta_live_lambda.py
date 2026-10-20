@@ -69,8 +69,7 @@ def lambda_handler(event, context):
     if intent in ('AMAZON.StopIntent', 'AMAZON.CancelIntent'):
         return {'version': '1.0', 'response': {'shouldEndSession': True}}
     if intent == 'AMAZON.FallbackIntent':
-        # Do not recite help for a general Alexa request caught by this session.
-        return {'version': '1.0', 'response': {'shouldEndSession': True}}
+        return {'version': '1.0', 'response': {}}
     if intent == 'AMAZON.HelpIntent':
         return {'version': '1.0', 'response': {
             'outputSpeech': {'type': 'PlainText', 'text':
@@ -216,9 +215,11 @@ def lambda_handler(event, context):
                     ') || (currentPage == 1 && utcTime >= ' + str(now_ms + HISTORY_INTERVAL_MS) + '))}')
     tick['commands'][0]['arguments'] = ['auto_refresh', expires_at, '${currentPage}']
     document['mainTemplate']['items'][0]['handleTick'] = document.pop('handleTick')
-    # Omit shouldEndSession: show APL without opening the microphone for a reply.
-    # True would close the skill; False would request speech after every refresh.
+    # v1.0.5: render APL while ending voice on launch and touch/tick updates.
+    # Do not Finish the document: the Echo may keep the dashboard visible.
     response = {'directives': [{'type': 'Alexa.Presentation.APL.RenderDocument', 'token': 'solaranlage', 'document': document}]}
+    if request.get('type') in ('LaunchRequest', 'Alexa.Presentation.APL.UserEvent'):
+        response['shouldEndSession'] = True
     if speech:
         response['outputSpeech'] = {'type': 'PlainText', 'text': speech}
     return {'version': '1.0', 'response': response}
