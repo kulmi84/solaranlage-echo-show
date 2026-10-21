@@ -129,14 +129,15 @@ def house_image_pilot(result, grant):
                 image_id = 'tile_' + page_name + '_' + str(row) + '_' + str(col)
                 suffix = '&page=' + page_name + '&row=' + str(row) + '&col=' + str(col)
                 command = {'type': 'SetValue', 'componentId': image_id, 'property': 'source',
-                           'value': '${tileImageBase + "' + suffix + '&n=" + elapsedTime}'}
+                           'value': '${tileImageBase + "' + suffix + '&layout=final&n=" + elapsedTime}'}
                 refresh.append(command)
-                cards.append({'type': 'Frame', 'width': '23vw', 'height': '29vh',
-                    'backgroundColor': '#172330', 'borderRadius': '1.4vh',
-                    'spacing': '1vw' if col else 0, 'padding': '1vw',
-                    'item': {'type': 'Container', 'items': [text(label, '3vh', '#8FA8BC'),
-                        {'type': 'Image', 'id': image_id, 'width': '21vw', 'height': '23vh',
-                         'scale': 'best-fit', 'align': 'top-left', 'source': base + suffix + '&n=initial',
+                cards.append({'type': 'Frame', 'width': '23vw', 'height': '100%',
+                    'backgroundColor': '#172330', 'borderRadius': '14dp',
+                    'borderColor': '#2D3D4B', 'borderWidth': '1dp',
+                    'item': {'type': 'Container', 'paddingLeft': '1.5vw', 'paddingRight': '1vw',
+                             'paddingTop': '2vh', 'items': [text(label, '3.4vh', '#AFC1D1'),
+                        {'type': 'Image', 'id': image_id, 'width': '20.5vw', 'height': '19.25vh', 'spacing': '1vh',
+                         'scale': 'best-fit', 'align': 'top-left', 'source': base + suffix + '&layout=final&n=initial',
                          'onLoad': [{'type': 'SetValue', 'componentId': 'solarRoot',
                                      'property': 'imageFailed', 'value': False},
                                     {'type': 'SetValue', 'componentId': 'solarRoot',
@@ -144,22 +145,39 @@ def house_image_pilot(result, grant):
                          'onFail': [{'type': 'SetValue', 'componentId': 'solarRoot',
                                      'property': 'imageFailed', 'value': True}]}]}})
             heading = ('LIVE' if row == 0 else 'HEUTE - seit Mitternacht') if page_index == 0 else ('MONAT' if row == 0 else 'JAHR')
-            rows += [text(heading, '2.8vh', '#8FA8BC', spacing='1.2vh'),
-                     {'type': 'Container', 'direction': 'row', 'spacing': '1vh', 'items': cards}]
-        pages.append({'type': 'Container', 'width': '100vw', 'height': '84vh', 'padding': '2vw',
-            'items': [text('Solaranlage Test', '5vh', fontWeight='700')] + rows + [
-                {'type': 'Container', 'direction': 'row', 'spacing': '1vh', 'items': [
-                    {'type': 'TouchWrapper', 'onPress': refresh, 'item': text('Aktualisieren', '2.7vh', '#8BCBFF')},
-                    {'type': 'TouchWrapper', 'spacing': '5vw', 'onPress': [{'type': 'SetPage',
-                        'componentId': 'solarPager', 'position': 'absolute', 'value': 1-page_index}],
-                     'item': text('Monat/Jahr' if page_index == 0 else 'Live/Heute', '2.7vh', '#8BCBFF')},
-                    text('Bilder: ${tileImageLoads}', '2.2vh', '#8FA8BC', spacing='5vw')]}]})
+            rows += [text(heading, '3vh', '#8FA8BC', spacing='1vh' if row == 0 else '2vh'),
+                     {'type': 'Container', 'direction': 'row', 'height': '30vh', 'justifyContent': 'spaceBetween', 'spacing': '1vh', 'items': cards}]
+        status_base = base.replace('/tile.png?', '/status.png?', 1)
+        status_id = 'sharedStatus' + page_name
+        refresh.append({'type': 'SetValue', 'componentId': status_id, 'property': 'source',
+                        'value': '${"' + status_base + '&n=" + elapsedTime}'})
+        date = grant.get('local_date') or ''
+        if page_index == 1 and re.fullmatch(r'\d{4}-\d\d-\d\d', date):
+            month_names = ['Januar','Februar','Maerz','April','Mai','Juni','Juli','August','September','Oktober','November','Dezember']
+            month = int(date[5:7])
+            if 1 <= month <= 12:
+                rows[0]['text'] = 'MONAT - ' + month_names[month-1] + ' ' + date[:4]
+                rows[2]['text'] = 'JAHR - ' + date[:4]
+        pages.append({'type': 'Container', 'width': '100vw', 'height': '100vh',
+            'backgroundColor': '#0C151F', 'paddingLeft': '3vw', 'paddingRight': '3vw', 'paddingTop': '2vh',
+            'items': [{'type': 'Container', 'direction': 'row', 'height': '10vh',
+                       'alignItems': 'center', 'justifyContent': 'spaceBetween', 'items': [
+                text('Solaranlage' if page_index == 0 else 'Monat & Jahr', '6vh' if page_index == 0 else '5.5vh', fontWeight='700'),
+                {'type': 'TouchWrapper', 'onPress': refresh, 'item': text('Aktualisieren', '3.6vh', '#8BCBFF', padding='1.5vh')},
+                {'type': 'TouchWrapper', 'onPress': [{'type': 'SetPage', 'componentId': 'solarPager',
+                     'position': 'absolute', 'value': 1-page_index}],
+                 'item': text('Monat/Jahr' if page_index == 0 else 'Live/Heute', '3vh', '#8BCBFF', padding='1vh')}]}] + rows + [
+                {'type': 'Image', 'id': status_id, 'width': '94vw', 'height': '3vh', 'scale': 'best-fit',
+                 'align': 'left', 'spacing': '2vh', 'source': status_base + '&n=initial'},
+                text('1/2 - Nach rechts wischen: Monat/Jahr' if page_index == 0 else '2/2 - Nach links wischen: Live/Heute',
+                     '2.3vh', '#8FA8BC', spacing='1vh')]})
         for step in refresh:
             command = dict(step)
             command['when'] = ('${displayState == "foreground" && currentPage == ' + str(page_index) +
                 ' && elapsedTime < ' + str(lifetime) +
                 ' && (elapsedTime - lastDashboardRefresh >= 60000 || (imageFailed && elapsedTime - lastDashboardRefresh >= 10000))}')
             timer.append(command)
+    root['items'][0]['height'] = '100vh'
     root['items'][0]['items'] = pages
     timer += [
         {'type': 'SetValue', 'componentId': 'solarRoot', 'property': 'lastDashboardRefresh',

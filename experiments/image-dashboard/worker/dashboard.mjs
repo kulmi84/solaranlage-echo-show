@@ -31,6 +31,22 @@ export function cleanValues(data,now=Date.now()){
 const num=(v,d=2)=>v===null?'-':v.toFixed(d).replace('.',',');
 const power=v=>v===null?'-':v>=1000?num(v/1000)+' kW':num(v,0)+' W';
 const energy=v=>num(v)+' kWh';
+export async function finalTilePng(data,page,tile,now=Date.now()){
+ const v=cleanValues(data,now),footer=tile===null,width=footer?1150:263,height=footer?34:154;
+ const bg=footer?0:3,pixels=new Uint8Array(width*height);pixels.fill(bg);
+ function line(str,y,size,color){let pen=0;for(const ch of String(str)){const [w,h,advance,mask]=glyph(size,ch);for(let yy=0;yy<h;yy++)for(let xx=0;xx<w;xx++){const a=mask[yy*w+xx],px=pen+xx,py=y+yy;if(a&&px>=0&&px<width&&py>=0&&py<height)pixels[py*width+px]=blend[bg+','+color+','+a];}pen+=advance;}}
+ if(footer){line((v.stale?'Veraltete Daten - Stand ':'Stand ')+v.received+' Uhr - Auto alle 60 s',0,8,v.stale?8:2);return encodePng(width,height,pixels);}
+ const colors=[4,5,6,7];let main,details;
+ if(page==='live'&&tile.row===0){const l=v.live;main=[power(l.power_w),power(l.home_w),power(l.grid_export_w),num(l.battery_soc,0)+' %'][tile.col];details=[['PV '+power(l.pv_dc_w),'BKW '+power(l.bkw_w)],['Verbrauch jetzt'],['Einspeisung','Bezug '+power(l.grid_import_w)],['Laden '+power(l.battery_charge_w),'Entladen '+power(l.battery_discharge_w)]][tile.col];}
+ else{const h=page==='live'?v.day:v.history,prefix=page==='live'?'':(tile.row===0?'month_':'year_');
+  const n=k=>h[prefix+k]===null?'-':(page==='live'?energy(h[prefix+k]):new Intl.NumberFormat('de-DE',{minimumFractionDigits:2,maximumFractionDigits:2}).format(h[prefix+k]));
+  main=[n('pv'),n('home'),n('grid_export'),n('battery_charge')][tile.col];
+  const unit=page==='history'?'kWh - ':'';
+  details=[[unit+'Erzeugung'],[unit+'Verbrauch'],[unit+'Einspeisung','Bezug '+n('grid_import')+(page==='history'?' kWh':'')],[unit+'Geladen','Entladen '+n('battery_discharge')+(page==='history'?' kWh':'')]][tile.col];
+ }
+ line(main,0,page==='history'?7:6,colors[tile.col]);details.forEach((s,i)=>line(s,65+i*29,8,1));
+ return encodePng(width,height,pixels);
+}
 export async function housePng(data,now=Date.now()){
  const width=480,height=130,pixels=new Uint8Array(width*height);pixels.fill(3);
  const v=cleanValues(data,now);

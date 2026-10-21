@@ -1,4 +1,4 @@
-import {dashboardPng,housePng} from './dashboard.mjs';
+import {dashboardPng,housePng,finalTilePng} from './dashboard.mjs';
 const relay='https://solaranlage-public-beta.kulmi84.workers.dev/v1/pv';
 const aad=new TextEncoder().encode('solaranlage-image-test-v1');
 const base64=b=>btoa(String.fromCharCode(...b)).replaceAll('+','-').replaceAll('/','_').replaceAll('=','');
@@ -32,17 +32,17 @@ export async function sessionRoute(request,env,upstream=fetch){
    if(Number(request.headers.get('Content-Length'))>1024)throw Error('invalid');
    const raw=await boundedText(request.body,1024);const input=JSON.parse(raw);
    if(!/^[a-f0-9]{64}$/.test(input.access_token||''))throw Error('invalid');
-   await getValues(input.access_token,upstream);
+   const values=await getValues(input.access_token,upstream);
    const token=await seal(input.access_token,env.DISPLAY_KEY);
-   return Response.json({base_url:u.origin+'/dashboard.png?s='+token,expires_in:3600},{headers:h});
+   return Response.json({base_url:u.origin+'/dashboard.png?s='+token,expires_in:3600,local_date:/^\d{4}-\d\d-\d\d$/.test(values.local_date||'')?values.local_date:null},{headers:h});
   }catch(error){const detail=/^(upstream_[0-9]{3}|too_large|configuration|invalid)$/.test(error.message)?error.message:'internal';return Response.json({error:'session_unavailable',detail},{status:400,headers:h});}
  }
- if(u.pathname==='/dashboard.png'||u.pathname==='/house.png'||u.pathname==='/tile.png'){
+ if(u.pathname==='/dashboard.png'||u.pathname==='/house.png'||u.pathname==='/tile.png'||u.pathname==='/status.png'){
   if(request.method!=='GET')return new Response('Not found',{status:404,headers:h});
   let access;try{access=await open(u.searchParams.get('s')||'',env.DISPLAY_KEY);}catch{return new Response('Forbidden',{status:403,headers:h});}
   const page=u.searchParams.get('page')||'live';if(!['live','history'].includes(page))return new Response('Not found',{status:404,headers:h});
   let tile=null;if(u.pathname==='/tile.png'){const row=u.searchParams.get('row'),col=u.searchParams.get('col');if(!/^[01]$/.test(row||'')||!/^[0-3]$/.test(col||''))return new Response('Not found',{status:404,headers:h});tile={row:Number(row),col:Number(col)};}
-  try{const values=await getValues(access,upstream);return new Response(await (u.pathname==='/house.png'?housePng(values):dashboardPng(values,page,Date.now(),tile)),{headers:{...h,'Content-Type':'image/png'}});}catch{return new Response('Image unavailable - reopen test skill',{status:503,headers:h});}
+  try{const values=await getValues(access,upstream);const png=u.pathname==='/status.png'?finalTilePng(values,page,null):u.pathname==='/tile.png'&&u.searchParams.get('layout')==='final'?finalTilePng(values,page,tile):u.pathname==='/house.png'?housePng(values):dashboardPng(values,page,Date.now(),tile);return new Response(await png,{headers:{...h,'Content-Type':'image/png'}});}catch{return new Response('Image unavailable - reopen test skill',{status:503,headers:h});}
  }
  return null;
 }
