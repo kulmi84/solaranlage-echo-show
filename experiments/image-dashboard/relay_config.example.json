@@ -1,0 +1,6 @@
+{
+  "image_session_url": "https://solaranlage-image-test.kulmi84.workers.dev/image/session",
+  "image_session_key": "REPLACE_WITH_SEPARATE_RANDOM_SESSION_KEY",
+  "mode": "public_beta",
+  "url": "https://solaranlage-public-beta.kulmi84.workers.dev/v1/pv"
+}

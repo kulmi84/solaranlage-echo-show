@@ -1,0 +1,5 @@
+image-live/
+worker/preview-*.png
+worker/wrangler.jsonc
+worker/.secrets.json
+__pycache__/
