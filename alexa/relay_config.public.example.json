@@ -1,4 +1,6 @@
 {
   "mode": "public_beta",
-  "url": "https://YOUR-NEW-BETA-RELAY.workers.dev/v1/pv"
+  "url": "https://solaranlage-public-beta.kulmi84.workers.dev/v1/pv",
+  "image_session_url": "https://solaranlage-display.kulmi84.workers.dev/image/session",
+  "image_session_key": "YOUR_PRIVATE_SESSION_KEY"
 }

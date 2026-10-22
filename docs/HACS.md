@@ -1,5 +1,7 @@
 # Solaranlage v1 über HACS
 
+**Version 1.0.6:** Die Solaranzeige aktualisiert sich alle 60 Sekunden bei geschlossener Sprachsitzung. Ein eigener Anzeigezugang ermöglicht bis zu 24 Stunden; danach erneut öffnen. [Update und Rückkehr](V1.0.6.md).
+
 ## Version 1.0.5: Anzeige ohne offene Sprachsitzung
 
 Das Dashboard wird beim Öffnen angezeigt, während die Sprachsitzung sofort endet. Bildschirmaktualisierungen halten die Sprachsitzung ebenfalls geschlossen. Es gibt keine Abschiedsansage. Normale Alexa-Befehle können so wieder direkt verarbeitet werden; Wetter- oder Smart-Home-Karten können die Solaranzeige ersetzen. Eine automatische Rückkehr wird nicht erzwungen.
