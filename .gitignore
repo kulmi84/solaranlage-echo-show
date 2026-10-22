@@ -22,3 +22,6 @@ cloudflare/wrangler.jsonc
 /home-assistant/pv_beta_package.yaml
 
 cloudflare/public-beta/wrangler.jsonc
+
+cloudflare/display/wrangler.jsonc
+cloudflare/display/preview-*.png

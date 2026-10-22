@@ -1,13 +1,16 @@
 # Solaranlage auf dem Echo Show
 
-## Version 1.0.5: Anzeige ohne offene Sprachsitzung
+## Version 1.0.6: Solaranzeige bleibt sichtbar – Alexa kann wieder zuhören
 
-Das Dashboard wird beim Öffnen angezeigt, während die Sprachsitzung sofort endet. Bildschirmaktualisierungen halten die Sprachsitzung ebenfalls geschlossen. Es gibt keine Abschiedsansage. Normale Alexa-Befehle können so wieder direkt verarbeitet werden; Wetter- oder Smart-Home-Karten können die Solaranzeige ersetzen. Eine automatische Rückkehr wird nicht erzwungen.
+**Die Solaranzeige bleibt sichtbar und aktualisiert ihre Werte alle 60 Sekunden, während die Sprachsitzung des Skills bereits geschlossen ist. Normale Alexa-Befehle benötigen dadurch kein vorheriges „Alexa, stopp“.** Alexa entscheidet über die Zuordnung der Anfrage; Wetter- oder Smart-Home-Karten können die Ansicht ersetzen. Keine automatische Rückkehr.
 
-Die Änderung wurde auf dem Echo Show in der separaten Testversion erfolgreich erprobt. Verhalten und Anzeigedauer bestimmt weiterhin auch das jeweilige Alexa-Gerät. Live-Werte und Kontoverknüpfung werden unverändert verwendet. Ein HA-Neustart oder erneutes Verknüpfen ist für dieses Alexa-Codeupdate nicht erforderlich.
+**Ausgangspunkt:** Die bisherige native Anzeige lieferte die Werte, gab im beobachteten Vollbildbetrieb normale Alexa-Anfragen aber nicht zuverlässig frei. Bei geschlossener Sprachsitzung funktionierte die bisherige SendEvent-Aktualisierung nicht zuverlässig. Die neue Version lädt deshalb nur die Wertebereiche als geschützte Bilder nach; Überschriften, Kacheln, Navigation und Schaltflächen bleiben nativ und behalten die bisherige Größe.
 
-[Änderung und Rückkehr zu 1.0.4](docs/V1.0.5.md) · [1.0.4 bleibt verfügbar](https://github.com/kulmi84/solaranlage-echo-show/releases/tag/v1.0.4)
+Der eigene Anzeige-Lesezugang gilt **bis zu 24 Stunden ab dem Öffnen**, unabhängig vom kürzeren Alexa-Token. Danach erneut öffnen. Die verlängerte Beta hat den Gerätetest und den vom Betreiber bestätigten Langzeittest bestanden. Alexa kann die Ansicht trotzdem früher ersetzen oder schließen.
 
+**Update:** „Alexa, öffne meine Solaranlage.“ erneut starten. Keine neue Kontoverknüpfung und kein HA-Neustart für das zentrale Alexa-Update erforderlich. HACS 1.0.6 kennzeichnet denselben Release; es aktualisiert nicht selbst den zentralen Alexa-Code.
+
+[Änderungen, Einrichtung des Bilddiensts und Rückkehr zu 1.0.5](docs/V1.0.6.md) · [v1.0.5 bleibt erhalten](https://github.com/kulmi84/solaranlage-echo-show/releases/tag/v1.0.5)
 
 <p align="center"><img src="https://raw.githubusercontent.com/kulmi84/solaranlage-echo-show/main/assets/branding/solaranlage-icon-512.png" width="192" alt="Solaranlage: weiße Sonne und Solarpanel auf schwarzem Hintergrund"></p>
 
@@ -25,7 +28,7 @@ Aktuelle Bildschirmaufnahmen der v1 im Alexa-Simulator vom 19. Oktober 2026.
 Live-Aufnahme: 09:21 Uhr; Monats-/Jahresdaten: letzter HA-Upload 08:15 Uhr.
 Die abgebildeten Messwerte sind Momentaufnahmen der verbundenen Anlage.
 
-## Version 1.0.4 · HACS
+## Version 1.0.6 · HACS
 
 Die auf dem Echo Show getestete HACS-Version ist die v1. Der Skill heißt
 **Solaranlage** und wird mit **„Alexa, öffne meine Solaranlage.“** gestartet.

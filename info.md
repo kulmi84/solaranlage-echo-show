@@ -2,7 +2,9 @@
 
 ![Solaranlage](https://raw.githubusercontent.com/kulmi84/solaranlage-echo-show/main/assets/branding/solaranlage-icon-108.png)
 
-Native Anzeige für PV und BKW, Hausverbrauch, Netz und Akku.
+**Version 1.0.6:** Anzeige bleibt sichtbar, Alexa kann wieder normale Befehle entgegennehmen. Live-Aktualisierung alle 60 Sekunden mit eigenem Anzeigezugang für bis zu 24 Stunden. Wetter und andere Alexa-Karten können die Ansicht ersetzen.
+
+Native Kacheln für PV und BKW, Hausverbrauch, Netz und Akku.
 
 **Starten: „Alexa, öffne meine Solaranlage.“**
 

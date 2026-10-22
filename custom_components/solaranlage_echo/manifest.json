@@ -1,7 +1,7 @@
 {
   "domain": "solaranlage_echo",
   "name": "Solaranlage Echo Show",
-  "version": "1.0.5",
+  "version": "1.0.6",
   "codeowners": [
     "@kulmi84"
   ],
