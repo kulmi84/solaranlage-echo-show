@@ -9,15 +9,16 @@ PACKAGE = ROOT / 'skill-package/dataStorePackages/SolarWidget'
 def document():
     def label(value, size=20, color='#AFC1D1'):
         return dict(type='Text', text=value, fontSize=size, color=color, maxLines=1)
-    rows = [label('Solaranlage', 26, '#FFFFFF')]
+    rows = [label('Solaranlage', 30, '#FFFFFF')]
     for title, field, color in [('PV + BKW', 'production', '#FFD166'),
-                                ('Haus', 'consumption', '#8BCBFF'),
+                                ('Hausverbrauch', 'consumption', '#8BCBFF'),
                                 ('Akku', 'battery', '#51D3C5')]:
-        rows.append(dict(type='Container', direction='row', justifyContent='spaceBetween',
-                         spacing=8, items=[label(title), label('${SolarLive.' + field + " ?? '—'}", 24, color)]))
-    rows += [label("${SolarLive.status ?? 'Warte auf Live-Werte'}", 14),
+        rows.append(dict(type='Container', spacing=14, items=[
+            label(title, 22),
+            dict(label('${SolarLive.' + field + " ?? '—'}", 42, color), fontWeight='bold')]))
+    rows += [dict(label("${SolarLive.status ?? 'Warte auf Live-Werte'}", 14), spacing=18),
              label("${SolarLive.stand ?? 'Noch kein Empfang'}", 14),
-             label('Antippen: Vollbild öffnen', 16, '#8BCBFF')]
+             dict(label('Antippen: Vollbild öffnen', 16, '#8BCBFF'), spacing=6)]
     return dict(type='APL', version='2023.3', theme='dark',
         extensions=[dict(name='DataStore', uri='alexaext:datastore:10')],
         settings={'DataStore': {'dataBindings': [dict(namespace='Solar', key='live', dataBindingName='SolarLive', dataType='OBJECT')]}},

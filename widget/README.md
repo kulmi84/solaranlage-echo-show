@@ -14,7 +14,21 @@ installiert. Amazon bestätigt die Zustellung echter Messwerte. Der bisherige Sp
 Vollbildanzeige wurden im Simulator geprüft. Ein tatsächlicher Tipp am Gerät muss vom Nutzer bestätigt werden.
 Das Widget ist erst nach Amazons erneuter Zertifizierung allgemein in der Widget-Galerie verfügbar.
 
-![Beispielansicht des zusätzlichen Widgets](https://solaranlage-widget.kulmi84.workers.dev/preview.png)
+![Neue größere Widget-Ansicht mit Beispielwerten](../docs/images/widget-large.png)
+
+### Layoutstand
+
+Die farbigen Werte stehen wie in der früheren Beta unter den Bezeichnungen. Werte wurden von 24 auf 42,
+Bezeichnungen auf 22 und der Titel auf 30 vergrößert. Auch längere Angaben passen in die verfügbare Breite.
+Der Entwurf ist im Amazon-Editor gespeichert. Der erforderliche Build ist während der laufenden Zertifizierung
+blockiert; die neue Gestaltung ist deshalb noch nicht auf dem Gerät. Eine abgeschlossene Zertifizierung
+bestätigt nicht automatisch dieses nachträglich geänderte Layout.
+
+| Bisherige Vorschau | Neuer Entwurf |
+| --- | --- |
+| ![Bisherige Vorschau](../docs/images/widget-before.png) | ![Neuer Entwurf](../docs/images/widget-large.png) |
+
+[Screenshot: gespeicherter Entwurf in der Amazon-Konsole](../docs/images/widget-editor-saved.png)
 
 Die Vorschau enthält ausdrücklich Beispielwerte. Das installierte Widget erhält Werte des verknüpften Haushalts.
 Nur der isolierte Zertifizierungs-Haushalt erhält klar markierte Demowerte.
