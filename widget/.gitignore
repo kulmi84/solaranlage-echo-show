@@ -1,0 +1,7 @@
+dist/
+__pycache__/
+cloudflare/wrangler.jsonc
+cloudflare/.secrets.json
+cloudflare/.wrangler/
+cloudflare/assets/
+cloudflare/assets.mjs
