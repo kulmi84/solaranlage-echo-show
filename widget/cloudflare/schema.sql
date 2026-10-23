@@ -1,0 +1,1 @@
+CREATE TABLE IF NOT EXISTS widget_registrations (key TEXT PRIMARY KEY, value TEXT NOT NULL);

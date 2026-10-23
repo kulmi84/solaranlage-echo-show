@@ -1,0 +1,41 @@
+{
+  "packageVersion": "1.0",
+  "packageType": "APL_PACKAGE",
+  "manifest": {
+    "id": "SolarWidget",
+    "version": "1.0.0",
+    "installStateChanges": "INFORM",
+    "updateStateChanges": "INFORM",
+    "presentationDefinitions": [
+      {
+        "url": "presentations/default.tpl"
+      }
+    ],
+    "appliesTo": "${viewport.mode == 'HUB' && location == 'FAVORITE'}"
+  },
+  "publishingInformation": {
+    "schemaVersion": "1.0",
+    "locales": {
+      "de-DE": [
+        {
+          "targetViewport": "WIDGET_M",
+          "metadata": {
+            "name": "Solaranlage",
+            "description": "Sieh PV-Leistung, Hausverbrauch und Akkustand. Ein Tipp öffnet die große Solaranlagenanzeige.",
+            "keywords": [
+              "Solar",
+              "Photovoltaik",
+              "Home Assistant",
+              "PV",
+              "Akku"
+            ],
+            "iconUri": "https://solaranlage-widget.kulmi84.workers.dev/icon.png",
+            "previews": [
+              "https://solaranlage-widget.kulmi84.workers.dev/preview.png"
+            ]
+          }
+        }
+      ]
+    }
+  }
+}

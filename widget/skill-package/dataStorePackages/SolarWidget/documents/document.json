@@ -1,0 +1,146 @@
+{
+  "type": "APL",
+  "version": "2023.3",
+  "theme": "dark",
+  "extensions": [
+    {
+      "name": "DataStore",
+      "uri": "alexaext:datastore:10"
+    }
+  ],
+  "settings": {
+    "DataStore": {
+      "dataBindings": [
+        {
+          "namespace": "Solar",
+          "key": "live",
+          "dataBindingName": "SolarLive",
+          "dataType": "OBJECT"
+        }
+      ]
+    }
+  },
+  "mainTemplate": {
+    "items": [
+      {
+        "type": "TouchWrapper",
+        "width": "100vw",
+        "height": "100vh",
+        "onPress": [
+          {
+            "type": "SendEvent",
+            "arguments": [
+              "solar.widget.open.v1"
+            ],
+            "flags": {
+              "interactionMode": "STANDARD"
+            }
+          }
+        ],
+        "item": {
+          "type": "Container",
+          "width": "100%",
+          "height": "100%",
+          "backgroundColor": "#0C151F",
+          "padding": 16,
+          "items": [
+            {
+              "type": "Text",
+              "text": "Solaranlage",
+              "fontSize": 26,
+              "color": "#FFFFFF",
+              "maxLines": 1
+            },
+            {
+              "type": "Container",
+              "direction": "row",
+              "justifyContent": "spaceBetween",
+              "spacing": 8,
+              "items": [
+                {
+                  "type": "Text",
+                  "text": "PV + BKW",
+                  "fontSize": 20,
+                  "color": "#AFC1D1",
+                  "maxLines": 1
+                },
+                {
+                  "type": "Text",
+                  "text": "${SolarLive.production ?? '—'}",
+                  "fontSize": 24,
+                  "color": "#FFD166",
+                  "maxLines": 1
+                }
+              ]
+            },
+            {
+              "type": "Container",
+              "direction": "row",
+              "justifyContent": "spaceBetween",
+              "spacing": 8,
+              "items": [
+                {
+                  "type": "Text",
+                  "text": "Haus",
+                  "fontSize": 20,
+                  "color": "#AFC1D1",
+                  "maxLines": 1
+                },
+                {
+                  "type": "Text",
+                  "text": "${SolarLive.consumption ?? '—'}",
+                  "fontSize": 24,
+                  "color": "#8BCBFF",
+                  "maxLines": 1
+                }
+              ]
+            },
+            {
+              "type": "Container",
+              "direction": "row",
+              "justifyContent": "spaceBetween",
+              "spacing": 8,
+              "items": [
+                {
+                  "type": "Text",
+                  "text": "Akku",
+                  "fontSize": 20,
+                  "color": "#AFC1D1",
+                  "maxLines": 1
+                },
+                {
+                  "type": "Text",
+                  "text": "${SolarLive.battery ?? '—'}",
+                  "fontSize": 24,
+                  "color": "#51D3C5",
+                  "maxLines": 1
+                }
+              ]
+            },
+            {
+              "type": "Text",
+              "text": "${SolarLive.status ?? 'Warte auf Live-Werte'}",
+              "fontSize": 14,
+              "color": "#AFC1D1",
+              "maxLines": 1
+            },
+            {
+              "type": "Text",
+              "text": "${SolarLive.stand ?? 'Noch kein Empfang'}",
+              "fontSize": 14,
+              "color": "#AFC1D1",
+              "maxLines": 1
+            },
+            {
+              "type": "Text",
+              "text": "Antippen: Vollbild öffnen",
+              "fontSize": 16,
+              "color": "#8BCBFF",
+              "maxLines": 1
+            }
+          ]
+        }
+      }
+    ]
+  }
+}

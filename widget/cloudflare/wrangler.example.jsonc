@@ -1,0 +1,11 @@
+{
+  "name": "solaranlage-widget",
+  "main": "worker.mjs",
+  "compatibility_date": "2026-10-23",
+  "triggers": {"crons": ["* * * * *"]},
+  "d1_databases": [
+    {"binding": "SOURCE_DB", "database_name": "solaranlage", "database_id": "REPLACE_WITH_EXISTING_DATABASE_ID"},
+    {"binding": "WIDGET_DB", "database_name": "solaranlage-widget", "database_id": "REPLACE_WITH_NEW_WIDGET_DATABASE_ID"}
+  ],
+  "observability": {"enabled": false}
+}
