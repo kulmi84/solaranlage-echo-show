@@ -302,6 +302,8 @@ Python-Pakete für den Skill notwendig.
 
 ## Entwicklung und Tests
 
+[Entwicklungsumgebung und gemeinsamer Prüfbefehl](DEVELOPMENT.md)
+
 ```sh
 python -m unittest test_beta_live.py
 node --test cloudflare/worker.test.mjs

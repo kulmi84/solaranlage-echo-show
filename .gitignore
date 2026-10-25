@@ -25,3 +25,6 @@ cloudflare/public-beta/wrangler.jsonc
 
 cloudflare/display/wrangler.jsonc
 cloudflare/display/preview-*.png
+
+# Local development environment
+.venv/
