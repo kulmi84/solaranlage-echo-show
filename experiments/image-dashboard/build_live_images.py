@@ -10,7 +10,8 @@ def build_live():
     display = (ROOT / 'diagnostic_display.py').read_text(encoding='utf8')
     display = display.replace('def lambda_handler(event, context):', 'def probe_handler(event, context):')
     runtime = (ROOT / 'live_image_runtime.py').read_text(encoding='utf8')
-    source = reader + '\n\n' + display + '\n\n' + runtime
+    status = (ROOT / 'status_speech.py').read_text(encoding='utf8')
+    source = reader + '\n\n' + display + '\n\n' + status + '\n\n' + runtime
     ast.parse(source, feature_version=(3, 8))
     target = ROOT / 'image-live'
     target.mkdir(exist_ok=True)

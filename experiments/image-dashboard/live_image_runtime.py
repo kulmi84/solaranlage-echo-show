@@ -192,14 +192,15 @@ def lambda_handler(event, context):
     request = event.get('request', {})
     kind, intent = request.get('type'), request.get('intent', {}).get('name')
     access = image_access_token(event)
-    if kind == 'IntentRequest' and intent in SPOKEN_METRICS:
+    if kind == 'IntentRequest' and (intent in SPOKEN_METRICS or intent == 'StatusIntent'):
         if not access:
             return {'version': '1.0', 'response': {'card': {'type': 'LinkAccount'},
                 'outputSpeech': {'type': 'PlainText', 'text': 'Bitte verknuepfe zuerst den Testskill in der Alexa-App.'},
                 'shouldEndSession': True}}
         try:
             from_image_pv = read_pv(RELAY_URL, access)
-            speech = spoken_reading(from_image_pv, intent)
+            speech = (spoken_status(from_image_pv) if intent == 'StatusIntent'
+                      else spoken_reading(from_image_pv, intent))
         except Exception:
             speech = 'Die Live-Werte sind gerade nicht verfuegbar.'
         return {'version': '1.0', 'response': {

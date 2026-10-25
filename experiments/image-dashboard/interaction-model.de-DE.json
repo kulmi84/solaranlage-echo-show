@@ -1,0 +1,122 @@
+{
+  "interactionModel": {
+    "languageModel": {
+      "invocationName": "meine solaranlage test",
+      "intents": [
+        {
+          "name": "AMAZON.CancelIntent",
+          "samples": []
+        },
+        {
+          "name": "AMAZON.StopIntent",
+          "samples": []
+        },
+        {
+          "name": "AMAZON.HelpIntent",
+          "samples": []
+        },
+        {
+          "name": "AMAZON.FallbackIntent",
+          "samples": []
+        },
+        {
+          "name": "RefreshIntent",
+          "slots": [],
+          "samples": [
+            "aktualisieren",
+            "zeige die werte",
+            "wie ist der stand"
+          ]
+        },
+        {
+          "name": "ProductionIntent",
+          "slots": [],
+          "samples": [
+            "produktion",
+            "die produktion",
+            "nach der produktion",
+            "nach der aktuellen produktion",
+            "wie viel strom wird produziert",
+            "wie hoch ist die produktion",
+            "wie viel produziert die solaranlage",
+            "wie hoch ist die aktuelle leistung",
+            "nach der aktuellen leistung",
+            "aktuelle leistung",
+            "die aktuelle leistung"
+          ]
+        },
+        {
+          "name": "BatteryIntent",
+          "slots": [],
+          "samples": [
+            "akkustand",
+            "den akkustand",
+            "nach dem akkustand",
+            "wie voll ist der akku",
+            "wie hoch ist der akkustand",
+            "wie voll ist die batterie",
+            "batteriestand",
+            "akku stand",
+            "nach dem akku stand",
+            "wie hoch ist der akku stand",
+            "batterie stand",
+            "nach dem batteriestand"
+          ]
+        },
+        {
+          "name": "ConsumptionIntent",
+          "slots": [],
+          "samples": [
+            "verbrauch",
+            "aktueller verbrauch",
+            "nach dem aktuellen verbrauch",
+            "nach dem hausverbrauch",
+            "wie hoch ist der aktuelle verbrauch",
+            "wie viel strom verbraucht das haus",
+            "wie hoch ist der hausverbrauch"
+          ]
+        },
+        {
+          "name": "TodayProductionIntent",
+          "slots": [],
+          "samples": [
+            "heutige gesamtproduktion",
+            "nach der heutigen gesamtproduktion",
+            "nach der heutigen gesamt produktion",
+            "nach der heutigen produktion",
+            "wie viel strom wurde heute produziert",
+            "wie viel hat die solaranlage heute produziert",
+            "wie hoch ist die heutige gesamtproduktion",
+            "heutiger ertrag"
+          ]
+        },
+        {
+          "name": "TodayExportIntent",
+          "slots": [],
+          "samples": [
+            "heutige einspeisung",
+            "nach der heutigen einspeisung",
+            "wie viel strom wurde heute eingespeist",
+            "wie viel habe ich heute eingespeist",
+            "wie hoch ist die heutige einspeisung",
+            "einspeisung heute"
+          ]
+        },
+        {
+          "name": "StatusIntent",
+          "slots": [],
+          "samples": [
+            "status",
+            "den status",
+            "nach dem status",
+            "wie ist der status",
+            "alle werte",
+            "nach allen werten",
+            "gib mir den status"
+          ]
+        }
+      ],
+      "types": []
+    }
+  }
+}

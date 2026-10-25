@@ -41,9 +41,42 @@ Voraussetzung ist die vorhandene Kontoverknüpfung des eigenen Test-Skills mit d
 4. Nur den separaten Bildworker bereitstellen. Er erhält keine Datenbankbindung. Seine einzige Datenquelle ist die fest eingestellte `/v1/pv`-Leseroute des Relays.
 5. `relay_config.example.json` privat als `relay_config.json` neben die gebaute Lambda-Datei legen. `image_session_key` ist derselbe Wert wie `SESSION_KEY`; `DISPLAY_KEY` verbleibt ausschließlich im Worker.
 6. Lambda und private Konfiguration ausschließlich in den gewünschten Test-Skill hochladen und dessen Entwicklungsstand bereitstellen. Nicht „Promote to live“ wählen.
-7. Den Test-Skill in der Alexa-App separat verknüpfen und mit „Alexa, öffne meine Solaranlage Test“ starten.
+7. Das separate Sprachmodell `interaction-model.de-DE.json` aus diesem Beta-Verzeichnis im Test-Skill importieren und **Build Model** ausführen. Es verwendet den Aufrufnamen **meine solaranlage test**; das produktive Modell unter `alexa/` bleibt unverändert.
+8. Den Test-Skill in der Alexa-App separat verknüpfen und mit „Alexa, öffne meine Solaranlage Test“ starten.
 
 Ohne Kontoverknüpfung oder bei fehlgeschlagenem Bildzugang zeigt die Beta einen Hinweis. Das Diagnosegerüst enthält keine Demo-Messwerte; Solar-Sprachantworten lesen die echten Werte über den vorhandenen Reader.
+
+## Status per Sprache – auch ohne Bildschirm
+
+**„Alexa, meine Solaranlage Test Status.“**
+Alternativ: **„Alexa, frage meine Solaranlage Test nach dem Status.“**
+
+Die Antwort enthält in dieser Reihenfolge: aktuelle Leistung inklusive BKW,
+Hausverbrauch, Akkustand, heutige Produktion inklusive BKW in Kilowattstunden,
+aktuellen Netzbezug und aktuelle Einspeisung in Watt/Kilowatt sowie das Alter der
+Werte in Sekunden, Minuten, Stunden oder Tagen. Das Alter zählt seit dem letzten
+Relay-Empfang; es ist kein Zeitstempel der einzelnen Sensoren. Die heutige
+Produktion stammt wie bisher aus der HA-Tagesstatistik und kann verzögert sein.
+
+Beispiel mit erfundenen Werten: „Status der Solaranlage. Leistung inklusive
+Balkonkraftwerk: 3,20 Kilowatt. Hausverbrauch: 731 Watt. Akkustand: 82 Prozent.
+Heutige Produktion inklusive Balkonkraftwerk: 12,34 Kilowattstunden. Netzbezug:
+0 Watt. Einspeisung: 2,40 Kilowatt. Die Werte sind 2 Minuten und 5 Sekunden alt.“
+
+Fehlende optionale Werte werden einzeln benannt; echte Nullwerte bleiben Null.
+Nach mehr als drei Minuten ohne Upload beginnt die Antwort mit einer Warnung
+und bezeichnet die Zahlen als zuletzt gemeldeten Status. Daten eines anderen
+Tages werden nicht als heutige Produktion angesagt. Ohne Kontoverknüpfung wird
+zur Verknüpfung aufgefordert; bei Lesefehlern werden keine Messwerte erfunden.
+Der Statusbefehl liest einmal das Relay und beendet die Sprachsitzung, ohne einen
+Bildzugang anzufordern oder die Anzeige neu zu rendern. Die bisherigen
+Anzeigeaufrufe bleiben unverändert.
+
+Für den Gerätetest Beta-Lambda und Beta-Sprachmodell bereitstellen und bauen.
+Den Status auf einem Echo ohne Bildschirm sowie einem Echo Show ausprobieren,
+auch ohne zuvor den Skill zu öffnen. Die Zuordnung der gesprochenen Anfrage
+muss im Alexa-Simulator und am Gerät bestätigt werden. Dieser PR stellt nichts
+in der Alexa Developer Console bereit und verändert den Live-Skill nicht.
 
 ## Bildzugriff und Laufzeit
 
@@ -60,7 +93,7 @@ python -m unittest -q test_live_images
 node --test worker/worker.test.mjs worker/sessions.test.mjs
 ```
 
-Sieben Python-Tests und elf Worker-Tests prüfen unter anderem Kontoverknüpfung, echte Sprachantworten, Ablauf/Manipulation, Zugriffsschutz, begrenzte Koordinaten und alle 16 Wertebilder.
+Die Python- und Worker-Tests prüfen unter anderem Kontoverknüpfung, echte Sprachantworten, Ablauf/Manipulation, Zugriffsschutz, begrenzte Koordinaten und alle 16 Wertebilder.
 
 Die geglättete Schrift im öffentlichen Paket wird aus der mit ReportLab verteilten, weiterverteilbaren Schrift erzeugt; siehe `worker/FONT-LICENSE.txt`. Zum reproduzierbaren Neuaufbau: Abhängigkeiten aus `requirements-dev.txt` installieren und `python worker/build_font.py` ausführen. Der laufende private Beta-Prototyp verwendete zuvor einen lokalen Windows-Font; der PR enthält keine Windows-Schriftdateien.
 

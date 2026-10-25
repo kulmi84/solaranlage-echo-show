@@ -83,5 +83,6 @@ def read_pv(url, read_token):
         'receivedText': data.get('received_local', '—'),
         'valueText': f'{power / 1000:.2f}'.replace('.', ',') + ' kW',
         'statusText': 'VERALTET · seit mehr als 3 Minuten kein Empfang' if age > 180 else 'PV-Leistung · zuletzt empfangener Wert',
+        'ageSeconds': max(0, int(age)),
         'stale': age > 180,
     }
