@@ -149,12 +149,13 @@ def lambda_handler(event, context):
     access=image_access_token(event)
     if kind=='Alexa.Presentation.APL.UserEvent':
         return {'version':'1.0','response':{}}
-    if kind=='IntentRequest' and intent in SPOKEN_METRICS:
+    if kind=='IntentRequest' and (intent in SPOKEN_METRICS or intent=='StatusIntent'):
         if not access:
             return {'version':'1.0','response':{'card':{'type':'LinkAccount'},
                 'outputSpeech':{'type':'PlainText','text':'Bitte verbinde deine Anlage in der Alexa-App mit Solaranlage.'},'shouldEndSession':True}}
         try:
-            speech=spoken_reading(read_pv(RELAY_URL,access),intent)
+            pv=read_pv(RELAY_URL,access)
+            speech=spoken_status(pv) if intent=='StatusIntent' else spoken_reading(pv,intent)
         except Exception:
             speech='Die Live-Werte sind gerade nicht verfügbar.'
         return {'version':'1.0','response':{'outputSpeech':{'type':'PlainText','text':speech},'shouldEndSession':True}}

@@ -1,5 +1,15 @@
 # Solaranlage auf dem Echo Show
 
+## Version 1.0.7: Status der Solaranlage vorlesen
+
+**„Alexa, frage meine Solaranlage nach dem Status.“** liest Leistung inklusive BKW, Hausverbrauch, Akkustand, heutige Produktion, aktuellen Netzbezug, aktuelle Einspeisung und das Alter der Werte vor. Fehlende Daten werden benannt; nach mehr als drei Minuten ohne Upload warnt die Ansage vor veralteten Werten.
+
+**Der Start bleibt „Alexa, öffne meine Solaranlage.“** Die Echo-Show-Anzeige, Aktualisierung alle 60 Sekunden und der Anzeigezugang für bis zu 24 Stunden bleiben erhalten. Die Statusabfrage beendet die Sprachsitzung ohne erneutes Rendern der Anzeige.
+
+Die Funktion wurde im separaten Test-Skill am Gerät bestätigt. Ihre Verfügbarkeit im gemeinsamen Skill hängt von der zentralen Bereitstellung und Amazons Modellfreigabe ab; ein HACS-Update allein aktiviert sie nicht. [Details zu v1.0.7](docs/V1.0.7.md).
+
+**Festgelegter Rücksprungstand: [v1.0.6](https://github.com/kulmi84/solaranlage-echo-show/releases/tag/v1.0.6)**, zusätzlich im Archivzweig `codex/archive-v1.0.6`. Tag und damaliger Quellcode bleiben unverändert.
+
 ## Version 1.0.6: Solaranzeige bleibt sichtbar – Alexa kann wieder zuhören
 
 **Die Solaranzeige bleibt sichtbar und aktualisiert ihre Werte alle 60 Sekunden, während die Sprachsitzung des Skills bereits geschlossen ist. Normale Alexa-Befehle benötigen dadurch kein vorheriges „Alexa, stopp“.** Alexa entscheidet über die Zuordnung der Anfrage; Wetter- oder Smart-Home-Karten können die Ansicht ersetzen. Keine automatische Rückkehr.
@@ -28,7 +38,7 @@ Aktuelle Bildschirmaufnahmen der v1 im Alexa-Simulator vom 19. Oktober 2026.
 Live-Aufnahme: 09:21 Uhr; Monats-/Jahresdaten: letzter HA-Upload 08:15 Uhr.
 Die abgebildeten Messwerte sind Momentaufnahmen der verbundenen Anlage.
 
-## Version 1.0.6 · HACS
+## Version 1.0.7 · HACS
 
 Die auf dem Echo Show getestete HACS-Version ist die v1. Der Skill heißt
 **Solaranlage** und wird mit **„Alexa, öffne meine Solaranlage.“** gestartet.
@@ -84,6 +94,7 @@ Home Assistant braucht dafür keine öffentliche Adresse und keine Portfreigabe.
 
 | Gewünschter Wert | Sag einfach … |
 | --- | --- |
+| **Gesamter Status mit Datenalter · ab zentraler Freigabe von 1.0.7** | **„Alexa, frage meine Solaranlage nach dem Status.“** |
 | **Aktuelle Leistung · PV + BKW** | **„Alexa, frage meine Solaranlage nach der aktuellen Leistung.“** |
 | **Akkustand** | **„Alexa, frage meine Solaranlage nach dem Akkustand.“** |
 | **Aktueller Hausverbrauch** | **„Alexa, frage meine Solaranlage nach dem aktuellen Verbrauch.“** |
