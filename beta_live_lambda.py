@@ -73,7 +73,7 @@ def lambda_handler(event, context):
     if intent == 'AMAZON.HelpIntent':
         return {'version': '1.0', 'response': {
             'outputSpeech': {'type': 'PlainText', 'text':
-                'Frage meine Solaranlage nach der aktuellen Leistung, dem Akkustand, dem aktuellen Verbrauch, der heutigen Gesamtproduktion oder der heutigen Einspeisung.'},
+                'Frage meine Solaranlage nach dem Status, der aktuellen Leistung, dem Akkustand, dem aktuellen Verbrauch, der heutigen Gesamtproduktion oder der heutigen Einspeisung.'},
             'shouldEndSession': True}}
     now_ms = int(time.time() * 1000)
     expires_at = now_ms + DISPLAY_DURATION_MS

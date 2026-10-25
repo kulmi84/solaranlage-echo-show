@@ -101,6 +101,19 @@
             "wie hoch ist die heutige einspeisung",
             "einspeisung heute"
           ]
+        },
+        {
+          "name": "StatusIntent",
+          "slots": [],
+          "samples": [
+            "status",
+            "den status",
+            "nach dem status",
+            "wie ist der status",
+            "alle werte",
+            "nach allen werten",
+            "gib mir den status"
+          ]
         }
       ],
       "types": []
