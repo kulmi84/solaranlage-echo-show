@@ -2,7 +2,9 @@
 
 ![Solaranlage](https://raw.githubusercontent.com/kulmi84/solaranlage-echo-show/main/assets/branding/solaranlage-icon-108.png)
 
-**Version 1.0.6:** Anzeige bleibt sichtbar, Alexa kann wieder normale Befehle entgegennehmen. Live-Aktualisierung alle 60 Sekunden mit eigenem Anzeigezugang für bis zu 24 Stunden. Wetter und andere Alexa-Karten können die Ansicht ersetzen.
+**Version 1.0.7:** Zusätzliche Statusansage mit Datenalter: „Alexa, frage meine Solaranlage nach dem Status.“ Zentraler Alexa-Code und Sprachmodell müssen dafür freigegeben sein; HACS allein aktiviert sie nicht. Rücksprungstand ist v1.0.6.
+
+**Anzeige seit Version 1.0.6:** Anzeige bleibt sichtbar, Alexa kann wieder normale Befehle entgegennehmen. Live-Aktualisierung alle 60 Sekunden mit eigenem Anzeigezugang für bis zu 24 Stunden. Wetter und andere Alexa-Karten können die Ansicht ersetzen.
 
 Native Kacheln für PV und BKW, Hausverbrauch, Netz und Akku.
 

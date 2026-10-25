@@ -1,17 +1,13 @@
-"""Build the widget candidate from frozen final v1.0.6, never overwrite it."""
+"""Build the widget on the current production source, preserving v1.0.7 status speech."""
 import ast
-import hashlib
+import runpy
 from pathlib import Path
 
 ROOT = Path(__file__).parent
 
 
 def build():
-    original = ROOT.parent / 'alexa/archive/v1.0.6/lambda_function.py'
-    raw = original.read_bytes()
-    if hashlib.sha256(raw).hexdigest() != '1687156a457c9a55afa2a13558949f7cc8fed1c39f6a61f38d15f9d3cbe7a0e4':
-        raise ValueError('Frozen production source changed; stop before building')
-    runtime = raw.decode('utf-8')
+    runtime = runpy.run_path(str(ROOT.parent / 'build_skill.py'))['build']()
     adapter = (ROOT / 'widget_adapter.py').read_text(encoding='utf-8')
     binding = '''
 def register_widget(event, action):

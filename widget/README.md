@@ -4,8 +4,14 @@ Die funktionierende Vollbildansicht bleibt bestehen. Das Widget ist eine zusätz
 Hausverbrauch, Akkustand und Empfangszeit. Antippen öffnet die bisherige Vollbildanzeige.
 
 Der bestehende Sprachaufruf wird nicht umbenannt. Außerhalb der neuen Widget-Ereignisse reicht der Router
-Anfragen unverändert an den gesicherten Live-Handler der v1.0.6 weiter. Der Build prüft dessen SHA-256.
+Anfragen unverändert an den aktuellen Produktionshandler der v1.0.7 weiter. Der Widget-Build verwendet den normalen Produktionsbuilder, einschließlich Statusansage.
 Es gibt keine Änderungen am Bilddienst, an Home Assistant oder am produktiven Relay.
+
+## Gemeinsame Basis mit v1.0.7
+
+Der Widget-Kandidat enthält die Statusansage aus v1.0.7 und das transparente Widget 1.1.0 zusammen. Der Builder fällt nicht mehr auf das Archiv v1.0.6 zurück. Alle bisherigen Anfragen werden unverändert an den v1.0.7-Handler weitergereicht. 56 Python-Tests bestehen: 38 Produktionstests, 9 Widgettests und 9 Statusprüfungen durch den kombinierten Widget-Einstieg. Zusätzlich bestehen 18 Node-Tests des Widgetdiensts.
+
+Der geänderte Build ist zunächst ein Quellcode-Kandidat im PR. Er wurde nicht live ausgerollt. Vor Veröffentlichung den tatsächlich bei Amazon eingesetzten Kandidaten mit dieser Kombination vergleichen; eine laufende Prüfung nicht automatisch zurückziehen.
 
 ## Status — 25. Oktober 2026
 
@@ -24,7 +30,7 @@ Die zugehörige Beta-Ansicht wurde auf dem Echo Show mit Live-Werten und funktio
 
 Build und Amazon-Validierung waren erfolgreich. **27 Tests bestanden** (9 Python, 18 Node), einschließlich Regressionstests für bisherige Vollbild- und Sprachantworten.
 
-Die frühere Einreichung mit altem Layout wurde zurückgezogen. Das bestätigte Layout ist Bestandteil des neuen Kandidaten. Die Veröffentlichung und der zusätzliche Widget-Code-Rollout sind nach bestandener zugehöriger Prüfung vom Betreiber freigegeben. Bis dahin kein Live-Rollout; Main und HACS-Version bleiben unverändert.
+Die frühere Einreichung mit altem Layout wurde zurückgezogen. Das bestätigte Layout ist Bestandteil des neuen Kandidaten. Die Veröffentlichung und der zusätzliche Widget-Code-Rollout sind nach bestandener zugehöriger Prüfung vom Betreiber freigegeben. Bis dahin kein Live-Rollout. Main und HACS stehen separat auf v1.0.7.
 
 Die bisherigen Abbildungen unten zeigen den **älteren Entwurf mit Schriftgröße 42**, nicht die finale 1.1.0:
 

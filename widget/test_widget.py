@@ -5,6 +5,7 @@ from unittest.mock import patch
 from build_widget import document
 from widget_adapter import route_widget, OPEN
 from build_skill import build
+import runpy
 
 
 class WidgetTests(unittest.TestCase):
@@ -77,20 +78,20 @@ class WidgetTests(unittest.TestCase):
     def test_existing_fullscreen_and_voice_responses_identical_to_saved_live_code(self):
         old = {'__file__':__file__}
         new = {'__file__':__file__}
-        original = Path(__file__).parent.parent/'alexa/archive/v1.0.6/lambda_function.py'
-        exec(compile(original.read_text(encoding='utf-8'),'saved-live','exec'),old)
+        baseline = runpy.run_path(str(Path(__file__).parent.parent/'build_skill.py'))['build']()
+        exec(compile(baseline,'production-v1.0.7','exec'),old)
         exec(compile(build(),'widget-candidate','exec'),new)
         for scope in [old,new]:
             scope['image_config'] = lambda: {}
             scope['create_image_session'] = lambda *_: {'base_url':'https://solaranlage-display.kulmi84.workers.dev/dashboard.png?s='+'x'*100,
                 'expires_in':86400,'local_date':'2026-10-23'}
             scope['read_pv'] = lambda *_: {'metrics':{'power_w':2300,'home_w':1200,'battery_soc':72,
-                'today_pv_kwh':8.4,'today_grid_export_kwh':4.1},'stale':False}
+                'today_pv_kwh':8.4,'today_grid_export_kwh':4.1},'ageSeconds':125,'stale':False}
         requests = [{'type':'LaunchRequest'}, {'type':'SessionEndedRequest'},
                     {'type':'Alexa.Presentation.APL.UserEvent','arguments':['unrelated']}] + [
             {'type':'IntentRequest','intent':{'name':name}} for name in [
                 'AMAZON.StopIntent','AMAZON.CancelIntent','AMAZON.FallbackIntent','AMAZON.HelpIntent',
-                'ProductionIntent','CurrentPowerIntent','BatteryIntent','ConsumptionIntent','TodayProductionIntent','TodayExportIntent']]
+                'ProductionIntent','CurrentPowerIntent','BatteryIntent','ConsumptionIntent','TodayProductionIntent','TodayExportIntent','StatusIntent']]
         for linked in [True,False]:
             for apl in [True,False]:
                 for request in requests:
