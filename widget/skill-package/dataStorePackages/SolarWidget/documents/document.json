@@ -38,106 +38,139 @@
           }
         ],
         "item": {
-          "type": "Container",
-          "width": "100%",
-          "height": "100%",
-          "backgroundColor": "#0C151F",
-          "padding": 16,
-          "items": [
-            {
-              "type": "Text",
-              "text": "Solaranlage",
-              "fontSize": 30,
-              "color": "#FFFFFF",
-              "maxLines": 1
-            },
-            {
-              "type": "Container",
-              "spacing": 14,
-              "items": [
-                {
-                  "type": "Text",
-                  "text": "PV + BKW",
-                  "fontSize": 22,
-                  "color": "#AFC1D1",
-                  "maxLines": 1
-                },
-                {
-                  "type": "Text",
-                  "text": "${SolarLive.production ?? '—'}",
-                  "fontSize": 42,
-                  "color": "#FFD166",
-                  "maxLines": 1,
-                  "fontWeight": "bold"
-                }
-              ]
-            },
-            {
-              "type": "Container",
-              "spacing": 14,
-              "items": [
-                {
-                  "type": "Text",
-                  "text": "Hausverbrauch",
-                  "fontSize": 22,
-                  "color": "#AFC1D1",
-                  "maxLines": 1
-                },
-                {
-                  "type": "Text",
-                  "text": "${SolarLive.consumption ?? '—'}",
-                  "fontSize": 42,
-                  "color": "#8BCBFF",
-                  "maxLines": 1,
-                  "fontWeight": "bold"
-                }
-              ]
-            },
-            {
-              "type": "Container",
-              "spacing": 14,
-              "items": [
-                {
-                  "type": "Text",
-                  "text": "Akku",
-                  "fontSize": 22,
-                  "color": "#AFC1D1",
-                  "maxLines": 1
-                },
-                {
-                  "type": "Text",
-                  "text": "${SolarLive.battery ?? '—'}",
-                  "fontSize": 42,
-                  "color": "#51D3C5",
-                  "maxLines": 1,
-                  "fontWeight": "bold"
-                }
-              ]
-            },
-            {
-              "type": "Text",
-              "text": "${SolarLive.status ?? 'Warte auf Live-Werte'}",
-              "fontSize": 14,
-              "color": "#AFC1D1",
-              "maxLines": 1,
-              "spacing": 18
-            },
-            {
-              "type": "Text",
-              "text": "${SolarLive.stand ?? 'Noch kein Empfang'}",
-              "fontSize": 14,
-              "color": "#AFC1D1",
-              "maxLines": 1
-            },
-            {
-              "type": "Text",
-              "text": "Antippen: Vollbild öffnen",
-              "fontSize": 16,
-              "color": "#8BCBFF",
-              "maxLines": 1,
-              "spacing": 6
-            }
-          ]
+          "type": "Frame",
+          "width": "100vw",
+          "height": "100vh",
+          "backgroundColor": "transparent",
+          "borderColor": "transparent",
+          "borderWidth": 2,
+          "borderRadius": 16,
+          "item": {
+            "type": "Container",
+            "width": "100%",
+            "height": "100%",
+            "padding": 16,
+            "items": [
+              {
+                "type": "Container",
+                "items": [
+                  {
+                    "type": "Text",
+                    "text": "Solaranlage",
+                    "fontSize": 26,
+                    "color": "#FFFFFF",
+                    "maxLines": 1,
+                    "fontWeight": "700"
+                  },
+                  {
+                    "type": "Text",
+                    "text": "LIVE",
+                    "fontSize": 16,
+                    "color": "#AFC1D1",
+                    "maxLines": 1,
+                    "spacing": 4
+                  }
+                ]
+              },
+              {
+                "type": "Container",
+                "grow": 1,
+                "width": "100%",
+                "justifyContent": "spaceAround",
+                "items": [
+                  {
+                    "type": "Container",
+                    "items": [
+                      {
+                        "type": "Text",
+                        "text": "PV + BKW",
+                        "fontSize": 22,
+                        "color": "#AFC1D1",
+                        "maxLines": 1
+                      },
+                      {
+                        "type": "Text",
+                        "text": "${SolarLive ? SolarLive.production : '�'}",
+                        "fontSize": 48,
+                        "color": "#FFD166",
+                        "maxLines": 1,
+                        "fontWeight": "700"
+                      }
+                    ]
+                  },
+                  {
+                    "type": "Container",
+                    "items": [
+                      {
+                        "type": "Text",
+                        "text": "Hausverbrauch",
+                        "fontSize": 22,
+                        "color": "#AFC1D1",
+                        "maxLines": 1
+                      },
+                      {
+                        "type": "Text",
+                        "text": "${SolarLive ? SolarLive.consumption : '�'}",
+                        "fontSize": 48,
+                        "color": "#8BCBFF",
+                        "maxLines": 1,
+                        "fontWeight": "700"
+                      }
+                    ]
+                  },
+                  {
+                    "type": "Container",
+                    "items": [
+                      {
+                        "type": "Text",
+                        "text": "Akku",
+                        "fontSize": 22,
+                        "color": "#AFC1D1",
+                        "maxLines": 1
+                      },
+                      {
+                        "type": "Text",
+                        "text": "${SolarLive ? SolarLive.battery : '�'}",
+                        "fontSize": 48,
+                        "color": "#51D3C5",
+                        "maxLines": 1,
+                        "fontWeight": "700"
+                      }
+                    ]
+                  }
+                ]
+              },
+              {
+                "type": "Container",
+                "items": [
+                  {
+                    "type": "Text",
+                    "text": "${SolarLive.status ?? 'Warte auf Live-Werte'}",
+                    "fontSize": 16,
+                    "color": "#FFD166",
+                    "maxLines": 1,
+                    "spacing": 16
+                  },
+                  {
+                    "type": "Text",
+                    "text": "${SolarLive.stand ?? 'Noch kein Empfang'}",
+                    "fontSize": 16,
+                    "color": "#AFC1D1",
+                    "maxLines": 2,
+                    "spacing": 12
+                  },
+                  {
+                    "type": "Text",
+                    "text": "Antippen: Vollbild �ffnen",
+                    "fontSize": 16,
+                    "color": "#8BCBFF",
+                    "maxLines": 1,
+                    "spacing": 6
+                  }
+                ]
+              }
+            ]
+          }
         }
       }
     ]
