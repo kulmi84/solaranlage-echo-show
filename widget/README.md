@@ -7,31 +7,30 @@ Der bestehende Sprachaufruf wird nicht umbenannt. Außerhalb der neuen Widget-Er
 Anfragen unverändert an den gesicherten Live-Handler der v1.0.6 weiter. Der Build prüft dessen SHA-256.
 Es gibt keine Änderungen am Bilddienst, an Home Assistant oder am produktiven Relay.
 
-## Status
+## Status — 25. Oktober 2026
 
-Am 23. Oktober 2026 im Entwicklungsstand des normalen Skills bereitgestellt und auf dem Echo Show 8
-installiert. Amazon bestätigt die Zustellung echter Messwerte. Der bisherige Sprachaufruf und die echte
-Vollbildanzeige wurden im Simulator geprüft. Ein tatsächlicher Tipp am Gerät muss vom Nutzer bestätigt werden.
-Das Widget ist erst nach Amazons erneuter Zertifizierung allgemein in der Widget-Galerie verfügbar.
+**Widget 1.1.0: zur Amazon-Zertifizierung eingereicht, noch nicht veröffentlicht.**
 
-![Neue größere Widget-Ansicht mit Beispielwerten](../docs/images/widget-large.png)
+Amazon zeigt weiterhin **In review**. Die zuletzt angezeigte Einreichung ist vom **25.10.2026, 15:53 Uhr (Europe/Berlin)**. Der angezeigte Ergebnistermin ist der 06.11.2026, 15:53 Uhr; das ist keine Zusage einer früheren Freigabe.
 
-### Layoutstand
+Die zugehörige Beta-Ansicht wurde auf dem Echo Show mit Live-Werten und funktionierendem Antippen bestätigt. Für den normalen Skill ist dieselbe große, transparente Gestaltung vorgesehen:
 
-Die farbigen Werte stehen wie in der früheren Beta unter den Bezeichnungen. Werte wurden von 24 auf 42,
-Bezeichnungen auf 22 und der Titel auf 30 vergrößert. Auch längere Angaben passen in die verfügbare Breite.
-Der Entwurf ist im Amazon-Editor gespeichert. Der erforderliche Build ist während der laufenden Zertifizierung
-blockiert; die neue Gestaltung ist deshalb noch nicht auf dem Gerät. Eine abgeschlossene Zertifizierung
-bestätigt nicht automatisch dieses nachträglich geänderte Layout.
+- Werte für PV + BKW, Hausverbrauch und Akku in **Schriftgröße 48**.
+- Kein sichtbarer Rahmen und keine eigene Hintergrundfläche.
+- Vorhandene Fläche mit gleichmäßigen Abständen ausgenutzt.
+- Name **Solaranlage**, interne Paketkennung **SolarWidget**, Paketversion **1.1.0**.
+- Antippen öffnet die **normale Vollbildansicht**, nicht die Beta.
+- Bestehende Vollbildansicht, Sprachaufruf, Bildaktualisierung, Home Assistant und Relay bleiben unverändert. Die separate Beta bleibt erhalten.
 
-| Bisherige Vorschau | Neuer Entwurf |
-| --- | --- |
-| ![Bisherige Vorschau](../docs/images/widget-before.png) | ![Neuer Entwurf](../docs/images/widget-large.png) |
+Build und Amazon-Validierung waren erfolgreich. **27 Tests bestanden** (9 Python, 18 Node), einschließlich Regressionstests für bisherige Vollbild- und Sprachantworten.
 
-[Screenshot: gespeicherter Entwurf in der Amazon-Konsole](../docs/images/widget-editor-saved.png)
+Die frühere Einreichung mit altem Layout wurde zurückgezogen. Das bestätigte Layout ist Bestandteil des neuen Kandidaten. Die Veröffentlichung und der zusätzliche Widget-Code-Rollout sind nach bestandener zugehöriger Prüfung vom Betreiber freigegeben. Bis dahin kein Live-Rollout; Main und HACS-Version bleiben unverändert.
 
-Die Vorschau enthält ausdrücklich Beispielwerte. Das installierte Widget erhält Werte des verknüpften Haushalts.
-Nur der isolierte Zertifizierungs-Haushalt erhält klar markierte Demowerte.
+Die bisherigen Abbildungen unten zeigen den **älteren Entwurf mit Schriftgröße 42**, nicht die finale 1.1.0:
+
+![Historischer Widget-Entwurf mit Beispielwerten](../docs/images/widget-large.png)
+
+Die Abbildungen enthalten Beispielwerte; private Konfigurationen oder Zugangsdaten werden nicht veröffentlicht.
 
 ## Bauen und prüfen
 
