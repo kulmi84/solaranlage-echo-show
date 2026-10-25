@@ -3,7 +3,7 @@
   "packageType": "APL_PACKAGE",
   "manifest": {
     "id": "SolarWidget",
-    "version": "1.0.0",
+    "version": "1.1.0",
     "installStateChanges": "INFORM",
     "updateStateChanges": "INFORM",
     "presentationDefinitions": [
@@ -21,7 +21,7 @@
           "targetViewport": "WIDGET_M",
           "metadata": {
             "name": "Solaranlage",
-            "description": "Sieh PV-Leistung, Hausverbrauch und Akkustand. Ein Tipp öffnet die große Solaranlagenanzeige.",
+            "description": "Sieh PV-Leistung, Hausverbrauch und Akkustand. Ein Tipp �ffnet die gro�e Solaranlagenanzeige.",
             "keywords": [
               "Solar",
               "Photovoltaik",
