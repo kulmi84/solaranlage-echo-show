@@ -40,6 +40,6 @@ class WidgetAccountTest(unittest.TestCase):
     def test_package_contains_no_private_source_and_renews(self):
         doc=json.loads((root/'experiments/widget-image/document.template.json').read_text());s=json.dumps(doc);self.assertNotIn('?k=',s);self.assertNotIn('?s=',s);self.assertNotIn('__PRIVATE',s)
         self.assertEqual(doc['onMount'][0]['flags'],{'interactionMode':'INLINE'})
-        self.assertEqual(doc['mainTemplate']['items'][0]['onPress'][0]['flags'],{'interactionMode':'STANDARD'})
+        self.assertEqual(doc['mainTemplate']['items'][0]['items'][0]['onPress'][0]['flags'],{'interactionMode':'STANDARD'})
         self.assertIn('grantRefreshAt',s);self.assertIn('widgetAccount',s)
 if __name__=='__main__':unittest.main()

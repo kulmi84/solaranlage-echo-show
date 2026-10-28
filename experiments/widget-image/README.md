@@ -41,3 +41,7 @@ Geprüft: zwei getrennte Beispielkonten, abgelaufene/manipulierte Freigaben, Wid
 ## Nachlade-Korrektur 1.1.1 (Development)
 
 Unten beim Stand steht der Link „Aktualisieren“. Er lädt die Bilder manuell nach, ohne Vollbild zu öffnen. Ein zweiter, unsichtbarer Bildsatz wird geladen; erst nach erfolgreichem Laden aller drei Werte und der Stand-Zeile wird vollständig umgeschaltet. Bei Fehler oder Zeitüberschreitung bleibt der letzte erfolgreiche Bildsatz einschließlich seines alten Zeitstempels sichtbar. Automatischer Wiederholungsversuch nach 10 Sekunden; normale Aktualisierung alle 60 Sekunden. Der neue Code ist getrennt von der bereits eingereichten Version 1.1.0. Die laufende Amazon-Prüfung wird nicht zurückgezogen.
+
+### Gerätekorrektur1.1.2
+
+Der1.1.1-Gerätetest zeigte einen sichtbaren, aber wirkungslosen Link und keine Werte. Deshalb keineEinreichung.1.1.2 trennt den Aktualisieren-Touchbereich vom Vollbild-Touchbereich und verwendet flache Bildadress-/Nonce-Bindungen mit direkt eingebetteten Standardkommandos. Das vermeidet verschachtelte Objekt-/Custom-Command-Auswertung.51lokaleTests bestanden;Geräteergebnis noch offen.
