@@ -65,24 +65,55 @@
             {
               "name": "accountMessage",
               "value": "Verbindung wird hergestellt …"
+            },
+            {
+              "name": "activeBuffer",
+              "value": 0
+            },
+            {
+              "name": "buffer0",
+              "value": null
+            },
+            {
+              "name": "buffer1",
+              "value": null
+            },
+            {
+              "name": "hasImage",
+              "value": false
+            },
+            {
+              "name": "loading",
+              "value": false
+            },
+            {
+              "name": "lastImageNonce",
+              "value": -1
+            },
+            {
+              "name": "readyPv",
+              "value": false
+            },
+            {
+              "name": "readyHome",
+              "value": false
+            },
+            {
+              "name": "readyBattery",
+              "value": false
+            },
+            {
+              "name": "readyStatus",
+              "value": false
             }
           ],
           "handleTick": [
             {
               "minimumDelay": 1000,
-              "when": "${elapsedTime - lastRefresh >= 60000}",
+              "when": "${grantReady && !loading && (imageNonce != lastImageNonce || elapsedTime - lastRefresh >= (imageFailed ? 10000 : 60000))}",
               "commands": [
                 {
-                  "type": "SetValue",
-                  "componentId": "imageWidget",
-                  "property": "imageNonce",
-                  "value": "${elapsedTime}"
-                },
-                {
-                  "type": "SetValue",
-                  "componentId": "imageWidget",
-                  "property": "lastRefresh",
-                  "value": "${elapsedTime}"
+                  "type": "ReloadWidget"
                 }
               ]
             },
@@ -105,6 +136,24 @@
                     "interactionMode": "INLINE"
                   },
                   "sequencer": "widgetAccount"
+                }
+              ]
+            },
+            {
+              "minimumDelay": 1000,
+              "when": "${loading && elapsedTime - lastRefresh >= 15000}",
+              "commands": [
+                {
+                  "type": "SetValue",
+                  "componentId": "imageWidget",
+                  "property": "loading",
+                  "value": false
+                },
+                {
+                  "type": "SetValue",
+                  "componentId": "imageWidget",
+                  "property": "imageFailed",
+                  "value": true
                 }
               ]
             }
@@ -140,43 +189,187 @@
                   "maxLines": 1
                 },
                 {
-                  "type": "Image",
-                  "id": "valueImage0",
-                  "source": "${imageBase ? imageBase + \"&page=live&row=0&col=0&layout=final&n=\" + imageNonce : ''}",
+                  "type": "Container",
                   "width": "100%",
                   "height": 76,
-                  "scale": "best-fit",
-                  "align": "top-left",
-                  "onLoad": [
+                  "items": [
                     {
-                      "type": "SetValue",
-                      "componentId": "imageWidget",
-                      "property": "loaded",
-                      "value": "${loaded + 1}"
+                      "type": "Image",
+                      "id": "valueImage0Buffer0",
+                      "source": "${buffer0 ? buffer0.valueBase + \"&page=live&row=0&col=0&layout=final&n=\" + buffer0.nonce : ''}",
+                      "width": "100%",
+                      "height": 76,
+                      "scale": "best-fit",
+                      "align": "top-left",
+                      "onLoad": [
+                        {
+                          "type": "Sequential",
+                          "when": "${loading && activeBuffer != 0}",
+                          "commands": [
+                            {
+                              "type": "SetValue",
+                              "componentId": "imageWidget",
+                              "property": "readyPv",
+                              "value": true
+                            },
+                            {
+                              "type": "Sequential",
+                              "when": "${loading && activeBuffer != 0 && readyPv && readyHome && readyBattery && readyStatus}",
+                              "commands": [
+                                {
+                                  "type": "SetValue",
+                                  "componentId": "imageWidget",
+                                  "property": "activeBuffer",
+                                  "value": 0
+                                },
+                                {
+                                  "type": "SetValue",
+                                  "componentId": "imageWidget",
+                                  "property": "hasImage",
+                                  "value": true
+                                },
+                                {
+                                  "type": "SetValue",
+                                  "componentId": "imageWidget",
+                                  "property": "loading",
+                                  "value": false
+                                },
+                                {
+                                  "type": "SetValue",
+                                  "componentId": "imageWidget",
+                                  "property": "imageFailed",
+                                  "value": false
+                                },
+                                {
+                                  "type": "SetValue",
+                                  "componentId": "imageWidget",
+                                  "property": "loaded",
+                                  "value": "${loaded + 1}"
+                                }
+                              ]
+                            }
+                          ]
+                        }
+                      ],
+                      "onFail": [
+                        {
+                          "type": "Sequential",
+                          "when": "${loading && activeBuffer != 0}",
+                          "commands": [
+                            {
+                              "type": "SetValue",
+                              "componentId": "imageWidget",
+                              "property": "loading",
+                              "value": false
+                            },
+                            {
+                              "type": "SetValue",
+                              "componentId": "imageWidget",
+                              "property": "imageFailed",
+                              "value": true
+                            }
+                          ]
+                        }
+                      ],
+                      "position": "absolute",
+                      "top": 0,
+                      "left": 0,
+                      "opacity": "${hasImage && activeBuffer == 0 ? 1 : 0}"
                     },
                     {
-                      "type": "SetValue",
-                      "componentId": "imageWidget",
-                      "property": "imageFailed",
-                      "value": false
-                    }
-                  ],
-                  "onFail": [
+                      "type": "Image",
+                      "id": "valueImage0Buffer1",
+                      "source": "${buffer1 ? buffer1.valueBase + \"&page=live&row=0&col=0&layout=final&n=\" + buffer1.nonce : ''}",
+                      "width": "100%",
+                      "height": 76,
+                      "scale": "best-fit",
+                      "align": "top-left",
+                      "onLoad": [
+                        {
+                          "type": "Sequential",
+                          "when": "${loading && activeBuffer != 1}",
+                          "commands": [
+                            {
+                              "type": "SetValue",
+                              "componentId": "imageWidget",
+                              "property": "readyPv",
+                              "value": true
+                            },
+                            {
+                              "type": "Sequential",
+                              "when": "${loading && activeBuffer != 1 && readyPv && readyHome && readyBattery && readyStatus}",
+                              "commands": [
+                                {
+                                  "type": "SetValue",
+                                  "componentId": "imageWidget",
+                                  "property": "activeBuffer",
+                                  "value": 1
+                                },
+                                {
+                                  "type": "SetValue",
+                                  "componentId": "imageWidget",
+                                  "property": "hasImage",
+                                  "value": true
+                                },
+                                {
+                                  "type": "SetValue",
+                                  "componentId": "imageWidget",
+                                  "property": "loading",
+                                  "value": false
+                                },
+                                {
+                                  "type": "SetValue",
+                                  "componentId": "imageWidget",
+                                  "property": "imageFailed",
+                                  "value": false
+                                },
+                                {
+                                  "type": "SetValue",
+                                  "componentId": "imageWidget",
+                                  "property": "loaded",
+                                  "value": "${loaded + 1}"
+                                }
+                              ]
+                            }
+                          ]
+                        }
+                      ],
+                      "onFail": [
+                        {
+                          "type": "Sequential",
+                          "when": "${loading && activeBuffer != 1}",
+                          "commands": [
+                            {
+                              "type": "SetValue",
+                              "componentId": "imageWidget",
+                              "property": "loading",
+                              "value": false
+                            },
+                            {
+                              "type": "SetValue",
+                              "componentId": "imageWidget",
+                              "property": "imageFailed",
+                              "value": true
+                            }
+                          ]
+                        }
+                      ],
+                      "position": "absolute",
+                      "top": 0,
+                      "left": 0,
+                      "opacity": "${hasImage && activeBuffer == 1 ? 1 : 0}"
+                    },
                     {
-                      "type": "SetValue",
-                      "componentId": "imageWidget",
-                      "property": "imageFailed",
-                      "value": true
+                      "type": "Text",
+                      "text": "—",
+                      "fontSize": 48,
+                      "color": "#AFC1D1",
+                      "position": "absolute",
+                      "top": 0,
+                      "left": 0,
+                      "display": "${hasImage ? \"none\" : \"normal\"}"
                     }
-                  ],
-                  "display": "${grantReady ? \"normal\" : \"none\"}"
-                },
-                {
-                  "type": "Text",
-                  "text": "—",
-                  "fontSize": 48,
-                  "color": "#AFC1D1",
-                  "display": "${grantReady ? \"none\" : \"normal\"}"
+                  ]
                 }
               ]
             },
@@ -192,43 +385,187 @@
                   "maxLines": 1
                 },
                 {
-                  "type": "Image",
-                  "id": "valueImage1",
-                  "source": "${imageBase ? imageBase + \"&page=live&row=0&col=1&layout=final&n=\" + imageNonce : ''}",
+                  "type": "Container",
                   "width": "100%",
                   "height": 76,
-                  "scale": "best-fit",
-                  "align": "top-left",
-                  "onLoad": [
+                  "items": [
                     {
-                      "type": "SetValue",
-                      "componentId": "imageWidget",
-                      "property": "loaded",
-                      "value": "${loaded + 1}"
+                      "type": "Image",
+                      "id": "valueImage1Buffer0",
+                      "source": "${buffer0 ? buffer0.valueBase + \"&page=live&row=0&col=1&layout=final&n=\" + buffer0.nonce : ''}",
+                      "width": "100%",
+                      "height": 76,
+                      "scale": "best-fit",
+                      "align": "top-left",
+                      "onLoad": [
+                        {
+                          "type": "Sequential",
+                          "when": "${loading && activeBuffer != 0}",
+                          "commands": [
+                            {
+                              "type": "SetValue",
+                              "componentId": "imageWidget",
+                              "property": "readyHome",
+                              "value": true
+                            },
+                            {
+                              "type": "Sequential",
+                              "when": "${loading && activeBuffer != 0 && readyPv && readyHome && readyBattery && readyStatus}",
+                              "commands": [
+                                {
+                                  "type": "SetValue",
+                                  "componentId": "imageWidget",
+                                  "property": "activeBuffer",
+                                  "value": 0
+                                },
+                                {
+                                  "type": "SetValue",
+                                  "componentId": "imageWidget",
+                                  "property": "hasImage",
+                                  "value": true
+                                },
+                                {
+                                  "type": "SetValue",
+                                  "componentId": "imageWidget",
+                                  "property": "loading",
+                                  "value": false
+                                },
+                                {
+                                  "type": "SetValue",
+                                  "componentId": "imageWidget",
+                                  "property": "imageFailed",
+                                  "value": false
+                                },
+                                {
+                                  "type": "SetValue",
+                                  "componentId": "imageWidget",
+                                  "property": "loaded",
+                                  "value": "${loaded + 1}"
+                                }
+                              ]
+                            }
+                          ]
+                        }
+                      ],
+                      "onFail": [
+                        {
+                          "type": "Sequential",
+                          "when": "${loading && activeBuffer != 0}",
+                          "commands": [
+                            {
+                              "type": "SetValue",
+                              "componentId": "imageWidget",
+                              "property": "loading",
+                              "value": false
+                            },
+                            {
+                              "type": "SetValue",
+                              "componentId": "imageWidget",
+                              "property": "imageFailed",
+                              "value": true
+                            }
+                          ]
+                        }
+                      ],
+                      "position": "absolute",
+                      "top": 0,
+                      "left": 0,
+                      "opacity": "${hasImage && activeBuffer == 0 ? 1 : 0}"
                     },
                     {
-                      "type": "SetValue",
-                      "componentId": "imageWidget",
-                      "property": "imageFailed",
-                      "value": false
-                    }
-                  ],
-                  "onFail": [
+                      "type": "Image",
+                      "id": "valueImage1Buffer1",
+                      "source": "${buffer1 ? buffer1.valueBase + \"&page=live&row=0&col=1&layout=final&n=\" + buffer1.nonce : ''}",
+                      "width": "100%",
+                      "height": 76,
+                      "scale": "best-fit",
+                      "align": "top-left",
+                      "onLoad": [
+                        {
+                          "type": "Sequential",
+                          "when": "${loading && activeBuffer != 1}",
+                          "commands": [
+                            {
+                              "type": "SetValue",
+                              "componentId": "imageWidget",
+                              "property": "readyHome",
+                              "value": true
+                            },
+                            {
+                              "type": "Sequential",
+                              "when": "${loading && activeBuffer != 1 && readyPv && readyHome && readyBattery && readyStatus}",
+                              "commands": [
+                                {
+                                  "type": "SetValue",
+                                  "componentId": "imageWidget",
+                                  "property": "activeBuffer",
+                                  "value": 1
+                                },
+                                {
+                                  "type": "SetValue",
+                                  "componentId": "imageWidget",
+                                  "property": "hasImage",
+                                  "value": true
+                                },
+                                {
+                                  "type": "SetValue",
+                                  "componentId": "imageWidget",
+                                  "property": "loading",
+                                  "value": false
+                                },
+                                {
+                                  "type": "SetValue",
+                                  "componentId": "imageWidget",
+                                  "property": "imageFailed",
+                                  "value": false
+                                },
+                                {
+                                  "type": "SetValue",
+                                  "componentId": "imageWidget",
+                                  "property": "loaded",
+                                  "value": "${loaded + 1}"
+                                }
+                              ]
+                            }
+                          ]
+                        }
+                      ],
+                      "onFail": [
+                        {
+                          "type": "Sequential",
+                          "when": "${loading && activeBuffer != 1}",
+                          "commands": [
+                            {
+                              "type": "SetValue",
+                              "componentId": "imageWidget",
+                              "property": "loading",
+                              "value": false
+                            },
+                            {
+                              "type": "SetValue",
+                              "componentId": "imageWidget",
+                              "property": "imageFailed",
+                              "value": true
+                            }
+                          ]
+                        }
+                      ],
+                      "position": "absolute",
+                      "top": 0,
+                      "left": 0,
+                      "opacity": "${hasImage && activeBuffer == 1 ? 1 : 0}"
+                    },
                     {
-                      "type": "SetValue",
-                      "componentId": "imageWidget",
-                      "property": "imageFailed",
-                      "value": true
+                      "type": "Text",
+                      "text": "—",
+                      "fontSize": 48,
+                      "color": "#AFC1D1",
+                      "position": "absolute",
+                      "top": 0,
+                      "left": 0,
+                      "display": "${hasImage ? \"none\" : \"normal\"}"
                     }
-                  ],
-                  "display": "${grantReady ? \"normal\" : \"none\"}"
-                },
-                {
-                  "type": "Text",
-                  "text": "—",
-                  "fontSize": 48,
-                  "color": "#AFC1D1",
-                  "display": "${grantReady ? \"none\" : \"normal\"}"
+                  ]
                 }
               ]
             },
@@ -244,64 +581,397 @@
                   "maxLines": 1
                 },
                 {
-                  "type": "Image",
-                  "id": "valueImage3",
-                  "source": "${imageBase ? imageBase + \"&page=live&row=0&col=3&layout=final&n=\" + imageNonce : ''}",
+                  "type": "Container",
                   "width": "100%",
                   "height": 76,
-                  "scale": "best-fit",
-                  "align": "top-left",
-                  "onLoad": [
+                  "items": [
                     {
-                      "type": "SetValue",
-                      "componentId": "imageWidget",
-                      "property": "loaded",
-                      "value": "${loaded + 1}"
+                      "type": "Image",
+                      "id": "valueImage3Buffer0",
+                      "source": "${buffer0 ? buffer0.valueBase + \"&page=live&row=0&col=3&layout=final&n=\" + buffer0.nonce : ''}",
+                      "width": "100%",
+                      "height": 76,
+                      "scale": "best-fit",
+                      "align": "top-left",
+                      "onLoad": [
+                        {
+                          "type": "Sequential",
+                          "when": "${loading && activeBuffer != 0}",
+                          "commands": [
+                            {
+                              "type": "SetValue",
+                              "componentId": "imageWidget",
+                              "property": "readyBattery",
+                              "value": true
+                            },
+                            {
+                              "type": "Sequential",
+                              "when": "${loading && activeBuffer != 0 && readyPv && readyHome && readyBattery && readyStatus}",
+                              "commands": [
+                                {
+                                  "type": "SetValue",
+                                  "componentId": "imageWidget",
+                                  "property": "activeBuffer",
+                                  "value": 0
+                                },
+                                {
+                                  "type": "SetValue",
+                                  "componentId": "imageWidget",
+                                  "property": "hasImage",
+                                  "value": true
+                                },
+                                {
+                                  "type": "SetValue",
+                                  "componentId": "imageWidget",
+                                  "property": "loading",
+                                  "value": false
+                                },
+                                {
+                                  "type": "SetValue",
+                                  "componentId": "imageWidget",
+                                  "property": "imageFailed",
+                                  "value": false
+                                },
+                                {
+                                  "type": "SetValue",
+                                  "componentId": "imageWidget",
+                                  "property": "loaded",
+                                  "value": "${loaded + 1}"
+                                }
+                              ]
+                            }
+                          ]
+                        }
+                      ],
+                      "onFail": [
+                        {
+                          "type": "Sequential",
+                          "when": "${loading && activeBuffer != 0}",
+                          "commands": [
+                            {
+                              "type": "SetValue",
+                              "componentId": "imageWidget",
+                              "property": "loading",
+                              "value": false
+                            },
+                            {
+                              "type": "SetValue",
+                              "componentId": "imageWidget",
+                              "property": "imageFailed",
+                              "value": true
+                            }
+                          ]
+                        }
+                      ],
+                      "position": "absolute",
+                      "top": 0,
+                      "left": 0,
+                      "opacity": "${hasImage && activeBuffer == 0 ? 1 : 0}"
                     },
                     {
-                      "type": "SetValue",
-                      "componentId": "imageWidget",
-                      "property": "imageFailed",
-                      "value": false
-                    }
-                  ],
-                  "onFail": [
+                      "type": "Image",
+                      "id": "valueImage3Buffer1",
+                      "source": "${buffer1 ? buffer1.valueBase + \"&page=live&row=0&col=3&layout=final&n=\" + buffer1.nonce : ''}",
+                      "width": "100%",
+                      "height": 76,
+                      "scale": "best-fit",
+                      "align": "top-left",
+                      "onLoad": [
+                        {
+                          "type": "Sequential",
+                          "when": "${loading && activeBuffer != 1}",
+                          "commands": [
+                            {
+                              "type": "SetValue",
+                              "componentId": "imageWidget",
+                              "property": "readyBattery",
+                              "value": true
+                            },
+                            {
+                              "type": "Sequential",
+                              "when": "${loading && activeBuffer != 1 && readyPv && readyHome && readyBattery && readyStatus}",
+                              "commands": [
+                                {
+                                  "type": "SetValue",
+                                  "componentId": "imageWidget",
+                                  "property": "activeBuffer",
+                                  "value": 1
+                                },
+                                {
+                                  "type": "SetValue",
+                                  "componentId": "imageWidget",
+                                  "property": "hasImage",
+                                  "value": true
+                                },
+                                {
+                                  "type": "SetValue",
+                                  "componentId": "imageWidget",
+                                  "property": "loading",
+                                  "value": false
+                                },
+                                {
+                                  "type": "SetValue",
+                                  "componentId": "imageWidget",
+                                  "property": "imageFailed",
+                                  "value": false
+                                },
+                                {
+                                  "type": "SetValue",
+                                  "componentId": "imageWidget",
+                                  "property": "loaded",
+                                  "value": "${loaded + 1}"
+                                }
+                              ]
+                            }
+                          ]
+                        }
+                      ],
+                      "onFail": [
+                        {
+                          "type": "Sequential",
+                          "when": "${loading && activeBuffer != 1}",
+                          "commands": [
+                            {
+                              "type": "SetValue",
+                              "componentId": "imageWidget",
+                              "property": "loading",
+                              "value": false
+                            },
+                            {
+                              "type": "SetValue",
+                              "componentId": "imageWidget",
+                              "property": "imageFailed",
+                              "value": true
+                            }
+                          ]
+                        }
+                      ],
+                      "position": "absolute",
+                      "top": 0,
+                      "left": 0,
+                      "opacity": "${hasImage && activeBuffer == 1 ? 1 : 0}"
+                    },
                     {
-                      "type": "SetValue",
-                      "componentId": "imageWidget",
-                      "property": "imageFailed",
-                      "value": true
+                      "type": "Text",
+                      "text": "—",
+                      "fontSize": 48,
+                      "color": "#AFC1D1",
+                      "position": "absolute",
+                      "top": 0,
+                      "left": 0,
+                      "display": "${hasImage ? \"none\" : \"normal\"}"
                     }
-                  ],
-                  "display": "${grantReady ? \"normal\" : \"none\"}"
-                },
-                {
-                  "type": "Text",
-                  "text": "—",
-                  "fontSize": 48,
-                  "color": "#AFC1D1",
-                  "display": "${grantReady ? \"none\" : \"normal\"}"
+                  ]
                 }
               ]
             },
             {
-              "type": "Image",
-              "id": "measurementStatus",
+              "type": "Container",
               "width": "100%",
               "height": 28,
-              "spacing": 14,
-              "scale": "best-fit",
-              "align": "left",
-              "source": "${statusImageBase ? statusImageBase + \"&n=\" + imageNonce : ''}",
-              "display": "${grantReady ? \"normal\" : \"none\"}"
+              "items": [
+                {
+                  "type": "Image",
+                  "id": "measurementStatusBuffer0",
+                  "width": "100%",
+                  "height": 28,
+                  "scale": "best-fit",
+                  "align": "left",
+                  "source": "${buffer0 ? buffer0.statusBase + \"&n=\" + buffer0.nonce : ''}",
+                  "position": "absolute",
+                  "top": 0,
+                  "left": 0,
+                  "opacity": "${hasImage && activeBuffer == 0 ? 1 : 0}",
+                  "onLoad": [
+                    {
+                      "type": "Sequential",
+                      "when": "${loading && activeBuffer != 0}",
+                      "commands": [
+                        {
+                          "type": "SetValue",
+                          "componentId": "imageWidget",
+                          "property": "readyStatus",
+                          "value": true
+                        },
+                        {
+                          "type": "Sequential",
+                          "when": "${loading && activeBuffer != 0 && readyPv && readyHome && readyBattery && readyStatus}",
+                          "commands": [
+                            {
+                              "type": "SetValue",
+                              "componentId": "imageWidget",
+                              "property": "activeBuffer",
+                              "value": 0
+                            },
+                            {
+                              "type": "SetValue",
+                              "componentId": "imageWidget",
+                              "property": "hasImage",
+                              "value": true
+                            },
+                            {
+                              "type": "SetValue",
+                              "componentId": "imageWidget",
+                              "property": "loading",
+                              "value": false
+                            },
+                            {
+                              "type": "SetValue",
+                              "componentId": "imageWidget",
+                              "property": "imageFailed",
+                              "value": false
+                            },
+                            {
+                              "type": "SetValue",
+                              "componentId": "imageWidget",
+                              "property": "loaded",
+                              "value": "${loaded + 1}"
+                            }
+                          ]
+                        }
+                      ]
+                    }
+                  ],
+                  "onFail": [
+                    {
+                      "type": "Sequential",
+                      "when": "${loading && activeBuffer != 0}",
+                      "commands": [
+                        {
+                          "type": "SetValue",
+                          "componentId": "imageWidget",
+                          "property": "loading",
+                          "value": false
+                        },
+                        {
+                          "type": "SetValue",
+                          "componentId": "imageWidget",
+                          "property": "imageFailed",
+                          "value": true
+                        }
+                      ]
+                    }
+                  ]
+                },
+                {
+                  "type": "Image",
+                  "id": "measurementStatusBuffer1",
+                  "width": "100%",
+                  "height": 28,
+                  "scale": "best-fit",
+                  "align": "left",
+                  "source": "${buffer1 ? buffer1.statusBase + \"&n=\" + buffer1.nonce : ''}",
+                  "position": "absolute",
+                  "top": 0,
+                  "left": 0,
+                  "opacity": "${hasImage && activeBuffer == 1 ? 1 : 0}",
+                  "onLoad": [
+                    {
+                      "type": "Sequential",
+                      "when": "${loading && activeBuffer != 1}",
+                      "commands": [
+                        {
+                          "type": "SetValue",
+                          "componentId": "imageWidget",
+                          "property": "readyStatus",
+                          "value": true
+                        },
+                        {
+                          "type": "Sequential",
+                          "when": "${loading && activeBuffer != 1 && readyPv && readyHome && readyBattery && readyStatus}",
+                          "commands": [
+                            {
+                              "type": "SetValue",
+                              "componentId": "imageWidget",
+                              "property": "activeBuffer",
+                              "value": 1
+                            },
+                            {
+                              "type": "SetValue",
+                              "componentId": "imageWidget",
+                              "property": "hasImage",
+                              "value": true
+                            },
+                            {
+                              "type": "SetValue",
+                              "componentId": "imageWidget",
+                              "property": "loading",
+                              "value": false
+                            },
+                            {
+                              "type": "SetValue",
+                              "componentId": "imageWidget",
+                              "property": "imageFailed",
+                              "value": false
+                            },
+                            {
+                              "type": "SetValue",
+                              "componentId": "imageWidget",
+                              "property": "loaded",
+                              "value": "${loaded + 1}"
+                            }
+                          ]
+                        }
+                      ]
+                    }
+                  ],
+                  "onFail": [
+                    {
+                      "type": "Sequential",
+                      "when": "${loading && activeBuffer != 1}",
+                      "commands": [
+                        {
+                          "type": "SetValue",
+                          "componentId": "imageWidget",
+                          "property": "loading",
+                          "value": false
+                        },
+                        {
+                          "type": "SetValue",
+                          "componentId": "imageWidget",
+                          "property": "imageFailed",
+                          "value": true
+                        }
+                      ]
+                    }
+                  ]
+                }
+              ],
+              "spacing": 14
             },
             {
-              "type": "Text",
-              "text": "${imageFailed ? \"Bildabruf fehlgeschlagen\" : \"Antippen: Vollbild öffnen\"}",
-              "fontSize": 13,
-              "color": "#AFC1D1",
-              "spacing": 4,
-              "maxLines": 1
+              "type": "Container",
+              "direction": "row",
+              "width": "100%",
+              "height": 28,
+              "alignItems": "center",
+              "justifyContent": "spaceBetween",
+              "items": [
+                {
+                  "type": "TouchWrapper",
+                  "id": "refreshWidget",
+                  "height": 28,
+                  "onPress": [
+                    {
+                      "type": "ReloadWidget"
+                    }
+                  ],
+                  "item": {
+                    "type": "Text",
+                    "text": "${loading ? \"Wird geladen …\" : \"Aktualisieren\"}",
+                    "fontSize": 15,
+                    "color": "#8BCBFF",
+                    "maxLines": 1
+                  }
+                },
+                {
+                  "type": "Text",
+                  "text": "${imageFailed ? \"Letzter Stand\" : \"\"}",
+                  "fontSize": 12,
+                  "color": "#FFD166",
+                  "maxLines": 1
+                }
+              ]
             },
             {
               "type": "Text",
@@ -327,5 +997,92 @@
       },
       "sequencer": "widgetAccount"
     }
-  ]
+  ],
+  "commands": {
+    "ReloadWidget": {
+      "commands": [
+        {
+          "type": "Sequential",
+          "when": "${grantReady && !loading}",
+          "commands": [
+            {
+              "type": "SetValue",
+              "componentId": "imageWidget",
+              "property": "readyPv",
+              "value": false
+            },
+            {
+              "type": "SetValue",
+              "componentId": "imageWidget",
+              "property": "readyHome",
+              "value": false
+            },
+            {
+              "type": "SetValue",
+              "componentId": "imageWidget",
+              "property": "readyBattery",
+              "value": false
+            },
+            {
+              "type": "SetValue",
+              "componentId": "imageWidget",
+              "property": "readyStatus",
+              "value": false
+            },
+            {
+              "type": "SetValue",
+              "componentId": "imageWidget",
+              "property": "loading",
+              "value": true
+            },
+            {
+              "type": "SetValue",
+              "componentId": "imageWidget",
+              "property": "lastRefresh",
+              "value": "${elapsedTime}"
+            },
+            {
+              "type": "SetValue",
+              "componentId": "imageWidget",
+              "property": "lastImageNonce",
+              "value": "${imageNonce}"
+            },
+            {
+              "type": "SetValue",
+              "componentId": "imageWidget",
+              "property": "buffer0",
+              "value": {
+                "valueBase": "${imageBase}",
+                "statusBase": "${statusImageBase}",
+                "nonce": "${elapsedTime}"
+              },
+              "when": "${activeBuffer != 0}"
+            },
+            {
+              "type": "SetValue",
+              "componentId": "imageWidget",
+              "property": "buffer1",
+              "value": {
+                "valueBase": "${imageBase}",
+                "statusBase": "${statusImageBase}",
+                "nonce": "${elapsedTime}"
+              },
+              "when": "${activeBuffer != 1}"
+            }
+          ]
+        },
+        {
+          "type": "SendEvent",
+          "when": "${!grantReady}",
+          "arguments": [
+            "solar.widget.images.v1"
+          ],
+          "flags": {
+            "interactionMode": "INLINE"
+          },
+          "sequencer": "widgetAccount"
+        }
+      ]
+    }
+  }
 }

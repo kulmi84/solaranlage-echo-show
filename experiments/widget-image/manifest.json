@@ -1,7 +1,7 @@
 {
   "manifest": {
     "id": "SolarImageStatus102",
-    "version": "1.1.0",
+    "version": "1.1.1",
     "presentationDefinitions": [
       {
         "url": "presentations/default.tpl"

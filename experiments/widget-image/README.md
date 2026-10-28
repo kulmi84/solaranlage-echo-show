@@ -37,3 +37,7 @@ node cloudflare/display/widget-images.test.mjs
 Der Widget-Builder benötigt keine private Bildkonfiguration. Die Lambda-Laufzeit verwendet die bereits für Vollbild vorhandene private `relay_config.json`. Die zusätzlichen Worker-Routen benötigen die bestehenden Bindungen `DISPLAY_KEY` und `DISPLAY_DB`; keine neuen Secrets.
 
 Geprüft: zwei getrennte Beispielkonten, abgelaufene/manipulierte Freigaben, Widerruf, eingeschränkte Spalten, Statuszeit, stille Antworten, fehlende Verknüpfung und Durchleitung der bisherigen Sprach-/Vollbild-Anfragen. Bestehende Vollbild-HTTP-Antworten bleiben im Vergleich unverändert. Reale HTTPS-Abrufe der zusätzlichen Bildrouten waren erfolgreich.
+
+## Nachlade-Korrektur 1.1.1 (Development)
+
+Unten beim Stand steht der Link „Aktualisieren“. Er lädt die Bilder manuell nach, ohne Vollbild zu öffnen. Ein zweiter, unsichtbarer Bildsatz wird geladen; erst nach erfolgreichem Laden aller drei Werte und der Stand-Zeile wird vollständig umgeschaltet. Bei Fehler oder Zeitüberschreitung bleibt der letzte erfolgreiche Bildsatz einschließlich seines alten Zeitstempels sichtbar. Automatischer Wiederholungsversuch nach 10 Sekunden; normale Aktualisierung alle 60 Sekunden. Der neue Code ist getrennt von der bereits eingereichten Version 1.1.0. Die laufende Amazon-Prüfung wird nicht zurückgezogen.
