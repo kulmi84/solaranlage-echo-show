@@ -29,4 +29,3 @@ for(let y=0;y<84;y++){assert.equal(raw[y*(789*4+1)],0);for(let x=0;x<789;x++)lev
 assert(levels.has(0)&&levels.has(255)&&levels.size>30,'transparent background and smooth antialiased edges');
 assert.equal((await widgetImage(new Request('https://example.test/status.png?k='+'d'.repeat(64)),env)).status,403);
 console.log('PASS: transparent PNG, changing live values, 7-day access, three-column restriction, wrong-token rejection before DB, revocation and no public enrollment.');
-
