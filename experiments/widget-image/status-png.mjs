@@ -12,7 +12,8 @@ export function statusText(row,now=Date.now()){
 export async function statusPng(row){
  const {text,stale}=statusText(row),width=263,height=154,pixels=new Uint8Array(width*height);pixels.fill(3);
  const glyphs=[...text].map(c=>smoothFont[2][c]||smoothFont[2]['-']);
- const total=glyphs.reduce((n,g)=>n+g[2],0),factor=Math.min(1,width/total);let pen=0;
- for(const [w,h,advance,encoded] of glyphs){const mask=Uint8Array.from(atob(encoded),c=>c.charCodeAt(0));for(let y=0;y<h&&y<22;y++)for(let x=0;x<w;x++){const a=mask[y*w+x],xx=Math.floor((pen+x)*factor);if(a&&xx<width)pixels[y*width+xx]=9+63+(stale?8:2)*7+a-1;}pen+=advance;}
+ const glyphScale=0.78;
+ const total=glyphs.reduce((n,g)=>n+g[2],0),factor=Math.min(glyphScale,width/total);let pen=0;
+ for(const [w,h,advance,encoded] of glyphs){const mask=Uint8Array.from(atob(encoded),c=>c.charCodeAt(0));for(let y=0;y<h&&y<22;y++)for(let x=0;x<w;x++){const a=mask[y*w+x],xx=Math.floor((pen+x)*factor),yy=Math.floor(y*glyphScale)+2;if(a&&xx<width&&yy<22)pixels[yy*width+xx]=9+63+(stale?8:2)*7+a-1;}pen+=advance;}
  return transparentValuePng(await encodePng(width,height,pixels),22);
 }
