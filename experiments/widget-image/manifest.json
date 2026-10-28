@@ -21,7 +21,7 @@
           "targetViewport": "WIDGET_M",
           "metadata": {
             "name": "Solaranlage",
-            "description": "Live-Werte alle 60 Sekunden mit tatsÃ¤chlichem Empfangszeitpunkt. Antippen Ã¶ffnet die normale Vollbildansicht.",
+            "description": "Live-Werte alle 60 Sekunden mit tatsächlichem Empfangszeitpunkt. Antippen öffnet die normale Vollbildansicht.",
             "keywords": [
               "Solaranlage",
               "PV",
