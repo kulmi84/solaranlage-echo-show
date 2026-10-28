@@ -1,7 +1,7 @@
 {
   "manifest": {
     "id": "SolarImagePilot03",
-    "version": "1.0.0",
+    "version": "1.0.1",
     "presentationDefinitions": [
       {
         "url": "presentations/default.tpl"

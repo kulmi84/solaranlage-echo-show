@@ -11,7 +11,7 @@ Der Bildweg zeigt PV + BKW, Hausverbrauch und Akkustand als transparente PNGs. D
 | Bild-Widget | BILD 02 mit transparenten Werten wurde auf dem Echo vom Nutzer als funktionierend bestätigt. BILD 03 ergänzt einen dauerhaft widerrufbaren Bildzugang und ist für den Mehrtagetest vorbereitet. Bei dauerhaft erfolgreichem Test soll dies die finale Widget-Lösung werden. |
 | Data-Store-Widget | Weiterhin ohne zuverlässigen Werteempfang. Weitere Versuche sollen ausschließlich in der separaten Beta erfolgen. [Issue #7](https://github.com/kulmi84/solaranlage-echo-show/issues/7) bleibt offen; dieser Bildweg beweist keine Behebung des Data-Store-Problems. |
 
-**BILD 03 wurde zu diesem Dokumentationsstand noch nicht auf dem Echo installiert.** Browserzugriff war für den Amazon-Schritt deaktiviert. Ein simulierter Test über sieben Tage ist kein bestandener Mehrtagetest auf dem Gerät. Weder Amazon-Zertifizierung noch Store-Rollout werden mit diesem Quellcode-PR ausgelöst.
+**BILD 03 ist noch kein finaler Rollout.** Ein simulierter Test über sieben Tage ist kein bestandener Mehrtagetest auf dem Gerät. Die Tippaktion wurde in Paketversion 1.0.1 ergänzt; die tatsächliche Öffnung auf dem Gerät muss bestätigt werden. Weder Amazon-Zertifizierung noch Store-Rollout werden mit diesem Quellcode-PR ausgelöst.
 
 ## Ansicht
 
@@ -36,6 +36,7 @@ Der D1-Bindingzugang ist auf Plattformebene keine schreibgeschützte DB-Rolle. D
 - `worker.mjs`: getrennter Widget-Bilddienst, nur Spalten 0/1/3, Widerrufsprüfung bei jeder Anfrage.
 - `transparent-png.mjs`: Umwandlung des bekannten 263×154-PNG-Formats in transparente 263×64-Wertebilder, geglättete Schriftkanten bleiben erhalten.
 - `document.template.json` und `manifest.json`: bereinigte BILD-03-Vorlagen ohne echten Bildzugang.
+- Antippen sendet `solar.widget.open.v1` im Modus `STANDARD` an die bereits vorhandene normale Skill-Route. Diese erzeugt den normalen `LaunchRequest` samt Kontokontext. Der Vollbildhandler selbst wird nicht geändert.
 - `build_widget.py`: setzt eine **lokale private** Bildadresse ein; erzeugte Pakete gehören ausschließlich in einen ignorierten privaten Ausgabeordner.
 - `worker.test.mjs`: Tests ohne Cloudflare-Zugang oder echte Messwerte.
 - `wrangler.example.jsonc`: Platzhalterkonfiguration für eine eigene, separate Worker-Instanz.
@@ -74,7 +75,7 @@ Vor der Übernahme als finale Widget-Version müssen auf dem Gerät mindestens f
 - Wechsel zwischen Startseiten, Hintergrundphasen und ein Neustart unterbrechen den Zugang nicht dauerhaft; bei Rückkehr erscheinen aktuelle Werte.
 - Kein tägliches Neuöffnen, Neuverknüpfen oder Neuinstallieren ist erforderlich.
 - Ausfälle und veraltete Daten werden verständlich angezeigt; alte Werte dürfen nicht als aktuelle Werte erscheinen.
-- Antippen öffnet die **normale** Vollbildansicht. Der aktuelle isolierte Bildtest enthält noch keine Tippaktion; diese muss vor finaler Freigabe ergänzt und getestet werden.
+- Antippen öffnet die **normale** Vollbildansicht. Die ergänzte Tippaktion wurde lokal gegen die tatsächlich aus Amazon nur lesend gesicherte normale Öffnungsroute geprüft; der Gerätetest steht noch aus.
 - Die bestehende normale Vollbildansicht, Sprachsteuerung und Aktualisierung bleiben unverändert.
 
 Danach erfolgt die Übernahme und gegebenenfalls notwendige Amazon-Prüfung. Bis dahin bleiben der aktuelle Produktionsstand und seine Rücksprungstände erhalten. Das Data-Store-Widget wird separat in der Beta untersucht, ohne den erfolgreichen Bildtest zu verändern.

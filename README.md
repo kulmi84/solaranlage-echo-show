@@ -2,7 +2,7 @@
 
 ## Widget-Bildtest: Kandidat für die finale Fassung
 
-Der transparente Bildtest funktioniert auf dem Gerät; ein separater widerrufbarer Bildzugang ohne täglichen Ablauf ist vorbereitet. **Noch kein finaler Widget-Rollout:** Der echte Mehrtagetest und die Tippaktion zur normalen Vollbildansicht stehen aus. Das bislang unzuverlässige Data-Store-Widget wird separat in der Beta weiter untersucht. [Code, bebilderter Status und Freigabekriterien](experiments/widget-image/README.md).
+Der transparente Bildtest funktioniert auf dem Gerät; ein separater widerrufbarer Bildzugang ohne täglichen Ablauf ist vorbereitet. **Noch kein finaler Widget-Rollout:** Der echte Mehrtagetest und die Gerätebestätigung der ergänzten Tippaktion zur normalen Vollbildansicht stehen aus. Das bislang unzuverlässige Data-Store-Widget wird separat in der Beta weiter untersucht. [Code, bebilderter Status und Freigabekriterien](experiments/widget-image/README.md).
 
 ## Version 1.0.7: Status der Solaranlage vorlesen
 

@@ -11,7 +11,8 @@ def build(config_path,output):
         raise ValueError('Expected a private HTTPS widget image base')
     root=Path(__file__).resolve().parent
     doc=json.loads((root/'document.template.json').read_text(encoding='utf-8'))
-    bindings=doc['mainTemplate']['items'][0]['bind']
+    widget=doc['mainTemplate']['items'][0]
+    bindings=widget['item']['bind'] if widget['type']=='TouchWrapper' else widget['bind']
     next(binding for binding in bindings if binding['name']=='imageBase')['value']=base
     manifest=json.loads((root/'manifest.json').read_text(encoding='utf-8'))
     output=Path(output).resolve()
