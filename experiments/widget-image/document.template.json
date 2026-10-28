@@ -28,7 +28,7 @@
           "bind": [
             {
               "name": "imageBase",
-              "value": "__PRIVATE_WIDGET_IMAGE_BASE__"
+              "value": ""
             },
             {
               "name": "imageNonce",
@@ -48,7 +48,23 @@
             },
             {
               "name": "statusImageBase",
-              "value": "__PRIVATE_WIDGET_STATUS_BASE__"
+              "value": ""
+            },
+            {
+              "name": "grantReady",
+              "value": false
+            },
+            {
+              "name": "grantRefreshAt",
+              "value": 0
+            },
+            {
+              "name": "lastGrantRequest",
+              "value": 0
+            },
+            {
+              "name": "accountMessage",
+              "value": "Verbindung wird hergestellt …"
             }
           ],
           "handleTick": [
@@ -67,6 +83,28 @@
                   "componentId": "imageWidget",
                   "property": "lastRefresh",
                   "value": "${elapsedTime}"
+                }
+              ]
+            },
+            {
+              "minimumDelay": 1000,
+              "when": "${elapsedTime - lastGrantRequest >= 60000 && (!grantReady || elapsedTime >= grantRefreshAt)}",
+              "commands": [
+                {
+                  "type": "SetValue",
+                  "componentId": "imageWidget",
+                  "property": "lastGrantRequest",
+                  "value": "${elapsedTime}"
+                },
+                {
+                  "type": "SendEvent",
+                  "arguments": [
+                    "solar.widget.images.v1"
+                  ],
+                  "flags": {
+                    "interactionMode": "INLINE"
+                  },
+                  "sequencer": "widgetAccount"
                 }
               ]
             }
@@ -104,7 +142,7 @@
                 {
                   "type": "Image",
                   "id": "valueImage0",
-                  "source": "${imageBase + \"&page=live&row=0&col=0&layout=final&n=\" + imageNonce}",
+                  "source": "${imageBase ? imageBase + \"&page=live&row=0&col=0&layout=final&n=\" + imageNonce : ''}",
                   "width": "100%",
                   "height": 76,
                   "scale": "best-fit",
@@ -130,7 +168,15 @@
                       "property": "imageFailed",
                       "value": true
                     }
-                  ]
+                  ],
+                  "display": "${grantReady ? \"normal\" : \"none\"}"
+                },
+                {
+                  "type": "Text",
+                  "text": "—",
+                  "fontSize": 48,
+                  "color": "#AFC1D1",
+                  "display": "${grantReady ? \"none\" : \"normal\"}"
                 }
               ]
             },
@@ -148,7 +194,7 @@
                 {
                   "type": "Image",
                   "id": "valueImage1",
-                  "source": "${imageBase + \"&page=live&row=0&col=1&layout=final&n=\" + imageNonce}",
+                  "source": "${imageBase ? imageBase + \"&page=live&row=0&col=1&layout=final&n=\" + imageNonce : ''}",
                   "width": "100%",
                   "height": 76,
                   "scale": "best-fit",
@@ -174,7 +220,15 @@
                       "property": "imageFailed",
                       "value": true
                     }
-                  ]
+                  ],
+                  "display": "${grantReady ? \"normal\" : \"none\"}"
+                },
+                {
+                  "type": "Text",
+                  "text": "—",
+                  "fontSize": 48,
+                  "color": "#AFC1D1",
+                  "display": "${grantReady ? \"none\" : \"normal\"}"
                 }
               ]
             },
@@ -192,7 +246,7 @@
                 {
                   "type": "Image",
                   "id": "valueImage3",
-                  "source": "${imageBase + \"&page=live&row=0&col=3&layout=final&n=\" + imageNonce}",
+                  "source": "${imageBase ? imageBase + \"&page=live&row=0&col=3&layout=final&n=\" + imageNonce : ''}",
                   "width": "100%",
                   "height": 76,
                   "scale": "best-fit",
@@ -218,7 +272,15 @@
                       "property": "imageFailed",
                       "value": true
                     }
-                  ]
+                  ],
+                  "display": "${grantReady ? \"normal\" : \"none\"}"
+                },
+                {
+                  "type": "Text",
+                  "text": "—",
+                  "fontSize": 48,
+                  "color": "#AFC1D1",
+                  "display": "${grantReady ? \"none\" : \"normal\"}"
                 }
               ]
             },
@@ -230,7 +292,8 @@
               "spacing": 14,
               "scale": "best-fit",
               "align": "left",
-              "source": "${statusImageBase + \"&n=\" + imageNonce}"
+              "source": "${statusImageBase ? statusImageBase + \"&n=\" + imageNonce : ''}",
+              "display": "${grantReady ? \"normal\" : \"none\"}"
             },
             {
               "type": "Text",
@@ -239,10 +302,30 @@
               "color": "#AFC1D1",
               "spacing": 4,
               "maxLines": 1
+            },
+            {
+              "type": "Text",
+              "text": "${accountMessage}",
+              "fontSize": 13,
+              "color": "#FFD166",
+              "display": "${accountMessage ? \"normal\" : \"none\"}",
+              "maxLines": 2
             }
           ]
         }
       }
     ]
-  }
+  },
+  "onMount": [
+    {
+      "type": "SendEvent",
+      "arguments": [
+        "solar.widget.images.v1"
+      ],
+      "flags": {
+        "interactionMode": "INLINE"
+      },
+      "sequencer": "widgetAccount"
+    }
+  ]
 }

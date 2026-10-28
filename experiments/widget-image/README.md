@@ -1,41 +1,39 @@
-# Solaranlage: Bild-Widget
+# Solaranlage: kontogebundenes Bild-Widget
 
-**v1.0.8: Am 28. Oktober 2026 auf dem Echo Show vom Betreiber bestätigt und zur Übernahme freigegeben.**
+Das Widget zeigt die Werte derselben verknüpften Anlage wie die normale Vollbildansicht. Es benötigt keine zweite Einrichtung, keine weitere Einladung und keinen persönlichen Widget-Schlüssel. Die bestehende Kontoverknüpfung des normalen Skills reicht aus.
 
-Das Widget zeigt PV + BKW, Hausverbrauch und Akkustand als transparente Bilder. Es ruft sie alle 60 Sekunden ab, solange Alexa den Widget-Timer ausführt. Die Stand-Zeile zeigt die tatsächliche Empfangszeit der Messwerte in der Zeitzone der Anlage. Sie wird mit 789×84 Pixeln, voller Alpha-Transparenz und geglätteten Schriftkanten gerendert. Nach drei Minuten ohne frische Daten erscheint „Veraltet“. Antippen öffnet über `solar.widget.open.v1` die bestehende normale Vollbildansicht.
+![Freigegebenes Layout mit großer Schrift und Empfangszeit](assets/layout-status-preview.png)
 
-![Bild-Widget mit großer Überschrift und Empfangszeit](assets/layout-status-preview.png)
+## Ablauf
 
-Die Aufnahme dokumentiert das Layout; die Zahlen sind Momentaufnahmen. Die Korrektur der Stand-Schrift wird vom Bilddienst geliefert und erfordert keine Neuinstallation. Der aktuelle Bildzugang hat keinen täglichen 24-Stunden-Ablauf. Ein simulierter Sieben-Tage-Test ersetzt keinen echten Mehrtagetest.
+1. Beim Anzeigen fordert das Widget mit `solar.widget.images.v1` im INLINE-Modus still einen Bildzugang an.
+2. Der normale Skill prüft Skill-ID und Widget-Paket und verwendet denselben Account-Link-Token und dieselbe Funktion `create_image_session` wie Vollbild.
+3. Die Antwort setzt die geschützten Bildadressen ausschließlich in dieser Widget-Instanz. Sie öffnet kein Vollbild und spricht nichts.
+4. Die drei transparenten Wertebilder und die scharfe Stand-Zeile werden alle 60 Sekunden neu geladen, solange Alexa den Widget-Timer ausführt.
+5. Der zeitlich begrenzte Zugang wird vor Ablauf still erneuert. Nach einem Neustart beginnt die Anmeldung erneut. Bei vorübergehenden Fehlern bleiben die bisherigen Bildadressen erhalten, statt sie aktiv zu leeren.
+6. Antippen öffnet die vorhandene normale Vollbildansicht.
 
-## Veröffentlichung und Kontozuordnung
+## Dieselben Daten und Berechtigungen
 
-Der bestätigte Gerätetest verwendet ein **privat erzeugtes, einer Anlage zugeordnetes Paket**. Es ist kein bereits für alle Konten veröffentlichtes Store-Widget. Ein HACS-Update installiert oder veröffentlicht dieses Widget nicht.
+`/widget/value.png` und `/widget/status.png` gehören zum bestehenden Display-Worker. Sie verwenden dieselbe verschlüsselte Freigabe, dieselbe Datenbank und dieselbe exakte Haushaltszuordnung wie Vollbild. Die Freigabe wird vor jedem Datenbankabruf geprüft. Deaktivierte Haushalte und geänderte Widerrufskennungen werden abgewiesen. Keine weitere Datenbank, kein zusätzlicher Data Store und keine Schreiboperationen sind dafür nötig.
 
-Das Paket enthält einen privaten Bildschlüssel. Deshalb darf ein für eine reale Anlage erzeugtes Paket weder in GitHub noch als gemeinsames Amazon-Store-Paket veröffentlicht werden. Vor einer allgemeinen Store-Verteilung muss jedes verknüpfte Konto seinen eigenen widerrufbaren Bildzugang erhalten. Diese automatische Bereitstellung ist noch nicht implementiert. Die öffentliche Vorlage enthält ausschließlich Platzhalter; sie zeigt ohne private Einrichtung keine Werte.
+Das gemeinsame Amazon-Paket enthält **keine privaten Bildadressen oder Zugangsschlüssel**. Erst die vorhandene Kontoverknüpfung liefert zur Laufzeit einen eigenen Zugang je Konto. Ohne Kontoverknüpfung erscheint ein entsprechender Hinweis. Private Konfigurationen und die von Amazon gesicherten Lambda-Dateien gehören niemals ins Repository.
 
-Der normale Skill, seine Statusansage, der Sprachaufruf und die Vollbildansicht bleiben unverändert. Der frühere Data-Store-Weg wird für die finale Widget-Lösung ersetzt; seine zugrunde liegende Amazon-Ursache ist weiterhin ungeklärt. Weitere Data-Store-Versuche gehören ausschließlich in die separate Beta. [Issue #7](https://github.com/kulmi84/solaranlage-echo-show/issues/7) dokumentiert Diagnose und Ablösung.
+## Stand am 28. Oktober 2026
 
-## Lesezugang und Widerruf
+Kandidat mit Paket `SolarImageStatus102` **1.1.0** und unverändertem freigegebenem Layout. Development-Code erfolgreich bereitgestellt, Amazon-Build erfolgreich, Testinstallation auf Echo Küche bestätigt. Der Betreiber bestätigt aktuelle Werte auf dem Gerät nach der automatischen Anmeldung. Die neue Erneuerung ist lokal getestet, aber noch nicht durch einen mehrtägigen Gerätetest bestätigt. Diese Angaben bedeuten keine allgemeine Store-Freigabe. HACS installiert die HA-Integration; die zentrale Skill-/Widget-Bereitstellung erfolgt separat über Amazon.
 
-Der separate Worker verwendet einen zufälligen 256-Bit-Schlüssel. Serverseitig liegen nur SHA-256-Schlüsselhash, exakt verifizierte Haushaltszuordnung und Widerrufskennung. Jede Anfrage liest per festem SELECT nur die drei Werte und Empfangszeit dieses Haushalts. Keine Auswahl anhand ähnlicher Werte oder des zuletzt aktiven Haushalts. Löschen/Deaktivieren der Anlage oder eine geänderte Freigabekennung sperrt den Zugang. Der Betreiber kann den Schlüssel ersetzen oder den separaten Dienst abschalten. Entfernen eines Widgets widerruft den Schlüssel derzeit nicht automatisch.
+Der vorher bestätigte private Bild-Prototyp aus v1.0.8 bleibt als Rücksprungstand erhalten. Der frühere Data-Store-Fehler wird mit diesem Bildweg umgangen; seine Amazon-Ursache ist weiterhin ungeklärt. Weitere Data-Store-Versuche gehören ausschließlich in die separate Beta.
 
-Die technische D1-Bindung ist keine schreibgeschützte Datenbankrolle; der Handler verwendet ausschließlich feste SELECT-Anweisungen. Keine Quelltabellen oder Produktionsschemas werden verändert. Antworten verwenden `no-store`, Observability bleibt deaktiviert. Private Bildadressen, Bindungen und Konfigurationen niemals veröffentlichen.
-
-## Quellcode und Tests
-
-- `worker.mjs`: getrennter Bilddienst, Berechtigungsprüfung vor Datenabruf, genau drei Spalten und Status.
-- `transparent-png.mjs`: transparente Wertebilder, unveränderter vorhandener Renderer unter `cloudflare/display`.
-- `status-png.mjs` und `status-font.mjs`: hochauflösende Stand-Zeile, Zeitumrechnung und Veraltungswarnung. Die Schriftdatei enthält gerasterte Glyphen, keine TTF-Datei.
-- `document.template.json` und `manifest.json`: bereinigtes Paket `SolarImageStatus102` 1.0.2, TouchWrapper und 60-Sekunden-Timer.
-- `build_widget.py`: setzt ausschließlich lokal eine private Bildadresse ein; Ausgabe nur in ignorierten privaten Ordnern.
-- `wrangler.example.jsonc`: Platzhalter für eine eigene separate Instanz, keine echten Konto-/Datenbankkennungen.
+## Build und Tests
 
 ```powershell
-node experiments/widget-image/worker.test.mjs
-python experiments/widget-image/build_widget.py --image-config .private/widget-image-config.json
+python build_skill.py
+python experiments/widget-image/build_widget.py --output dist/widget
+python -m unittest test_widget_account test_image_display test_status_speech test_beta_live
+node cloudflare/display/widget-images.test.mjs
 ```
 
-Der Worker benötigt `SOURCE_DB` sowie das Secret `WIDGET_READ_GRANT` mit `tokenHash`, `tenant` und `version`. Die Konfigurationsdatei enthält `image_base` mit der eigenen HTTPS-Adresse `/value.png?k=...`. Der Builder leitet daraus auch die geschützte Statusadresse ab. Der Schlüssel muss aus einer authentifizierten Anlagenverbindung zugeordnet werden. Es gibt keinen öffentlichen Einrichtungsendpunkt.
+Der Widget-Builder benötigt keine private Bildkonfiguration. Die Lambda-Laufzeit verwendet die bereits für Vollbild vorhandene private `relay_config.json`. Die zusätzlichen Worker-Routen benötigen die bestehenden Bindungen `DISPLAY_KEY` und `DISPLAY_DB`; keine neuen Secrets.
 
-Geprüft: transparente und wechselnde Wertebilder, hochauflösende Statusbilder, fehlende/falsche Schlüssel, Ablehnung vor Datenbankzugriff, Spaltenbeschränkung, Zeitzone, veraltete Daten, simulierter Sieben-Tage-Zeitsprung und Widerruf. Echte HTTPS-Abrufe des privaten Dienstes erfolgreich. Gerätedarstellung vom Nutzer bestätigt; eine allgemeine Amazon-Store-Freigabe wird damit nicht behauptet.
+Geprüft: zwei getrennte Beispielkonten, abgelaufene/manipulierte Freigaben, Widerruf, eingeschränkte Spalten, Statuszeit, stille Antworten, fehlende Verknüpfung und Durchleitung der bisherigen Sprach-/Vollbild-Anfragen. Bestehende Vollbild-HTTP-Antworten bleiben im Vergleich unverändert. Reale HTTPS-Abrufe der zusätzlichen Bildrouten waren erfolgreich.

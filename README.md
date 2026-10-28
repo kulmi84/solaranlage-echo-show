@@ -1,5 +1,11 @@
 # Solaranlage auf dem Echo Show
 
+## In Arbeit: Widget mit derselben Kontoverknüpfung wie Vollbild
+
+Das Bild-Widget erhält seinen Lesezugang automatisch vom normalen Skill. Es verwendet dieselbe verknüpfte Anlage und denselben Bilddienst wie die Vollbildansicht. Es braucht keinen zusätzlichen persönlichen Widget-Schlüssel. Das Paket enthält keine Messwerte oder privaten Bildadressen.
+
+Der gemeinsame Kandidat ist im Development-Stand gebaut und zum Echo-Gerätetest gesendet. Die automatische Anmeldung wurde auf Echo Küche mit aktuellen Werten bestätigt. Die Erneuerung ist automatisiert getestet; ein neuer Langzeittest und die allgemeine Amazon-Veröffentlichung stehen noch aus. Die vorhandene Vollbildansicht bleibt unverändert. [Technik und Prüfstand](experiments/widget-image/README.md).
+
 ## Version 1.0.8: Bild-Widget mit scharfer Stand-Zeile
 
 **Vom Betreiber auf dem Echo Show bestätigt:** transparente große Werte, tatsächliche Empfangszeit, Aktualisierung alle 60 Sekunden und Antippen zur normalen Vollbildansicht. Der separate widerrufbare Bildzugang benötigt kein tägliches Neuöffnen. Der Alexa Data Store wird für diese Werteanzeige nicht verwendet.
