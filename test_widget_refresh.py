@@ -53,7 +53,7 @@ class RefreshTests(unittest.TestCase):
         self.assertTrue(s['hasImage']);self.assertFalse(s['loading'])
         self.event(s,'valueImage3Buffer1','onLoad') # late callback cannot commit
         self.assertEqual(s['activeBuffer'],0)
-    def test_manual_retry_commits_only_after_all_four_new_images(self):
+    def test_automatic_retry_commits_only_after_all_four_new_images(self):
         s=self.state();self.start(s);self.event(s,'valueImage0Buffer1','onFail')
         s['elapsedTime']=61000;self.start(s)
         for image in ['valueImage0','valueImage1','valueImage3']:
@@ -64,13 +64,12 @@ class RefreshTests(unittest.TestCase):
     def test_next_refresh_writes_only_inactive_buffer(self):
         s=self.state();s.update(activeBuffer=1,nonce1=7);self.start(s)
         self.assertEqual(s['nonce1'],7);self.assertEqual(s['nonce0'],60000)
-    def test_timeout_and_button_do_not_open_fullscreen(self):
+    def test_timeout_keeps_frame_and_manual_button_is_removed(self):
         s=self.state();self.start(s);s['elapsedTime']=76000
         timeout=ROOT['handleTick'][-1];self.assertTrue(expression(timeout['when'],s))
         run(timeout['commands'],s);self.assertEqual(s['activeBuffer'],0);self.assertTrue(s['imageFailed'])
-        button=next(n for n in nodes(ROOT) if n.get('id')=='refreshWidget')
-        self.assertEqual(button['onPress'][0]['type'],'Sequential')
-        self.assertNotIn('solar.widget.open',json.dumps(button))
+        self.assertFalse(any(n.get('id')=='refreshWidget' for n in nodes(ROOT)))
+        self.assertNotIn('Aktualisieren',json.dumps(ROOT))
     def test_images_load_in_background_without_replacing_visible_sources(self):
         self.assertEqual(len(IMAGES),8)
         for image in IMAGES.values():
@@ -79,4 +78,5 @@ class RefreshTests(unittest.TestCase):
             self.assertNotIn('imageBase +',image['source'])
 
 if __name__=='__main__':unittest.main()
+
 

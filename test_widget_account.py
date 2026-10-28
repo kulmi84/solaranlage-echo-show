@@ -14,6 +14,13 @@ class WidgetAccountTest(unittest.TestCase):
         self.assertTrue(r['shouldEndSession']);self.assertNotIn('outputSpeech',r)
         d=r['directives'][0];self.assertEqual(d['type'],'Alexa.Presentation.APL.ExecuteCommands');self.assertEqual(d['presentationUri'],e['request']['presentationUri'])
         values={c['property']:c['value'] for c in d['commands']};self.assertIn('/widget/value.png?s=',values['imageBase']);self.assertTrue(values['grantReady'])
+    def test_development_presentation_uri_uses_same_account(self):
+        e=self.event();e['request']['presentationUri']=e['request']['presentationUri'].replace(m.WIDGET_ACCOUNT_SKILL+'/',m.WIDGET_ACCOUNT_SKILL+'_development/')
+        r=self.route(e)['response'];self.assertEqual(r['directives'][0]['presentationUri'],e['request']['presentationUri'])
+        self.assertTrue(any(c.get('property')=='grantReady' and c['value'] is True for c in r['directives'][0]['commands']))
+    def test_arbitrary_stage_suffix_is_rejected(self):
+        e=self.event();e['request']['presentationUri']=e['request']['presentationUri'].replace(m.WIDGET_ACCOUNT_SKILL+'/',m.WIDGET_ACCOUNT_SKILL+'_other/')
+        self.assertNotIn('directives',self.route(e)['response'])
     def test_unrelated_requests_pass_through(self):
         for request in [{'type':'LaunchRequest'},{'type':'IntentRequest','intent':{'name':'StatusIntent'}}]:
             self.assertEqual(self.route({'request':request}),{'original':True})
@@ -43,3 +50,4 @@ class WidgetAccountTest(unittest.TestCase):
         self.assertEqual(doc['mainTemplate']['items'][0]['items'][0]['onPress'][0]['flags'],{'interactionMode':'STANDARD'})
         self.assertIn('grantRefreshAt',s);self.assertIn('widgetAccount',s)
 if __name__=='__main__':unittest.main()
+

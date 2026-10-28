@@ -17,7 +17,7 @@ def route_widget_account(event, context, handler, session_factory, config_factor
     system=event.get('context',{}).get('System',{})
     uri=request.get('presentationUri','')
     packages='|'.join(re.escape(p) for p in WIDGET_ACCOUNT_PACKAGES)
-    pattern=r'widget://'+re.escape(WIDGET_ACCOUNT_SKILL)+r'/(?:'+packages+r')/[A-Za-z0-9_.:-]{1,300}'
+    pattern=r'widget://'+re.escape(WIDGET_ACCOUNT_SKILL)+r'(?:_development)?/(?:'+packages+r')/[A-Za-z0-9_.:-]{1,300}'
     response={'shouldEndSession':True}
     if system.get('application',{}).get('applicationId')!=WIDGET_ACCOUNT_SKILL or not re.fullmatch(pattern,uri):
         return {'version':'1.0','response':response}
@@ -55,3 +55,4 @@ def route_widget_account(event, context, handler, session_factory, config_factor
                        'value':'Verbindung wird erneut versucht.'}]
     response['directives']=[{'type':'Alexa.Presentation.APL.ExecuteCommands','presentationUri':uri,'commands':commands}]
     return {'version':'1.0','response':response}
+
