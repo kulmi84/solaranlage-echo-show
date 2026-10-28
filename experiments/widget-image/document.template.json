@@ -1,0 +1,224 @@
+{
+  "type": "APL",
+  "version": "2023.3",
+  "theme": "dark",
+  "mainTemplate": {
+    "items": [
+      {
+        "type": "Container",
+        "id": "imageWidget",
+        "width": "100vw",
+        "height": "100vh",
+        "padding": 16,
+        "bind": [
+          {
+            "name": "imageBase",
+            "value": "__PRIVATE_WIDGET_IMAGE_BASE__"
+          },
+          {
+            "name": "imageNonce",
+            "value": 0
+          },
+          {
+            "name": "lastRefresh",
+            "value": 0
+          },
+          {
+            "name": "loaded",
+            "value": 0
+          },
+          {
+            "name": "imageFailed",
+            "value": false
+          }
+        ],
+        "handleTick": [
+          {
+            "minimumDelay": 1000,
+            "when": "${elapsedTime - lastRefresh >= 60000}",
+            "commands": [
+              {
+                "type": "SetValue",
+                "componentId": "imageWidget",
+                "property": "imageNonce",
+                "value": "${elapsedTime}"
+              },
+              {
+                "type": "SetValue",
+                "componentId": "imageWidget",
+                "property": "lastRefresh",
+                "value": "${elapsedTime}"
+              }
+            ]
+          }
+        ],
+        "items": [
+          {
+            "type": "Text",
+            "text": "Solaranlage",
+            "fontSize": 26,
+            "fontWeight": "700",
+            "color": "white",
+            "maxLines": 1
+          },
+          {
+            "type": "Text",
+            "text": "BILD 03 · Dauer-Livetest",
+            "fontSize": 14,
+            "color": "#FFD166",
+            "spacing": 5,
+            "maxLines": 1
+          },
+          {
+            "type": "Container",
+            "spacing": 18,
+            "items": [
+              {
+                "type": "Text",
+                "text": "PV + BKW",
+                "fontSize": 21,
+                "color": "white",
+                "maxLines": 1
+              },
+              {
+                "type": "Image",
+                "id": "valueImage0",
+                "source": "${imageBase + \"&page=live&row=0&col=0&layout=final&n=\" + imageNonce}",
+                "width": "100%",
+                "height": 76,
+                "scale": "best-fit",
+                "align": "top-left",
+                "onLoad": [
+                  {
+                    "type": "SetValue",
+                    "componentId": "imageWidget",
+                    "property": "loaded",
+                    "value": "${loaded + 1}"
+                  },
+                  {
+                    "type": "SetValue",
+                    "componentId": "imageWidget",
+                    "property": "imageFailed",
+                    "value": false
+                  }
+                ],
+                "onFail": [
+                  {
+                    "type": "SetValue",
+                    "componentId": "imageWidget",
+                    "property": "imageFailed",
+                    "value": true
+                  }
+                ]
+              }
+            ]
+          },
+          {
+            "type": "Container",
+            "spacing": 18,
+            "items": [
+              {
+                "type": "Text",
+                "text": "Hausverbrauch",
+                "fontSize": 21,
+                "color": "white",
+                "maxLines": 1
+              },
+              {
+                "type": "Image",
+                "id": "valueImage1",
+                "source": "${imageBase + \"&page=live&row=0&col=1&layout=final&n=\" + imageNonce}",
+                "width": "100%",
+                "height": 76,
+                "scale": "best-fit",
+                "align": "top-left",
+                "onLoad": [
+                  {
+                    "type": "SetValue",
+                    "componentId": "imageWidget",
+                    "property": "loaded",
+                    "value": "${loaded + 1}"
+                  },
+                  {
+                    "type": "SetValue",
+                    "componentId": "imageWidget",
+                    "property": "imageFailed",
+                    "value": false
+                  }
+                ],
+                "onFail": [
+                  {
+                    "type": "SetValue",
+                    "componentId": "imageWidget",
+                    "property": "imageFailed",
+                    "value": true
+                  }
+                ]
+              }
+            ]
+          },
+          {
+            "type": "Container",
+            "spacing": 18,
+            "items": [
+              {
+                "type": "Text",
+                "text": "Akku",
+                "fontSize": 21,
+                "color": "white",
+                "maxLines": 1
+              },
+              {
+                "type": "Image",
+                "id": "valueImage3",
+                "source": "${imageBase + \"&page=live&row=0&col=3&layout=final&n=\" + imageNonce}",
+                "width": "100%",
+                "height": 76,
+                "scale": "best-fit",
+                "align": "top-left",
+                "onLoad": [
+                  {
+                    "type": "SetValue",
+                    "componentId": "imageWidget",
+                    "property": "loaded",
+                    "value": "${loaded + 1}"
+                  },
+                  {
+                    "type": "SetValue",
+                    "componentId": "imageWidget",
+                    "property": "imageFailed",
+                    "value": false
+                  }
+                ],
+                "onFail": [
+                  {
+                    "type": "SetValue",
+                    "componentId": "imageWidget",
+                    "property": "imageFailed",
+                    "value": true
+                  }
+                ]
+              }
+            ]
+          },
+          {
+            "type": "Text",
+            "text": "${imageFailed ? \"Bildabruf fehlgeschlagen\" : \"Bildabrufe: \" + loaded + \" · alle 60 s\"}",
+            "fontSize": 14,
+            "color": "#FFD166",
+            "spacing": 14,
+            "maxLines": 2
+          },
+          {
+            "type": "Text",
+            "text": "Automatisch · kein 24-h-Ablauf",
+            "fontSize": 13,
+            "color": "#AFC1D1",
+            "spacing": 4,
+            "maxLines": 2
+          }
+        ]
+      }
+    ]
+  }
+}

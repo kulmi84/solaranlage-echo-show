@@ -1,0 +1,5 @@
+wrangler.jsonc
+.secrets.json
+*.private.json
+private-output/
+.wrangler/
