@@ -292,7 +292,7 @@
                 },
                 {
                   "type": "Text",
-                  "text": "Live · alle 60 Sekunden",
+                  "text": "Live · Version 1.1.2",
                   "fontSize": 15,
                   "color": "#FFD166",
                   "spacing": 5,

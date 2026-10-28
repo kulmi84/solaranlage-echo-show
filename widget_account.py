@@ -7,7 +7,7 @@ import re
 
 WIDGET_ACCOUNT_EVENT='solar.widget.images.v1'
 WIDGET_ACCOUNT_SKILL='amzn1.ask.skill.ac1da0c3-87cc-416e-a898-54033b6f0551'
-WIDGET_ACCOUNT_PACKAGES=('SolarImageStatus102',)
+WIDGET_ACCOUNT_PACKAGES=('SolarImageStatus102','SolarImageLive112')
 
 
 def route_widget_account(event, context, handler, session_factory, config_factory, access_factory):

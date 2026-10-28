@@ -45,3 +45,7 @@ Unten beim Stand steht der Link „Aktualisieren“. Er lädt die Bilder manuell
 ### Gerätekorrektur1.1.2
 
 Der1.1.1-Gerätetest zeigte einen sichtbaren, aber wirkungslosen Link und keine Werte. Deshalb keineEinreichung.1.1.2 trennt den Aktualisieren-Touchbereich vom Vollbild-Touchbereich und verwendet flache Bildadress-/Nonce-Bindungen mit direkt eingebetteten Standardkommandos. Das vermeidet verschachtelte Objekt-/Custom-Command-Auswertung.51lokaleTests bestanden;Geräteergebnis noch offen.
+
+### Paketzuordnungstest
+
+Das bisherigePaketSolarImageStatus102lieferteauch nachBuild/Neuinstallation einefrühereAnsicht. TestmodusistDevelopment. NeuePaketkennungSolarImageLive112verhindertVerwechslungmitvorherigenArtefakten; sichtbareZeileLive·Version1.1.2. DevelopmentroutererlaubtbeideKennungendesselbennormalenSkills;VollbildfunktionenAST-identisch. AltesPaketnichtsicheralsUrsachebewiesen;Gerätetestoffen.
