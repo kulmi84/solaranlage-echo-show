@@ -4,7 +4,8 @@ const crcTable=Uint32Array.from({length:256},(_,n)=>{let c=n;for(let i=0;i<8;i++
 function chunk(type,data){const b=new Uint8Array(data.length+12),v=new DataView(b.buffer);v.setUint32(0,data.length);b.set(new TextEncoder().encode(type),4);b.set(data,8);let c=0xffffffff;for(let i=4;i<b.length-4;i++)c=crcTable[(c^b[i])&255]^(c>>>8);v.setUint32(b.length-4,(c^0xffffffff)>>>0);return b;}
 function join(parts){const b=new Uint8Array(parts.reduce((n,p)=>n+p.length,0));let at=0;for(const p of parts){b.set(p,at);at+=p.length;}return b;}
 async function bounded(stream,max){const r=stream.getReader(),parts=[];let length=0;while(true){const x=await r.read();if(x.done)break;length+=x.value.length;if(length>max){await r.cancel();throw Error('size');}parts.push(x.value);}return join(parts);}
-export async function transparentValuePng(input){
+export async function transparentValuePng(input,height=64){
+ if(!Number.isInteger(height)||height<1||height>154)throw Error('height');
  if(input.length>262144||!SIGNATURE.every((n,i)=>input[i]===n))throw Error('png');
  let at=8,head,palette;const ids=[];
  while(at+12<=input.length){const v=new DataView(input.buffer,input.byteOffset+at),len=v.getUint32(0);if(len>262144||at+12+len>input.length)throw Error('chunk');const type=new TextDecoder().decode(input.subarray(at+4,at+8)),data=input.slice(at+8,at+8+len);if(type==='IHDR')head=data;else if(type==='PLTE')palette=data;else if(type==='IDAT')ids.push(data);at+=12+len;if(type==='IEND')break;}
@@ -19,7 +20,7 @@ export async function transparentValuePng(input){
   const index=9+bg*63+fg*7+level-1;
   palette.set(BASE.slice(fg*3,fg*3+3),index*3);alpha[index]=(fg===0||fg===3)?0:Math.round(level*255/7);
  }
- const height=64;view.setUint32(4,height);
+ view.setUint32(4,height);
  const zipped=new Uint8Array(await new Response(new Blob([raw.slice(0,264*height)]).stream().pipeThrough(new CompressionStream('deflate'))).arrayBuffer());
  return join([SIGNATURE,chunk('IHDR',head),chunk('PLTE',palette),chunk('tRNS',alpha),chunk('IDAT',zipped),chunk('IEND',new Uint8Array())]);
 }

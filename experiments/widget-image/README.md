@@ -21,6 +21,12 @@ Die bestätigte transparente BILD-02-Vorschau und Amazons Installationsbestätig
 
 Diese Aufnahme dokumentiert BILD 02, nicht eine bereits installierte BILD-03-Fassung. Das Layout von BILD 03 bleibt gleich: native Beschriftungen, vollständig eingepasste Wertebilder (`best-fit`) und ausreichende Abstände. Die Vorschau enthält Momentaufnahmen, keine fest hinterlegten Live-Werte.
 
+### Layout 1.0.2
+
+Die Überschrift **Solaranlage** nutzt die verfügbare Breite mit Schriftgröße 48. Darunter steht **Live · alle 60 Sekunden**; sichtbare BILD-/Testbezeichnungen, Abrufzähler und 24-Stunden-Hinweise entfallen. Unten lädt ein geschütztes transparentes Statusbild den tatsächlichen Empfangszeitpunkt aus `live_at`, umgerechnet in die Zeitzone der Anlage, beispielsweise **Stand: 28.10.26, 18:40**. Es zeigt keine künstlich fortlaufende Uhr. Nach mehr als drei Minuten ohne aktuelle Daten lautet die Zeile **Veraltet: …**. Status und Werte werden im gleichen 60-Sekunden-Takt neu abgerufen.
+
+![Layout 1.0.2: große Überschrift, Live-Intervall und tatsächlicher Empfangszeitpunkt](assets/layout-status-preview.png)
+
 ## Bildzugang und 24 Stunden
 
 Der alte Bildtest übernahm eine beim Öffnen des normalen Skills erzeugte Bildfreigabe mit maximal 24 Stunden Laufzeit. Wegwischen verlängert diese Freigabe nicht. Auch der geprüfte Vollbildcode erhält beim Öffnen seine eigene zeitlich begrenzte Freigabe; dieser PR ändert sie nicht.
@@ -35,6 +41,7 @@ Der D1-Bindingzugang ist auf Plattformebene keine schreibgeschützte DB-Rolle. D
 
 - `worker.mjs`: getrennter Widget-Bilddienst, nur Spalten 0/1/3, Widerrufsprüfung bei jeder Anfrage.
 - `transparent-png.mjs`: Umwandlung des bekannten 263×154-PNG-Formats in transparente 263×64-Wertebilder, geglättete Schriftkanten bleiben erhalten.
+- `status-png.mjs`: transparente Empfangszeit (263×22), Zeitzone und Veraltungskennzeichnung; derselbe Widgetschlüssel schützt `/status.png`.
 - `document.template.json` und `manifest.json`: bereinigte BILD-03-Vorlagen ohne echten Bildzugang.
 - Antippen sendet `solar.widget.open.v1` im Modus `STANDARD` an die bereits vorhandene normale Skill-Route. Diese erzeugt den normalen `LaunchRequest` samt Kontokontext. Der Vollbildhandler selbst wird nicht geändert.
 - `build_widget.py`: setzt eine **lokale private** Bildadresse ein; erzeugte Pakete gehören ausschließlich in einen ignorierten privaten Ausgabeordner.

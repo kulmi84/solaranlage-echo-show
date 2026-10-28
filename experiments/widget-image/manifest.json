@@ -1,7 +1,7 @@
 {
   "manifest": {
     "id": "SolarImagePilot03",
-    "version": "1.0.1",
+    "version": "1.0.2",
     "presentationDefinitions": [
       {
         "url": "presentations/default.tpl"
@@ -20,8 +20,8 @@
         {
           "targetViewport": "WIDGET_M",
           "metadata": {
-            "name": "Solaranlage BILD 03",
-            "description": "Transparente Live-Werte mit widerrufbarem Widget-Lesezugang ohne täglichen Ablauf. Aktualisierung alle 60 Sekunden.",
+            "name": "Solaranlage",
+            "description": "Live-Werte alle 60 Sekunden mit tatsächlichem Empfangszeitpunkt. Antippen öffnet die normale Vollbildansicht.",
             "keywords": [
               "Solaranlage",
               "Live-Werte",

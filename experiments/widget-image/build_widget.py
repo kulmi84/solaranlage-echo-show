@@ -14,6 +14,7 @@ def build(config_path,output):
     widget=doc['mainTemplate']['items'][0]
     bindings=widget['item']['bind'] if widget['type']=='TouchWrapper' else widget['bind']
     next(binding for binding in bindings if binding['name']=='imageBase')['value']=base
+    next(binding for binding in bindings if binding['name']=='statusImageBase')['value']=base.replace('/value.png?','/status.png?')
     manifest=json.loads((root/'manifest.json').read_text(encoding='utf-8'))
     output=Path(output).resolve()
     if not any(part in ('.private','private-output') for part in output.parts):

@@ -45,6 +45,10 @@
             {
               "name": "imageFailed",
               "value": false
+            },
+            {
+              "name": "statusImageBase",
+              "value": "__PRIVATE_WIDGET_STATUS_BASE__"
             }
           ],
           "handleTick": [
@@ -71,18 +75,20 @@
             {
               "type": "Text",
               "text": "Solaranlage",
-              "fontSize": 26,
+              "fontSize": 48,
               "fontWeight": "700",
               "color": "white",
-              "maxLines": 1
+              "maxLines": 1,
+              "width": "100%"
             },
             {
               "type": "Text",
-              "text": "BILD 03 · Dauer-Livetest",
-              "fontSize": 14,
+              "text": "Live · alle 60 Sekunden",
+              "fontSize": 15,
               "color": "#FFD166",
               "spacing": 5,
-              "maxLines": 1
+              "maxLines": 1,
+              "width": "100%"
             },
             {
               "type": "Container",
@@ -217,20 +223,22 @@
               ]
             },
             {
-              "type": "Text",
-              "text": "${imageFailed ? \"Bildabruf fehlgeschlagen\" : \"Bildabrufe: \" + loaded + \" · alle 60 s\"}",
-              "fontSize": 14,
-              "color": "#FFD166",
+              "type": "Image",
+              "id": "measurementStatus",
+              "width": "100%",
+              "height": 28,
               "spacing": 14,
-              "maxLines": 2
+              "scale": "best-fit",
+              "align": "left",
+              "source": "${statusImageBase + \"&n=\" + imageNonce}"
             },
             {
               "type": "Text",
-              "text": "Antippen: Vollbild öffnen · kein 24-h-Ablauf",
+              "text": "${imageFailed ? \"Bildabruf fehlgeschlagen\" : \"Antippen: Vollbild öffnen\"}",
               "fontSize": 13,
               "color": "#AFC1D1",
               "spacing": 4,
-              "maxLines": 2
+              "maxLines": 1
             }
           ]
         }

@@ -1,5 +1,6 @@
 import assert from 'node:assert/strict';
 import {widgetImage,sha} from './worker.mjs';
+import {statusText} from './status-png.mjs';
 const token='a'.repeat(64),write='b'.repeat(64),grant={tokenHash:await sha(token),tenant:'private-test',version:await sha(write)};
 let reads=0,disabled=false,rotated=false,watts=721;
 const env={WIDGET_READ_GRANT:JSON.stringify(grant),SOURCE_DB:{prepare(sql){assert.match(sql,/^SELECT/);assert.doesNotMatch(sql,/UPDATE|DELETE|INSERT|access_tokens/i);return {bind(id){assert.equal(id,'private-test');return {async first(){reads++;return disabled?null:{write_hash:rotated?'c'.repeat(64):write,live_at:new Date().toISOString(),power_w:19,home_w:watts,battery_soc:94};}};}};}}};
@@ -14,4 +15,10 @@ for(const col of ['0','3'])assert.equal((await widgetImage(req(col),env)).status
 rotated=true;assert.equal((await widgetImage(req(),env)).status,403);rotated=false;
 disabled=true;assert.equal((await widgetImage(req(),env)).status,403);
 assert.equal((await widgetImage(new Request('https://example.test/internal/enroll'),env)).status,404);
+disabled=false;
+const time=Date.parse('2026-10-28T17:45:00Z');
+assert.deepEqual(statusText({live_at:'2026-10-28T17:44:00Z',timezone:'Europe/Berlin'},time),{text:'Stand: 28.10.26, 18:44',stale:false});
+assert.equal(statusText({live_at:'2026-10-28T17:30:00Z',timezone:'Europe/Berlin'},time).text,'Veraltet: 28.10.26, 18:30');
+const status=await widgetImage(new Request('https://example.test/status.png?k='+token),env);assert.equal(status.status,200);const statusBytes=new Uint8Array(await status.arrayBuffer());assert.equal(new DataView(statusBytes.buffer).getUint32(20),22);
+assert.equal((await widgetImage(new Request('https://example.test/status.png?k='+'d'.repeat(64)),env)).status,403);
 console.log('PASS: transparent PNG, changing live values, 7-day access, three-column restriction, wrong-token rejection before DB, revocation and no public enrollment.');
