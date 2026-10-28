@@ -1,12 +1,12 @@
 # Alexa-Skill: Verfügbarkeit und Einrichtung
 
-## Stand vom 19. Oktober 2026
+## Stand vom 28. Oktober 2026
 
-**Solaranlage wurde bei Amazon zur Zertifizierung eingereicht.** Der zuletzt
-bestätigte Status ist **„Wird überprüft“**. Nach erfolgreicher Zertifizierung
-ist die automatische Veröffentlichung gewählt. Eine Freigabe ist noch nicht
-bestätigt; deshalb gibt es hier noch keinen öffentlichen Aktivierungslink.
-Diese Seite ist eine datierte Statusangabe, keine automatische Live-Abfrage.
+Der normale Skill **Solaranlage** wird in der Amazon-Konsole als **Live** geführt.
+[Öffentlicher Skill im Alexa Store](https://www.amazon.de/dp/B0HN5CSTW6/).
+Daneben gibt es einen getrennten **In Dev**-Stand. Das ist keine zweite öffentliche Installation.
+
+Das neu bestätigte Bild-Widget ist derzeit privat eingerichtet. Für seine allgemeine Store-Auslieferung fehlt noch die automatische individuelle Bildzugangsbereitstellung pro Konto. Es wurde mit dieser GitHub-/HACS-Version nicht als gemeinsames Paket eingereicht. Private Bildadressen einer Anlage dürfen nicht an alle Nutzer verteilt werden. Diese datierte Statusseite ist keine automatische Live-Abfrage.
 
 ## Was andere Nutzer benötigen
 

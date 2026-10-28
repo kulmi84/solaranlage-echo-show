@@ -1,4 +1,6 @@
-# Solaranlage v1 über HACS
+# Solaranlage v1.0.8 über HACS
+
+**Update 1.0.8:** Bild-Widget-Quellen und Dokumentation aktualisiert. Die HA-Funktionen und Kontoverknüpfung bleiben erhalten. Eine HACS-Aktualisierung ersetzt keine Amazon-Widget-Veröffentlichung. [Verfügbarkeit und Rücksprung](V1.0.8.md).
 
 **Version 1.0.6:** Die Solaranzeige aktualisiert sich alle 60 Sekunden bei geschlossener Sprachsitzung. Ein eigener Anzeigezugang ermöglicht bis zu 24 Stunden; danach erneut öffnen. [Update und Rückkehr](V1.0.6.md).
 
@@ -13,10 +15,7 @@ Die Änderung wurde auf dem Echo Show in der separaten Testversion erfolgreich e
 
 Die HACS-Version wurde mit echten Messwerten und Kontoverknüpfung auf einem Echo
 Show geprüft. Der Skill heißt **Solaranlage**, Sprachaufruf **meine solaranlage**.
-Der Alexa-Skill wurde am 19. Oktober 2026 zur Zertifizierung eingereicht;
-der zuletzt bestätigte Status lautet **„Wird überprüft“**. Eine öffentliche
-Store-Freigabe steht noch aus. Neue Nutzer können den gemeinsamen Skill erst
-danach regulär aktivieren; bestehender Entwicklerzugriff funktioniert weiter.
+Der normale [Alexa-Skill Solaranlage](https://www.amazon.de/dp/B0HN5CSTW6/) wurde am 28. Oktober 2026 in der Amazon-Konsole als **Live** bestätigt. Der neue Bild-Widget-Entwicklungsstand ist davon getrennt und noch nicht allgemein veröffentlicht.
 Das Relay erfordert eine Einladung und erlaubt zunächst maximal 20 Haushalte.
 Bitte vor der Einrichtung unter support@dorisundmarcin.de nachfragen. Das GitHub-Repository
 ist öffentlich und kann in HACS als benutzerdefiniertes Repository hinzugefügt werden.

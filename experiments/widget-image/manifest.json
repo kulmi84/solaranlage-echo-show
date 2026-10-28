@@ -1,6 +1,6 @@
 {
   "manifest": {
-    "id": "SolarImagePilot03",
+    "id": "SolarImageStatus102",
     "version": "1.0.2",
     "presentationDefinitions": [
       {
@@ -21,15 +21,17 @@
           "targetViewport": "WIDGET_M",
           "metadata": {
             "name": "Solaranlage",
-            "description": "Live-Werte alle 60 Sekunden mit tatsächlichem Empfangszeitpunkt. Antippen öffnet die normale Vollbildansicht.",
+            "description": "Live-Werte alle 60 Sekunden mit tatsÃ¤chlichem Empfangszeitpunkt. Antippen Ã¶ffnet die normale Vollbildansicht.",
             "keywords": [
               "Solaranlage",
-              "Live-Werte",
-              "Bildtest"
+              "PV",
+              "Balkonkraftwerk",
+              "Hausverbrauch",
+              "Akku"
             ],
-            "iconUri": "https://d3ozx4qyxcxwzd.cloudfront.net/default_icon.png",
+            "iconUri": "https://raw.githubusercontent.com/kulmi84/solaranlage-echo-show/main/assets/branding/solaranlage-icon-512.png",
             "previews": [
-              "https://d3ozx4qyxcxwzd.cloudfront.net/default_preview.png"
+              "https://raw.githubusercontent.com/kulmi84/solaranlage-echo-show/main/experiments/widget-image/assets/layout-status-preview.png"
             ]
           }
         }
