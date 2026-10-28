@@ -1,5 +1,13 @@
 # Solaranlage auf dem Echo Show
 
+## Version 1.0.8: Bild-Widget mit scharfer Stand-Zeile
+
+**Vom Betreiber auf dem Echo Show bestätigt:** transparente große Werte, tatsächliche Empfangszeit, Aktualisierung alle 60 Sekunden und Antippen zur normalen Vollbildansicht. Der separate widerrufbare Bildzugang benötigt kein tägliches Neuöffnen. Der Alexa Data Store wird für diese Werteanzeige nicht verwendet.
+
+**GitHub/HACS und Amazon sind getrennt:** Diese Version sichert den funktionierenden Bildweg. Das private Betreiber-Widget läuft; eine allgemeine Store-Auslieferung benötigt noch eine individuelle Bildzugangsbereitstellung für jedes verknüpfte Konto. HACS allein installiert kein Widget. Vollbild und Sprachbefehle bleiben unverändert.
+
+[Änderungen und Rücksprung](docs/V1.0.8.md) · [Widget-Quellcode und bebilderte Anleitung](experiments/widget-image/README.md)
+
 ## Version 1.0.7: Status der Solaranlage vorlesen
 
 **„Alexa, frage meine Solaranlage nach dem Status.“** liest Leistung inklusive BKW, Hausverbrauch, Akkustand, heutige Produktion, aktuellen Netzbezug, aktuelle Einspeisung und das Alter der Werte vor. Fehlende Daten werden benannt; nach mehr als drei Minuten ohne Upload warnt die Ansage vor veralteten Werten.
@@ -38,7 +46,7 @@ Aktuelle Bildschirmaufnahmen der v1 im Alexa-Simulator vom 19. Oktober 2026.
 Live-Aufnahme: 09:21 Uhr; Monats-/Jahresdaten: letzter HA-Upload 08:15 Uhr.
 Die abgebildeten Messwerte sind Momentaufnahmen der verbundenen Anlage.
 
-## Version 1.0.7 · HACS
+## Version 1.0.8 · HACS
 
 Die auf dem Echo Show getestete HACS-Version ist die v1. Der Skill heißt
 **Solaranlage** und wird mit **„Alexa, öffne meine Solaranlage.“** gestartet.
@@ -47,12 +55,10 @@ Die bestehende Kontoverknüpfung der bisherigen HACS-Beta bleibt erhalten.
 **[Einrichtung über HACS und Kontoverknüpfung](docs/HACS.md)** ·
 **[Änderungen und Rückkehr zur Vorversion](docs/V1.md)**
 
-**Alexa-Store: am 19. Oktober 2026 zur Zertifizierung eingereicht.**
-Der zuletzt bestätigte Amazon-Status lautet **„Wird überprüft“**. Der Skill ist
-noch nicht als öffentlich verfügbar bestätigt; bei erfolgreicher Zertifizierung
-ist die automatische Veröffentlichung gewählt. Ein Store-Link folgt nach der Freigabe.
-HACS installiert die HA-Integration, nicht den Alexa-Skill. Neue Nutzer können
-den gemeinsamen Skill erst nach seiner Freigabe regulär aktivieren. Das Relay
+**Alexa-Store: normaler Skill am 28. Oktober 2026 als Live bestätigt.**
+[Solaranlage in der Alexa-App aktivieren](https://www.amazon.de/dp/B0HN5CSTW6/).
+Die aktuelle Bild-Widget-Entwicklung ist davon getrennt und noch nicht allgemein veröffentlicht.
+HACS installiert die HA-Integration, nicht den Alexa-Skill oder ein Echo-Widget. Das Relay
 benötigt eine persönliche Einladung und ist zunächst auf **20 Haushalte** begrenzt.
 
 [Verfügbarkeit und Einrichtung](docs/ALEXA-STATUS.md) ·

@@ -1,0 +1,248 @@
+{
+  "type": "APL",
+  "version": "2023.3",
+  "theme": "dark",
+  "mainTemplate": {
+    "items": [
+      {
+        "type": "TouchWrapper",
+        "width": "100vw",
+        "height": "100vh",
+        "onPress": [
+          {
+            "type": "SendEvent",
+            "arguments": [
+              "solar.widget.open.v1"
+            ],
+            "flags": {
+              "interactionMode": "STANDARD"
+            }
+          }
+        ],
+        "item": {
+          "type": "Container",
+          "id": "imageWidget",
+          "width": "100vw",
+          "height": "100vh",
+          "padding": 16,
+          "bind": [
+            {
+              "name": "imageBase",
+              "value": "__PRIVATE_WIDGET_IMAGE_BASE__"
+            },
+            {
+              "name": "imageNonce",
+              "value": 0
+            },
+            {
+              "name": "lastRefresh",
+              "value": 0
+            },
+            {
+              "name": "loaded",
+              "value": 0
+            },
+            {
+              "name": "imageFailed",
+              "value": false
+            },
+            {
+              "name": "statusImageBase",
+              "value": "__PRIVATE_WIDGET_STATUS_BASE__"
+            }
+          ],
+          "handleTick": [
+            {
+              "minimumDelay": 1000,
+              "when": "${elapsedTime - lastRefresh >= 60000}",
+              "commands": [
+                {
+                  "type": "SetValue",
+                  "componentId": "imageWidget",
+                  "property": "imageNonce",
+                  "value": "${elapsedTime}"
+                },
+                {
+                  "type": "SetValue",
+                  "componentId": "imageWidget",
+                  "property": "lastRefresh",
+                  "value": "${elapsedTime}"
+                }
+              ]
+            }
+          ],
+          "items": [
+            {
+              "type": "Text",
+              "text": "Solaranlage",
+              "fontSize": 48,
+              "fontWeight": "700",
+              "color": "white",
+              "maxLines": 1,
+              "width": "100%"
+            },
+            {
+              "type": "Text",
+              "text": "Live · alle 60 Sekunden",
+              "fontSize": 15,
+              "color": "#FFD166",
+              "spacing": 5,
+              "maxLines": 1,
+              "width": "100%"
+            },
+            {
+              "type": "Container",
+              "spacing": 18,
+              "items": [
+                {
+                  "type": "Text",
+                  "text": "PV + BKW",
+                  "fontSize": 21,
+                  "color": "white",
+                  "maxLines": 1
+                },
+                {
+                  "type": "Image",
+                  "id": "valueImage0",
+                  "source": "${imageBase + \"&page=live&row=0&col=0&layout=final&n=\" + imageNonce}",
+                  "width": "100%",
+                  "height": 76,
+                  "scale": "best-fit",
+                  "align": "top-left",
+                  "onLoad": [
+                    {
+                      "type": "SetValue",
+                      "componentId": "imageWidget",
+                      "property": "loaded",
+                      "value": "${loaded + 1}"
+                    },
+                    {
+                      "type": "SetValue",
+                      "componentId": "imageWidget",
+                      "property": "imageFailed",
+                      "value": false
+                    }
+                  ],
+                  "onFail": [
+                    {
+                      "type": "SetValue",
+                      "componentId": "imageWidget",
+                      "property": "imageFailed",
+                      "value": true
+                    }
+                  ]
+                }
+              ]
+            },
+            {
+              "type": "Container",
+              "spacing": 18,
+              "items": [
+                {
+                  "type": "Text",
+                  "text": "Hausverbrauch",
+                  "fontSize": 21,
+                  "color": "white",
+                  "maxLines": 1
+                },
+                {
+                  "type": "Image",
+                  "id": "valueImage1",
+                  "source": "${imageBase + \"&page=live&row=0&col=1&layout=final&n=\" + imageNonce}",
+                  "width": "100%",
+                  "height": 76,
+                  "scale": "best-fit",
+                  "align": "top-left",
+                  "onLoad": [
+                    {
+                      "type": "SetValue",
+                      "componentId": "imageWidget",
+                      "property": "loaded",
+                      "value": "${loaded + 1}"
+                    },
+                    {
+                      "type": "SetValue",
+                      "componentId": "imageWidget",
+                      "property": "imageFailed",
+                      "value": false
+                    }
+                  ],
+                  "onFail": [
+                    {
+                      "type": "SetValue",
+                      "componentId": "imageWidget",
+                      "property": "imageFailed",
+                      "value": true
+                    }
+                  ]
+                }
+              ]
+            },
+            {
+              "type": "Container",
+              "spacing": 18,
+              "items": [
+                {
+                  "type": "Text",
+                  "text": "Akku",
+                  "fontSize": 21,
+                  "color": "white",
+                  "maxLines": 1
+                },
+                {
+                  "type": "Image",
+                  "id": "valueImage3",
+                  "source": "${imageBase + \"&page=live&row=0&col=3&layout=final&n=\" + imageNonce}",
+                  "width": "100%",
+                  "height": 76,
+                  "scale": "best-fit",
+                  "align": "top-left",
+                  "onLoad": [
+                    {
+                      "type": "SetValue",
+                      "componentId": "imageWidget",
+                      "property": "loaded",
+                      "value": "${loaded + 1}"
+                    },
+                    {
+                      "type": "SetValue",
+                      "componentId": "imageWidget",
+                      "property": "imageFailed",
+                      "value": false
+                    }
+                  ],
+                  "onFail": [
+                    {
+                      "type": "SetValue",
+                      "componentId": "imageWidget",
+                      "property": "imageFailed",
+                      "value": true
+                    }
+                  ]
+                }
+              ]
+            },
+            {
+              "type": "Image",
+              "id": "measurementStatus",
+              "width": "100%",
+              "height": 28,
+              "spacing": 14,
+              "scale": "best-fit",
+              "align": "left",
+              "source": "${statusImageBase + \"&n=\" + imageNonce}"
+            },
+            {
+              "type": "Text",
+              "text": "${imageFailed ? \"Bildabruf fehlgeschlagen\" : \"Antippen: Vollbild öffnen\"}",
+              "fontSize": 13,
+              "color": "#AFC1D1",
+              "spacing": 4,
+              "maxLines": 1
+            }
+          ]
+        }
+      }
+    ]
+  }
+}

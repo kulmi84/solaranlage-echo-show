@@ -1,0 +1,41 @@
+{
+  "manifest": {
+    "id": "SolarImageStatus102",
+    "version": "1.0.2",
+    "presentationDefinitions": [
+      {
+        "url": "presentations/default.tpl"
+      }
+    ],
+    "appliesTo": "${viewport.mode == 'HUB'}",
+    "installStateChanges": "AUTOMATIC",
+    "updateStateChanges": "AUTOMATIC"
+  },
+  "packageVersion": "1.0",
+  "packageType": "APL_PACKAGE",
+  "publishingInformation": {
+    "schemaVersion": "1.0",
+    "locales": {
+      "de-DE": [
+        {
+          "targetViewport": "WIDGET_M",
+          "metadata": {
+            "name": "Solaranlage",
+            "description": "Live-Werte alle 60 Sekunden mit tatsÃ¤chlichem Empfangszeitpunkt. Antippen Ã¶ffnet die normale Vollbildansicht.",
+            "keywords": [
+              "Solaranlage",
+              "PV",
+              "Balkonkraftwerk",
+              "Hausverbrauch",
+              "Akku"
+            ],
+            "iconUri": "https://raw.githubusercontent.com/kulmi84/solaranlage-echo-show/main/assets/branding/solaranlage-icon-512.png",
+            "previews": [
+              "https://raw.githubusercontent.com/kulmi84/solaranlage-echo-show/main/experiments/widget-image/assets/layout-status-preview.png"
+            ]
+          }
+        }
+      ]
+    }
+  }
+}
