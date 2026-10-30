@@ -10,8 +10,8 @@ Der Reproducer dokumentiert einen einzelnen Wert und trennt Schreibbestätigung 
 
 ## Folgeentwicklung
 
-Der separate funktionierende Data-Store-Weg ist Grundlage des kontogebundenen Bildwidgets 2.0.0. Werteanzeige und automatische Aktualisierung wurden bestätigt. Die Wiederaufnahme-Korrektur 2.0.1 ist noch nicht am Gerät abgenommen.
+Der separate Data-Store-Weg versorgt inzwischen Kontobildwidget 2.0.1. Vier Gerätetests sind bestätigt: direktes Nachladen, echte Ablauf-/Erneuerungsprüfung, Bildpuffer bei Ladefehlern und richtige Vollbildansicht.
 
-Alle sieben offenen Abnahme- und Veröffentlichungspunkte stehen in [Issue #10](https://github.com/kulmi84/solaranlage-echo-show/issues/10#issuecomment-6532539414).
+Die Checkliste mit vier erledigten und drei offenen Punkten stehen in [Issue #10](https://github.com/kulmi84/solaranlage-echo-show/issues/10#issuecomment-6532539414).
 
 Dieses Beispiel bleibt ein unabhängiger Reproducer. Es enthält keine Bildzugänge, keine private Konfiguration und keine Freigabe für einen allgemeinen Rollout. Frühere Dateistände bleiben in der Git-Historie erhalten.
