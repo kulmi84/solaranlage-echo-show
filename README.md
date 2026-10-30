@@ -1,12 +1,10 @@
 # Solaranlage auf dem Echo Show
 
-## In Arbeit: kontogebundenes Bildwidget
+## In Arbeit: Kontobildwidget 2.0.1
 
-**2.0.0 ist am Gerät bestätigt:** Nach einmaliger Kontoverknüpfung zeigt das neue Bildwidget Werte und aktualisiert sie automatisch im Minutenabstand. Dieser Erfolg gilt für eine neue separate Skill-Variante; der ursprüngliche Skill ist damit nicht repariert.
+**Vier Gerätetests bestanden:** direktes Nachladen, automatische Zugangserneuerung nach echtem Ablauf, Bildpuffer bei Ladefehlern und richtige Vollbildansicht. Der Erfolg gilt für die neue separate Skill-Variante; der alte Skill ist nicht repariert.
 
-2.0.1 korrigiert das Nachladen beim Einblenden. Build und Installationsauftrag sind bestätigt; Geräteankunft und Verhalten sind noch offen. Erneuerung, Fehlerpuffer, Vollbildöffnung, Mehrkonto-Einrichtung und der öffentliche Einrichtungs-/Veröffentlichungsweg sind noch nicht vollständig abgenommen.
-
-**Dieser Draft-Zweig enthält noch den früheren 1.1.3-Code.** Die Dokumentation des 2.0.x-Fortschritts bedeutet keine Übernahme des neuen Laufzeitcodes und keine Releasefreigabe. [Nummerierte Abnahmeübersicht in Issue #10](https://github.com/kulmi84/solaranlage-echo-show/issues/10#issuecomment-6532539414) · [Technik und Prüfstand](experiments/widget-image/README.md).
+Offen: anderes Konto/Datentrennung, Einrichtung ohne Einladung und Codeübernahme/Veröffentlichung. Dieser Draft-Zweig enthält weiterhin den älteren Laufzeitcode; noch kein Release. [Kurze Checkliste](https://github.com/kulmi84/solaranlage-echo-show/issues/10) · [Prüfstand](experiments/widget-image/README.md).
 
 ## Version 1.0.8: Bild-Widget mit scharfer Stand-Zeile
 
