@@ -1,0 +1,10 @@
+[
+  {
+    "type": "PUT_OBJECT",
+    "namespace": "AccessProbeOne",
+    "key": "sample",
+    "content": {
+      "value": 731042
+    }
+  }
+]

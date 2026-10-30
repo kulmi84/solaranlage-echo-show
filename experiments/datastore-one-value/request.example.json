@@ -1,0 +1,18 @@
+{
+  "commands": [
+    {
+      "type": "PUT_OBJECT",
+      "namespace": "AccessProbeOne",
+      "key": "sample",
+      "content": {
+        "value": 731042
+      }
+    }
+  ],
+  "target": {
+    "type": "DEVICES",
+    "items": [
+      "REPLACE_WITH_DEVICE_ID_FROM_THIS_SKILL"
+    ]
+  }
+}

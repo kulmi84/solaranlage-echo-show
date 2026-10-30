@@ -1,0 +1,223 @@
+{
+  "type": "APL",
+  "version": "2023.3",
+  "theme": "dark",
+  "extensions": [
+    {
+      "name": "DataStore",
+      "uri": "alexaext:datastore:10"
+    }
+  ],
+  "settings": {
+    "DataStore": {
+      "dataBindings": [
+        {
+          "namespace": "AccessProbeOne",
+          "key": "sample",
+          "dataBindingName": "ProbeOne",
+          "dataType": "OBJECT"
+        }
+      ]
+    }
+  },
+  "onMount": [
+    {
+      "type": "DataStore:GetObject",
+      "namespace": "AccessProbeOne",
+      "key": "sample",
+      "token": "one-value-v1"
+    },
+    {
+      "type": "DataStore:WatchObject",
+      "namespace": "AccessProbeOne",
+      "key": "sample"
+    }
+  ],
+  "DataStore:OnObjectReceived": [
+    {
+      "type": "SetValue",
+      "componentId": "probeRoot",
+      "property": "readCount",
+      "value": "${event.target.bind.readCount + 1}",
+      "when": "${event.token == 'one-value-v1' && event.namespace == 'AccessProbeOne' && event.key == 'sample'}"
+    },
+    {
+      "type": "SetValue",
+      "componentId": "probeRoot",
+      "property": "readValue",
+      "value": "${event.data == null || event.data.value == null ? '—' : event.data.value}",
+      "when": "${event.token == 'one-value-v1' && event.namespace == 'AccessProbeOne' && event.key == 'sample'}"
+    },
+    {
+      "type": "SetValue",
+      "componentId": "probeRoot",
+      "property": "readStatus",
+      "value": "${event.data == null ? 'Antwort: Objekt fehlt (null)' : (event.data.value == null ? 'Objekt ohne value' : 'Testwert empfangen')}",
+      "when": "${event.token == 'one-value-v1' && event.namespace == 'AccessProbeOne' && event.key == 'sample'}"
+    }
+  ],
+  "DataStore:OnObjectChanged": [
+    {
+      "type": "SetValue",
+      "componentId": "probeRoot",
+      "property": "readCount",
+      "value": "${event.target.bind.readCount + 1}",
+      "when": "${event.namespace == 'AccessProbeOne' && event.key == 'sample'}"
+    },
+    {
+      "type": "SetValue",
+      "componentId": "probeRoot",
+      "property": "readValue",
+      "value": "${event.data == null || event.data.value == null ? '—' : event.data.value}",
+      "when": "${event.namespace == 'AccessProbeOne' && event.key == 'sample'}"
+    },
+    {
+      "type": "SetValue",
+      "componentId": "probeRoot",
+      "property": "readStatus",
+      "value": "${event.data == null ? 'Antwort: Objekt fehlt (null)' : (event.data.value == null ? 'Objekt ohne value' : 'Testwert empfangen')}",
+      "when": "${event.namespace == 'AccessProbeOne' && event.key == 'sample'}"
+    }
+  ],
+  "mainTemplate": {
+    "items": [
+      {
+        "type": "Container",
+        "id": "probeRoot",
+        "width": "100vw",
+        "height": "100vh",
+        "paddingLeft": 16,
+        "paddingRight": 16,
+        "paddingTop": 16,
+        "bind": [
+          {
+            "name": "readValue",
+            "value": "—"
+          },
+          {
+            "name": "readStatus",
+            "value": "Noch keine Antwort"
+          },
+          {
+            "name": "readCount",
+            "value": 0
+          },
+          {
+            "name": "pollCount",
+            "value": 0
+          }
+        ],
+        "handleTick": [
+          {
+            "minimumDelay": 5000,
+            "commands": [
+              {
+                "type": "SetValue",
+                "componentId": "probeRoot",
+                "property": "pollCount",
+                "value": "${pollCount + 1}"
+              },
+              {
+                "type": "DataStore:GetObject",
+                "namespace": "AccessProbeOne",
+                "key": "sample",
+                "token": "one-value-v1",
+                "sequencer": "ProbeRead"
+              }
+            ]
+          }
+        ],
+        "items": [
+          {
+            "type": "Text",
+            "text": "DATA STORE · EINWERT 01",
+            "fontSize": 22,
+            "color": "#FFFFFF",
+            "maxLines": 2,
+            "spacing": 12
+          },
+          {
+            "type": "Text",
+            "text": "Testversion 1.0.1 · keine Bilddaten",
+            "fontSize": 14,
+            "color": "#FFD166",
+            "maxLines": 2,
+            "spacing": 12
+          },
+          {
+            "type": "Text",
+            "text": "Gelesener Testwert",
+            "fontSize": 18,
+            "color": "#FFFFFF",
+            "maxLines": 2,
+            "spacing": 12
+          },
+          {
+            "type": "Text",
+            "text": "${readValue}",
+            "fontSize": 48,
+            "color": "#51D3C5",
+            "maxLines": 2,
+            "spacing": 12
+          },
+          {
+            "type": "Text",
+            "text": "${readStatus}",
+            "fontSize": 17,
+            "color": "#FFD166",
+            "maxLines": 2,
+            "spacing": 12
+          },
+          {
+            "type": "Text",
+            "text": "Abrufe: ${pollCount} · Antworten: ${readCount}",
+            "fontSize": 16,
+            "color": "#FFFFFF",
+            "maxLines": 2,
+            "spacing": 12
+          },
+          {
+            "type": "Text",
+            "text": "Bindung: ${ProbeOne.value ?? '—'}",
+            "fontSize": 16,
+            "color": "#FFFFFF",
+            "maxLines": 2,
+            "spacing": 12
+          },
+          {
+            "type": "Text",
+            "text": "Erweiterung: ${environment.extension.DataStore.version ?? 'fehlt'}",
+            "fontSize": 14,
+            "color": "#FFFFFF",
+            "maxLines": 2,
+            "spacing": 12
+          },
+          {
+            "type": "Text",
+            "text": "AccessProbeOne / sample",
+            "fontSize": 14,
+            "color": "#FFFFFF",
+            "maxLines": 2,
+            "spacing": 12
+          },
+          {
+            "type": "Text",
+            "text": "Nur Lesetest · kein Vollbildaufruf",
+            "fontSize": 13,
+            "color": "#FFFFFF",
+            "maxLines": 2,
+            "spacing": 12
+          }
+        ],
+        "onMount": [
+          {
+            "type": "SetValue",
+            "componentId": "probeRoot",
+            "property": "pollCount",
+            "value": "${pollCount + 1}"
+          }
+        ]
+      }
+    ]
+  }
+}
