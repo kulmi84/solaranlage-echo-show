@@ -1,51 +1,38 @@
-# Solaranlage: kontogebundenes Bild-Widget
+# Solaranlage: kontogebundenes Bildwidget
 
-Das Widget zeigt die Werte derselben verknüpften Anlage wie die normale Vollbildansicht. Es benötigt keine zweite Einrichtung, keine weitere Einladung und keinen persönlichen Widget-Schlüssel. Die bestehende Kontoverknüpfung des normalen Skills reicht aus.
+## Bestätigter Stand
 
-![Freigegebenes Layout mit großer Schrift und Empfangszeit](assets/layout-status-preview.png)
+Version **2.0.0** zeigt nach einmaliger Kontoverknüpfung echte Werte und automatische Minutenaktualisierungen auf dem Echo. Das allgemeine Paket enthält keinen fest eingebauten persönlichen Bildzugang. Die zusätzliche manuelle Widget-Einrichtung entfällt für diesen getesteten Weg.
 
-## Ablauf
+Der Erfolg gilt für eine **neue separate Skill-Variante** auf Basis des funktionierenden Data-Store-Labors. Er ist keine Reparatur des bisherigen normalen Skills, keine allgemeine Store-Freigabe und kein abgeschlossener HACS-Rollout.
 
-1. Beim Anzeigen fordert das Widget mit `solar.widget.images.v1` im INLINE-Modus still einen Bildzugang an.
-2. Der normale Skill prüft Skill-ID und Widget-Paket und verwendet denselben Account-Link-Token und dieselbe Funktion `create_image_session` wie Vollbild.
-3. Die Antwort setzt die geschützten Bildadressen ausschließlich in dieser Widget-Instanz. Sie öffnet kein Vollbild und spricht nichts.
-4. Die drei transparenten Wertebilder und die scharfe Stand-Zeile werden alle 60 Sekunden neu geladen, solange Alexa den Widget-Timer ausführt.
-5. Der zeitlich begrenzte Zugang wird vor Ablauf still erneuert. Nach einem Neustart beginnt die Anmeldung erneut. Bei vorübergehenden Fehlern bleiben die bisherigen Bildadressen erhalten, statt sie aktiv zu leeren.
-6. Antippen öffnet die vorhandene normale Vollbildansicht.
+Version **2.0.1** korrigiert das Nachladen beim Einblenden: `onDisplayStateChange` gehört auf Dokumentebene und markiert den nächsten Bild-Tick sofort als fällig. Das Minutenintervall bleibt erhalten. Build und Installationsauftrag sind bestätigt; tatsächliche Geräteankunft und Wiederaufnahme-Verhalten sind noch offen.
 
-## Dieselben Daten und Berechtigungen
+## Ablauf des neuen Kandidaten
 
-`/widget/value.png` und `/widget/status.png` gehören zum bestehenden Display-Worker. Sie verwenden dieselbe verschlüsselte Freigabe, dieselbe Datenbank und dieselbe exakte Haushaltszuordnung wie Vollbild. Die Freigabe wird vor jedem Datenbankabruf geprüft. Deaktivierte Haushalte und geänderte Widerrufskennungen werden abgewiesen. Keine weitere Datenbank, kein zusätzlicher Data Store und keine Schreiboperationen sind dafür nötig.
+1. Der verknüpfte Kontozugang erzeugt über denselben Bildzugangsdienst wie Vollbild eine individuelle Bildfreigabe.
+2. Die Bildadressen werden zur Laufzeit im Data Store bereitgestellt und vom Widget gelesen. Sie sind nicht Bestandteil des gemeinsamen Pakets.
+3. Drei transparente Wertebilder und die Stand-Zeile werden im Minutenabstand nachgeladen, solange Alexa das Widget ausführt.
+4. Der vollständige bisherige Bildsatz soll sichtbar bleiben, bis alle vier Ersatzbilder geladen sind; Fehler und Timeout lösen Wiederholungen aus.
+5. Die zeitlich begrenzte Bildfreigabe soll automatisch vor Ablauf erneuert werden, ohne weitere Kontoverknüpfung.
 
-Das gemeinsame Amazon-Paket enthält **keine privaten Bildadressen oder Zugangsschlüssel**. Erst die vorhandene Kontoverknüpfung liefert zur Laufzeit einen eigenen Zugang je Konto. Ohne Kontoverknüpfung erscheint ein entsprechender Hinweis. Private Konfigurationen und die von Amazon gesicherten Lambda-Dateien gehören niemals ins Repository.
+Punkte 4 und 5 sind implementiert, ihre vollständige reale Geräteabnahme steht noch aus. Der frühere INLINE-Antwortweg und frühere Simulatorerfolge sind keine Abnahme des neuen Pakets.
 
-## Stand am 28. Oktober 2026
+## Nummerierte offene Punkte
 
-Kandidat mit Paket `SolarImageStatus102` **1.1.0** und unverändertem freigegebenem Layout. Development-Code erfolgreich bereitgestellt, Amazon-Build erfolgreich, Testinstallation auf Echo Küche bestätigt. Der Betreiber bestätigt aktuelle Werte auf dem Gerät nach der automatischen Anmeldung. Die neue Erneuerung ist lokal getestet, aber noch nicht durch einen mehrtägigen Gerätetest bestätigt. Diese Angaben bedeuten keine allgemeine Store-Freigabe. HACS installiert die HA-Integration; die zentrale Skill-/Widget-Bereitstellung erfolgt separat über Amazon.
+1. [ ] **Nachladen beim Einblenden:** Version 2.0.1 muss beim erneuten Anzeigen direkt neue Bilder anfordern. Der korrigierte Handler liegt jetzt auf Dokumentebene; tatsächlicher Echo-Test noch offen.
+2. [ ] **Automatische Zugangserneuerung:** Nach tatsächlichem Ablauf des Bildzugangs ohne erneute Kontoverknüpfung weiterladen. Erneuerung ist implementiert, der reale Ablauf-/Langzeittest fehlt.
+3. [ ] **Ladefehler und vollständiger Bildpuffer:** Den letzten vollständigen Bildsatz einschließlich Stand bei Fehler, Timeout und verspäteter Antwort behalten, bis alle vier Ersatzbilder geladen sind.
+4. [ ] **Vollbild öffnen:** Antippen des neuen Kontowidgets öffnet die passende Vollbildansicht; bestehende Vollbild-/Sprachfunktion bleibt intakt.
+5. [ ] **Frische Einrichtung mit anderem Konto:** Eine Kontoverknüpfung für beide Ansichten, ausschließlich die eigenen Daten; reale Mehrkonto-Abnahme noch offen.
+6. [ ] **Einrichtung ohne Einladung:** Öffentlichen Einrichtungsweg vereinfachen und vollständig prüfen. Das erfolgreiche Widget allein entfernt die bisherige Einladungspflicht nicht.
+7. [ ] **Codeübernahme und Veröffentlichung:** Tatsächlichen allgemeinen Kandidaten ohne private Konfigurationen in GitHub übernehmen, Tests/Dokumentation/Paketstand synchronisieren; danach PRs/Issues abschließen, passende Version bei Amazon zertifizieren/veröffentlichen und GitHub/HACS aktualisieren. HACS installiert kein Echo-Widget.
 
-Der vorher bestätigte private Bild-Prototyp aus v1.0.8 bleibt als Rücksprungstand erhalten. Der frühere Data-Store-Fehler wird mit diesem Bildweg umgangen; seine Amazon-Ursache ist weiterhin ungeklärt. Weitere Data-Store-Versuche gehören ausschließlich in die separate Beta.
+## Quellcode und Veröffentlichung
 
-## Build und Tests
+Dieser Draft-PR enthält noch den früheren **1.1.3-Code**, nicht den tatsächlich getesteten 2.0.x-Kandidaten. Vor Merge müssen allgemeiner Code, Tests, Dokumentation und Amazon-Paketstand synchronisiert werden. Keine private Gesamt-Lambda, Konfiguration, Zugangsdaten oder persönliche Bildadressen übernehmen.
 
-```powershell
-python build_skill.py
-python experiments/widget-image/build_widget.py --output dist/widget
-python -m unittest test_widget_account test_image_display test_status_speech test_beta_live
-node cloudflare/display/widget-images.test.mjs
-```
+Die privaten funktionierenden Rücksprungstände bleiben getrennt. Bestehende Releases bleiben erhalten. Ein HACS-Update installiert kein Echo-Widget; die zentrale Amazon-Auslieferung wird separat geprüft und veröffentlicht.
 
-Der Widget-Builder benötigt keine private Bildkonfiguration. Die Lambda-Laufzeit verwendet die bereits für Vollbild vorhandene private `relay_config.json`. Die zusätzlichen Worker-Routen benötigen die bestehenden Bindungen `DISPLAY_KEY` und `DISPLAY_DB`; keine neuen Secrets.
-
-Geprüft: zwei getrennte Beispielkonten, abgelaufene/manipulierte Freigaben, Widerruf, eingeschränkte Spalten, Statuszeit, stille Antworten, fehlende Verknüpfung und Durchleitung der bisherigen Sprach-/Vollbild-Anfragen. Bestehende Vollbild-HTTP-Antworten bleiben im Vergleich unverändert. Reale HTTPS-Abrufe der zusätzlichen Bildrouten waren erfolgreich.
-
-## Nachlade-Korrektur 1.1.1 (Development)
-
-Unten beim Stand steht der Link „Aktualisieren“. Er lädt die Bilder manuell nach, ohne Vollbild zu öffnen. Ein zweiter, unsichtbarer Bildsatz wird geladen; erst nach erfolgreichem Laden aller drei Werte und der Stand-Zeile wird vollständig umgeschaltet. Bei Fehler oder Zeitüberschreitung bleibt der letzte erfolgreiche Bildsatz einschließlich seines alten Zeitstempels sichtbar. Automatischer Wiederholungsversuch nach 10 Sekunden; normale Aktualisierung alle 60 Sekunden. Der neue Code ist getrennt von der bereits eingereichten Version 1.1.0. Die laufende Amazon-Prüfung wird nicht zurückgezogen.
-
-### Gerätekorrektur1.1.2
-
-Der1.1.1-Gerätetest zeigte einen sichtbaren, aber wirkungslosen Link und keine Werte. Deshalb keineEinreichung.1.1.2 trennt den Aktualisieren-Touchbereich vom Vollbild-Touchbereich und verwendet flache Bildadress-/Nonce-Bindungen mit direkt eingebetteten Standardkommandos. Das vermeidet verschachtelte Objekt-/Custom-Command-Auswertung.51lokaleTests bestanden;Geräteergebnis noch offen.
-
-### Paketzuordnungstest
-
-Das bisherigePaketSolarImageStatus102lieferteauch nachBuild/Neuinstallation einefrühereAnsicht. TestmodusistDevelopment. NeuePaketkennungSolarImageLive112verhindertVerwechslungmitvorherigenArtefakten; sichtbareZeileLive·Version1.1.2. DevelopmentroutererlaubtbeideKennungendesselbennormalenSkills;VollbildfunktionenAST-identisch. AltesPaketnichtsicheralsUrsachebewiesen;Gerätetestoffen.
+Zentrale aktuelle Abnahmeübersicht: [Issue #10](https://github.com/kulmi84/solaranlage-echo-show/issues/10#issuecomment-6532539414).
+Separater wiederverwendbarer Data-Store-Einwert-Test: [PR #11](https://github.com/kulmi84/solaranlage-echo-show/pull/11).
