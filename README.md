@@ -52,7 +52,7 @@ Der eigene Anzeige-Lesezugang gilt **bis zu 24 Stunden ab dem Öffnen**, unabhä
 
 Solarleistung, Hausverbrauch, Akkustand und Datenstand direkt neben den anderen Widgets. Kompatibel mit Alexa+.
 
-![Solaranlage 2.0.1 als Widget auf dem Echo-Show-Startbildschirm](docs/screenshots/echo-show-widget-2.0.1.jpg)
+![Solaranlage 2.0.1 als Widget auf dem Echo-Show-Startbildschirm](docs/screenshots/echo-show-widget-2.0.1.png)
 
 **Vollbildansicht auf dem Echo Show**
 
