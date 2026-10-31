@@ -121,38 +121,38 @@ class SolarConfigFlow(config_entries.ConfigFlow, domain=DOMAIN):
 
     async def async_step_consent(self, user_input=None):
         errors = {}
-        if user_input:
-            if not user_input["consent"]:
-                errors["base"] = "consent_required"
-            else:
-                try:
-                    connection = self._connection
-                    if connection["mode"] == "automatic":
-                        key = await installation_key(self.hass, connection["relay_url"])
-                        path = "/v2/enroll"
-                        payload = {"installation_key": key, "timezone": self.hass.config.time_zone}
-                    else:
-                        path = "/v1/enroll"
-                        payload = {"invite": connection["invite"], "timezone": self.hass.config.time_zone}
-                    result = await Relay(async_get_clientsession(self.hass), connection["relay_url"]).call("POST", path, payload)
-                    if (not isinstance(result, dict) or not isinstance(result.get("write_token"), str)
-                            or len(result["write_token"]) < 32 or not isinstance(result.get("tenant_id"), str)
-                            or not result["tenant_id"]):
-                        raise RelayError("cannot_connect")
-                    return self.async_create_entry(title="Solaranlage Echo Show", data={
-                        "relay_url": connection["relay_url"], "write_token": result["write_token"],
-                        "tenant_id": result["tenant_id"], "sensors": self._mapping})
-                except RelayError as error:
-                    errors["base"] = str(error)
-                    if str(error) == "registration_revoked":
-                        # Do not auto-retry: a new confirmation starts a fresh setup key.
-                        try:
-                            await forget_installation(self.hass, self._connection["relay_url"])
-                        except (OSError, ValueError, HomeAssistantError):
-                            errors["base"] = "cannot_connect"
-                except (OSError, ValueError, HomeAssistantError):
-                    errors["base"] = "cannot_connect"
-        return self.async_show_form(step_id="consent", data_schema=vol.Schema({vol.Required("consent", default=False): bool}), errors=errors)
+        # Rendering the notice never starts enrollment. Only submitting it does.
+        # A still-open old form with an unchecked box must not start an upload.
+        if user_input is not None and user_input.get("consent") is not False:
+            try:
+                connection = self._connection
+                if connection["mode"] == "automatic":
+                    key = await installation_key(self.hass, connection["relay_url"])
+                    path = "/v2/enroll"
+                    payload = {"installation_key": key, "timezone": self.hass.config.time_zone}
+                else:
+                    path = "/v1/enroll"
+                    payload = {"invite": connection["invite"], "timezone": self.hass.config.time_zone}
+                result = await Relay(async_get_clientsession(self.hass), connection["relay_url"]).call("POST", path, payload)
+                if (not isinstance(result, dict) or not isinstance(result.get("write_token"), str)
+                        or len(result["write_token"]) < 32 or not isinstance(result.get("tenant_id"), str)
+                        or not result["tenant_id"]):
+                    raise RelayError("cannot_connect")
+                return self.async_create_entry(title="Solaranlage Echo Show", data={
+                    "relay_url": connection["relay_url"], "write_token": result["write_token"],
+                    "tenant_id": result["tenant_id"], "sensors": self._mapping})
+            except RelayError as error:
+                errors["base"] = str(error)
+                if str(error) == "registration_revoked":
+                    # Do not auto-retry: a new confirmation starts a fresh setup key.
+                    try:
+                        await forget_installation(self.hass, self._connection["relay_url"])
+                    except (OSError, ValueError, HomeAssistantError):
+                        errors["base"] = "cannot_connect"
+            except (OSError, ValueError, HomeAssistantError):
+                errors["base"] = "cannot_connect"
+        return self.async_show_form(step_id="consent", data_schema=vol.Schema({}), errors=errors,
+            description_placeholders={"privacy_url": self._connection["relay_url"] + "/privacy"})
 
     @staticmethod
     @callback

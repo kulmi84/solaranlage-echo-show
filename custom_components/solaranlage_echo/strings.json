@@ -4,7 +4,7 @@
     "step": {
       "user": {
         "title": "Set up solar dashboard",
-        "description": "Connect your solar dashboard. No invitation is needed when automatic registration is enabled. An account is created only after your consent.",
+        "description": "Connect your solar dashboard. No invitation is needed when automatic registration is enabled. An account is created only after you select “Connect and transmit”.",
         "data": {
           "custom_server": "Use a custom server"
         }
@@ -42,11 +42,9 @@
         }
       },
       "consent": {
-        "title": "Confirm data transfer",
-        "description": "Send the selected power, battery and energy readings to the relay over HTTPS. Live and daily values are sent every minute; month and year values every six hours. No HA access token or entity names are uploaded.",
-        "data": {
-          "consent": "I consent to transmitting my selected readings."
-        }
+        "title": "Connect and transmit",
+        "description": "The selected power, battery and energy readings are sent to our service over HTTPS. We keep only the latest dataset for the display. Each successful live/daily upload replaces the previous readings, normally every 60 seconds. If an upload fails, the last received dataset remains stored. Month/year summaries from Home Assistant are updated every six hours and also replace the previous summaries. We do not build a measurement time series. No HA access credentials or entity names are uploaded; service credentials remain stored locally in HA.\n\nSelect “Connect and transmit” to set up the service and start sending the selected readings. [Privacy notice]({privacy_url})",
+        "submit": "Connect and transmit"
       },
       "server": {
         "title": "Custom server",
@@ -73,7 +71,6 @@
       "invalid_sensor": "Sensor missing or incompatible unit.",
       "invalid_energy": "Select a cumulative energy counter.",
       "duplicate_energy": "Do not select the same energy counter twice.",
-      "consent_required": "Consent is required before transmitting data.",
       "registration_rate_limited": "Too many new accounts from this internet connection. Please try again later.",
       "registration_full": "The service cannot accept more installations right now. Existing accounts remain available.",
       "registration_revoked": "This previous setup was deleted. Confirm again to create a new account.",
@@ -149,8 +146,7 @@
       "rate_limited": "Too many requests. Try again shortly.",
       "invalid_sensor": "Sensor missing or incompatible unit.",
       "invalid_energy": "Select a cumulative energy counter.",
-      "duplicate_energy": "Do not select the same energy counter twice.",
-      "consent_required": "Consent is required before transmitting data."
+      "duplicate_energy": "Do not select the same energy counter twice."
     },
     "abort": {
       "link_ready": "Copy the code and continue account linking in the Alexa app.",

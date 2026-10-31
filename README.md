@@ -1,6 +1,6 @@
 # Solaranlage Echo Show
 
-**Version 1.0.10**
+**Version 1.0.11**
 
 Solar-, Verbrauchs-, Akku- und Energiewerte aus Home Assistant auf dem Echo Show – als Vollbildanzeige und Alexa+-kompatibles Widget. Mit Sensorauswahl, Kontoverknüpfung und Sprachansagen auch auf Alexa-Geräten ohne Display.
 

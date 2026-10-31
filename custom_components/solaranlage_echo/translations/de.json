@@ -4,7 +4,7 @@
     "step": {
       "user": {
         "title": "Solaranlage einrichten",
-        "description": "Verbinde deine Solaranlage. Wenn der Dienst die automatische Anmeldung freigibt, brauchst du keine Einladung. Ein Konto wird erst nach deiner Zustimmung angelegt.",
+        "description": "Verbinde deine Solaranlage. Wenn der Dienst die automatische Anmeldung freigibt, brauchst du keine Einladung. Das Konto wird erst nach dem Bestätigen von „Verbinden und übertragen“ angelegt.",
         "data": {
           "custom_server": "Eigenen Server verwenden"
         }
@@ -42,11 +42,9 @@
         }
       },
       "consent": {
-        "title": "Datenübertragung bestätigen",
-        "description": "Die ausgewählten Leistungs-, Akku- und Energiewerte werden per HTTPS an das Relay übertragen: Live/Heute minütlich, Monat/Jahr alle sechs Stunden. Es werden keine HA-Zugangsdaten oder Entitätsnamen übertragen. Deine HA-Instanz bleibt von außen unerreichbar. Die Relay-Zugangsdaten werden lokal in HA gespeichert.",
-        "data": {
-          "consent": "Ich stimme der Übertragung der ausgewählten Messwerte zu."
-        }
+        "title": "Verbinden und übertragen",
+        "description": "Die ausgewählten Leistungs-, Akku- und Energiewerte werden per HTTPS an unseren Dienst übertragen. Für die Anzeige speichern wir nur den jeweils neuesten Datensatz. Jeder erfolgreiche Upload der Live-/Tageswerte ersetzt den bisherigen Stand, normalerweise alle 60 Sekunden. Bei einem fehlgeschlagenen Upload bleibt der zuletzt empfangene Stand gespeichert. Die Monats-/Jahressummen aus Home Assistant werden alle sechs Stunden aktualisiert und ersetzen ebenfalls den bisherigen Stand. Wir bauen keine Messwert-Zeitreihe auf. Es werden keine HA-Zugangsdaten oder Entitätsnamen übertragen; die Dienst-Zugangsdaten bleiben lokal in HA gespeichert.\n\nMit „Verbinden und übertragen“ richtest du den Dienst ein und startest die Übertragung der ausgewählten Messwerte. [Datenschutzhinweise]({privacy_url})",
+        "submit": "Verbinden und übertragen"
       },
       "server": {
         "title": "Eigener Server",
@@ -73,7 +71,6 @@
       "invalid_sensor": "Sensor fehlt oder hat eine unpassende Einheit.",
       "invalid_energy": "Bitte einen kumulierten Energiezähler wählen.",
       "duplicate_energy": "Einen Energiezähler nicht doppelt auswählen.",
-      "consent_required": "Bitte der Übertragung zustimmen.",
       "registration_rate_limited": "Zu viele neue Konten über diesen Internetanschluss. Bitte später erneut versuchen.",
       "registration_full": "Der Dienst nimmt derzeit keine weiteren Anlagen auf. Bestehende Konten funktionieren weiter.",
       "registration_revoked": "Diese frühere Einrichtung wurde gelöscht. Erneut bestätigen, um ein neues Konto anzulegen.",
@@ -149,8 +146,7 @@
       "rate_limited": "Zu viele Anfragen. Bitte kurz warten.",
       "invalid_sensor": "Sensor fehlt oder hat eine unpassende Einheit.",
       "invalid_energy": "Bitte einen kumulierten Energiezähler wählen.",
-      "duplicate_energy": "Einen Energiezähler nicht doppelt auswählen.",
-      "consent_required": "Bitte der Übertragung zustimmen."
+      "duplicate_energy": "Einen Energiezähler nicht doppelt auswählen."
     },
     "abort": {
       "link_ready": "Verbindungscode wurde angezeigt. Jetzt in der Alexa-App fortfahren.",

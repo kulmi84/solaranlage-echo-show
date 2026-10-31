@@ -23,7 +23,7 @@ ist öffentlich und kann in HACS als benutzerdefiniertes Repository hinzugefügt
 
 Bestehende Einrichtungen übernehmen beim Start automatisch die neue Adresse `https://solaranlage-kontodienst.kulmi84.workers.dev`. Konto, Zugangsdaten, Sensorauswahl und Alexa-Verknüpfung bleiben erhalten. Ist der neue Dienst nicht erreichbar, bleibt die bisherige Adresse erhalten. Eigene Relay-Adressen werden nicht verändert. Neue Einrichtungen verwenden direkt den Kontodienst.
 
-Die PV-/BKW-Felder erklären Pflichtwert und optionale Einzelwerte. Die Integration erkennt den freigegebenen Anmeldeweg des Servers: automatische Kontoanlage nach Zustimmung oder weiterhin Einladung. Alte Server ohne diese Erkennung bleiben beim Einladungsweg. Der gemeinsame Kontodienst ist seit dem 31. Oktober 2026 freigeschaltet. [Ablauf und Prüfungen](PUBLIC-ENROLLMENT.md).
+Die PV-/BKW-Felder erklären Pflichtwert und optionale Einzelwerte. Die Integration erkennt den freigegebenen Anmeldeweg des Servers: automatische Kontoanlage nach Bestätigen des Hinweises oder weiterhin Einladung. Alte Server ohne diese Erkennung bleiben beim Einladungsweg. Der gemeinsame Kontodienst ist seit dem 31. Oktober 2026 freigeschaltet. [Ablauf und Prüfungen](PUBLIC-ENROLLMENT.md).
 
 Der alte Data-Store-Versuch einschließlich seiner Weiterleitung ist archiviert und stillgelegt. Die zwei verbleibenden alten Adressen (Kontodienst und Bilder) dürfen erst nach erfolgreichem Update der externen Haushalte und Umstellung der Alexa-/Bildkonfigurationen entfernt werden. HACS aktualisiert die Alexa-Konfigurationen nicht automatisch. Danach bleiben Kontodienst, Bilder und Mein Zuhause sowie der separate Tageslimit-Warn-Worker.
 
@@ -37,7 +37,7 @@ vorhandenen Entwicklerzugriff voraus. [Status und Voraussetzungen](ALEXA-STATUS.
 2. Einstellungen → Geräte & Dienste → Integration hinzufügen →
    **Solaranlage Echo Show**. Den voreingestellten Dienst verwenden. Eine Einladung wird nur abgefragt, wenn ein eigener oder älterer Server sie verlangt.
 3. Live-Sensoren und kumulierte Energiezähler auswählen und der Übertragung
-   zustimmen. Keine YAML-Dateien, HA-Zugangstoken oder eigenen Cloudflare-Konten.
+   mit **Verbinden und übertragen** starten. Keine YAML-Dateien, HA-Zugangstoken oder eigenen Cloudflare-Konten.
 4. In den Integrationsoptionen **Alexa verbinden** wählen. Den einmaligen,
    zehn Minuten gültigen Code kopieren. In der Alexa-App den gemeinsamen Skill
    aktivieren und den Code auf seiner Verknüpfungsseite einfügen.
