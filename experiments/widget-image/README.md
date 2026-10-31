@@ -4,7 +4,7 @@
 
 Das Widget zeigt PV + BKW, Hausverbrauch und Akkustand als transparente Bilder. Es ruft sie alle 60 Sekunden ab, solange Alexa den Widget-Timer ausführt. Die Stand-Zeile zeigt die tatsächliche Empfangszeit der Messwerte in der Zeitzone der Anlage. Sie wird mit 789×84 Pixeln, voller Alpha-Transparenz und geglätteten Schriftkanten gerendert. Nach drei Minuten ohne frische Daten erscheint „Veraltet“. Antippen öffnet über `solar.widget.open.v1` die bestehende normale Vollbildansicht.
 
-![Bild-Widget mit großer Überschrift und Empfangszeit](assets/layout-status-preview.png)
+![Bild-Widget auf dem Echo Show](../../docs/screenshots/echo-show-widget-2.0.1.jpg)
 
 Die Aufnahme dokumentiert das Layout; die Zahlen sind Momentaufnahmen. Die Korrektur der Stand-Schrift wird vom Bilddienst geliefert und erfordert keine Neuinstallation. Der aktuelle Bildzugang hat keinen täglichen 24-Stunden-Ablauf. Ein simulierter Sieben-Tage-Test ersetzt keinen echten Mehrtagetest.
 
