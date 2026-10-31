@@ -2,7 +2,7 @@
 
 ## Aktueller Stand · 31.10.2026
 
-**Bildwidget 2.0.1:** gemeinsame Kontoverknüpfung funktioniert; Nachladen, Zugangserneuerung, Bildpuffer und Vollbild-Zuordnung am Gerät bestätigt. Die weiße Fußzeile wurde neu gebaut und gesendet; Gerätebestätigung dafür steht aus. **HACS 1.0.9:** Einrichtung ohne Einladung, geschützte Kontoanlage und automatische Übernahme der bestehenden Relay-Adresse.
+**Bildwidget 2.0.1:** gemeinsame Kontoverknüpfung funktioniert; Nachladen, Zugangserneuerung, Bildpuffer und Vollbild-Zuordnung am Gerät bestätigt. Die weiße Fußzeile ist auf dem Echo Show bestätigt. **HACS 1.0.9:** Einrichtung ohne Einladung, geschützte Kontoanlage und automatische Übernahme der bestehenden Relay-Adresse.
 
 Alte Widgetversuche und der separate alte Test-Skill sind archiviert und entfernt. Zwei alte Adressen bleiben bis zur vollständigen Kundenmigration als Weiterleitungen bestehen. Der öffentliche Skill bleibt erhalten.
 
@@ -48,17 +48,19 @@ Der eigene Anzeige-Lesezugang gilt **bis zu 24 Stunden ab dem Öffnen**, unabhä
 
 ## So sieht Solaranlage aus
 
-**Live-Leistung und Tageswerte**
+**Kleines Widget auf dem Startbildschirm**
 
-![Solaranlage v1: aktuelle Leistung von PV und BKW, Hausverbrauch, Netz und Akku sowie Tagesenergie](docs/screenshots/v1-live-heute.webp)
+Solarleistung, Hausverbrauch, Akkustand und Datenstand direkt neben den anderen Widgets. Kompatibel mit Alexa+.
 
-**Monats- und Jahresübersicht**
+![Solaranlage 2.0.1 als Widget auf dem Echo-Show-Startbildschirm](docs/screenshots/echo-show-widget-2.0.1.jpg)
 
-![Solaranlage v1: Energieerzeugung, Hausverbrauch, Einspeisung, Netzbezug und Akku für Monat und Jahr](docs/screenshots/v1-monat-jahr.webp)
+**Vollbildansicht auf dem Echo Show**
 
-Aktuelle Bildschirmaufnahmen der v1 im Alexa-Simulator vom 19. Oktober 2026.
-Live-Aufnahme: 09:21 Uhr; Monats-/Jahresdaten: letzter HA-Upload 08:15 Uhr.
-Die abgebildeten Messwerte sind Momentaufnahmen der verbundenen Anlage.
+Aktuelle PV-/BKW-Leistung, Hausverbrauch, Netz und Akku sowie die Tageswerte im Überblick.
+
+![Solaranlage auf dem Echo Show: Vollbildansicht mit Live- und Tageswerten](docs/screenshots/echo-show-vollbild.jpg)
+
+Echte Gerätefotos vom 31. Oktober 2026; die Messwerte sind Momentaufnahmen.
 
 ## Version 1.0.8 · HACS
 
