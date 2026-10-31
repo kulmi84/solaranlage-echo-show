@@ -1,5 +1,5 @@
 {
-  "name": "solaranlage-display",
+  "name": "solaranlage-bilder",
   "main": "worker.mjs",
   "compatibility_date": "2026-10-20",
   "compatibility_flags": [

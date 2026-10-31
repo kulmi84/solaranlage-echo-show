@@ -12,17 +12,22 @@
       },
       "live": {
         "title": "Live-Sensoren auswählen",
-        "description": "PV-Gesamtleistung muss das BKW bereits enthalten. Optionale Sensoren dürfen leer bleiben.",
+        "description": "Nur die gesamte Solarleistung ist Pflicht. Ohne Balkonkraftwerk (BKW) wähle dort deinen PV-Leistungssensor und lasse die beiden Einzelfelder leer. Mit BKW muss der Gesamtsensor PV + BKW bereits enthalten; die Einzelwerte werden nicht automatisch addiert. Für die getrennte Anzeige in der Vollbildansicht kannst du zusätzlich die beiden Einzelfelder belegen. Das kleine Widget zeigt die Gesamtleistung.",
         "data": {
-          "power_w": "PV-Gesamtleistung inklusive BKW",
-          "pv_dc_w": "PV-Leistung ohne BKW",
-          "bkw_w": "BKW-Leistung",
+          "power_w": "Gesamte Solarleistung (Pflicht)",
+          "pv_dc_w": "PV-Anlage einzeln (optional)",
+          "bkw_w": "Balkonkraftwerk einzeln (optional)",
           "home_w": "Hausverbrauch",
           "grid_import_w": "Netzbezug",
           "grid_export_w": "Einspeisung",
           "battery_soc": "Akkustand",
           "battery_charge_w": "Akku-Ladeleistung",
           "battery_discharge_w": "Akku-Entladeleistung"
+        },
+        "data_description": {
+          "power_w": "Ohne BKW: PV-Leistung. Mit BKW: gemeinsamer Sensor für PV + BKW.",
+          "pv_dc_w": "Nur für die getrennte PV-Anzeige; kann leer bleiben.",
+          "bkw_w": "Nur bei vorhandenem BKW auswählen; sonst leer lassen."
         }
       },
       "energy": {
@@ -73,17 +78,22 @@
       },
       "live": {
         "title": "Live-Sensoren auswählen",
-        "description": "PV-Gesamtleistung muss das BKW bereits enthalten. Optionale Sensoren dürfen leer bleiben.",
+        "description": "Nur die gesamte Solarleistung ist Pflicht. Ohne Balkonkraftwerk (BKW) wähle dort deinen PV-Leistungssensor und lasse die beiden Einzelfelder leer. Mit BKW muss der Gesamtsensor PV + BKW bereits enthalten; die Einzelwerte werden nicht automatisch addiert. Für die getrennte Anzeige in der Vollbildansicht kannst du zusätzlich die beiden Einzelfelder belegen. Das kleine Widget zeigt die Gesamtleistung.",
         "data": {
-          "power_w": "PV-Gesamtleistung inklusive BKW",
-          "pv_dc_w": "PV-Leistung ohne BKW",
-          "bkw_w": "BKW-Leistung",
+          "power_w": "Gesamte Solarleistung (Pflicht)",
+          "pv_dc_w": "PV-Anlage einzeln (optional)",
+          "bkw_w": "Balkonkraftwerk einzeln (optional)",
           "home_w": "Hausverbrauch",
           "grid_import_w": "Netzbezug",
           "grid_export_w": "Einspeisung",
           "battery_soc": "Akkustand",
           "battery_charge_w": "Akku-Ladeleistung",
           "battery_discharge_w": "Akku-Entladeleistung"
+        },
+        "data_description": {
+          "power_w": "Ohne BKW: PV-Leistung. Mit BKW: gemeinsamer Sensor für PV + BKW.",
+          "pv_dc_w": "Nur für die getrennte PV-Anzeige; kann leer bleiben.",
+          "bkw_w": "Nur bei vorhandenem BKW auswählen; sonst leer lassen."
         }
       },
       "energy": {

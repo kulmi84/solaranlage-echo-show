@@ -174,6 +174,61 @@ class UploadTests(unittest.IsolatedAsyncioTestCase):
         await instance.upload(); instance.relay.call.assert_not_awaited()
 
 
+class AddressMigrationTests(unittest.IsolatedAsyncioTestCase):
+    def fixture(self, address):
+        mapping, _ = fixture()
+        entry = types.SimpleNamespace(
+            entry_id='existing-entry',
+            data={'relay_url': address, 'tenant_id': 'existing-household',
+                  'write_token': 'a' * 64, 'sensors': mapping},
+            options={'sensors': {'power_w': 'sensor.custom_selection'}},
+        )
+        def update(subject, *, data):
+            subject.data = data
+        hass = types.SimpleNamespace(config_entries=types.SimpleNamespace(
+            async_update_entry=unittest.mock.Mock(side_effect=update)))
+        return hass, entry
+
+    async def test_existing_account_and_sensor_choices_survive_address_change(self):
+        hass, entry = self.fixture(const.LEGACY_RELAY + '/')
+        old = dict(entry.data)
+        options = dict(entry.options)
+        with patch.object(upload.migrate_relay_address.__globals__['Relay'], 'call', new_callable=AsyncMock,
+                          return_value={'ok': True, 'api': 1}) as call:
+            self.assertTrue(await upload.migrate_relay_address(hass, entry, object()))
+            call.assert_awaited_once_with('GET', '/v1/health')
+        self.assertEqual(entry.data, {**old, 'relay_url': const.DEFAULT_RELAY})
+        self.assertEqual(entry.entry_id, 'existing-entry')
+        self.assertEqual(entry.options, options)
+        # Starting the uploader now uses the new URL with the original token.
+        hass.session = object()
+        instance = upload.SolarUploader(hass, entry)
+        self.assertEqual(instance.relay.base, const.DEFAULT_RELAY)
+        self.assertEqual(instance.relay.token, old['write_token'])
+
+    async def test_unavailable_or_wrong_service_preserves_working_legacy_entry(self):
+        for failure in (upload.migrate_relay_address.__globals__['RelayError']('cannot_connect'), {'ok': False},
+                        {'ok': True, 'api': 2}):
+            hass, entry = self.fixture(const.LEGACY_RELAY)
+            old = dict(entry.data)
+            kwargs = {'side_effect': failure} if isinstance(failure, Exception) else {'return_value': failure}
+            with patch.object(upload.migrate_relay_address.__globals__['Relay'], 'call', new_callable=AsyncMock, **kwargs):
+                self.assertFalse(await upload.migrate_relay_address(hass, entry, object()))
+            hass.config_entries.async_update_entry.assert_not_called()
+            self.assertEqual(entry.data, old)
+
+    async def test_custom_endpoints_and_already_migrated_entries_are_not_contacted(self):
+        for address in ('https://custom.example', const.DEFAULT_RELAY,
+                        const.LEGACY_RELAY + '.example',
+                        const.LEGACY_RELAY + '?token=private',
+                        'http://solaranlage-public-beta.kulmi84.workers.dev'):
+            hass, entry = self.fixture(address)
+            with patch.object(upload.migrate_relay_address.__globals__['Relay'], 'call', new_callable=AsyncMock) as call:
+                self.assertFalse(await upload.migrate_relay_address(hass, entry, object()))
+                call.assert_not_awaited()
+            hass.config_entries.async_update_entry.assert_not_called()
+
+
 class AlexaAccountTests(unittest.TestCase):
     def test_public_mode_requires_link_and_uses_only_request_access_token(self):
         import beta_live_lambda

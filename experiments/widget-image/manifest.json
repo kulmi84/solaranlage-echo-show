@@ -1,7 +1,7 @@
 {
   "manifest": {
-    "id": "SolarImageStatus102",
-    "version": "1.0.2",
+    "id": "SolarImageLive112",
+    "version": "1.1.3",
     "presentationDefinitions": [
       {
         "url": "presentations/default.tpl"
@@ -21,7 +21,7 @@
           "targetViewport": "WIDGET_M",
           "metadata": {
             "name": "Solaranlage",
-            "description": "Live-Werte alle 60 Sekunden mit tatsÃ¤chlichem Empfangszeitpunkt. Antippen Ã¶ffnet die normale Vollbildansicht.",
+            "description": "Live-Werte alle 60 Sekunden mit tatsächlichem Empfangszeitpunkt. Antippen öffnet die normale Vollbildansicht.",
             "keywords": [
               "Solaranlage",
               "PV",

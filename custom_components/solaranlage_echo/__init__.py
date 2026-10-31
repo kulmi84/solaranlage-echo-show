@@ -10,6 +10,7 @@ from homeassistant.util import dt as dt_util
 from .api import Relay, RelayError
 from .const import DOMAIN, ENERGY_KEYS
 from .payload import energy_values, live_values, numeric
+from .migration import migrate_relay_address
 
 _LOGGER = logging.getLogger(__name__)
 
@@ -85,6 +86,7 @@ class SolarUploader(DataUpdateCoordinator):
 
 
 async def async_setup_entry(hass, entry):
+    await migrate_relay_address(hass, entry, async_get_clientsession(hass))
     uploader = SolarUploader(hass, entry)
     hass.data.setdefault(DOMAIN, {})[entry.entry_id] = uploader
     await hass.config_entries.async_forward_entry_setups(entry, [Platform.SENSOR])

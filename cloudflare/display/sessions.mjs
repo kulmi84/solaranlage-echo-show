@@ -1,6 +1,6 @@
 import {dashboardPng,housePng,finalTilePng} from './dashboard.mjs';
 import {delegateDisplay,displayValues,DISPLAY_SECONDS} from './display-access.mjs';
-const relay='https://solaranlage-public-beta.kulmi84.workers.dev/v1/pv';
+const relay='https://solaranlage-kontodienst.kulmi84.workers.dev/v1/pv';
 const aad=new TextEncoder().encode('solaranlage-image-test-v1');
 const base64=b=>btoa(String.fromCharCode(...b)).replaceAll('+','-').replaceAll('/','_').replaceAll('=','');
 function unbase64(s){if(!/^[\w-]+$/.test(s)||s.length>2048)throw Error('invalid');return Uint8Array.from(atob(s.replaceAll('-','+').replaceAll('_','/')),x=>x.charCodeAt(0));}
