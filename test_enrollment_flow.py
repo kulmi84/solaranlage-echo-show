@@ -26,15 +26,18 @@ class EnrollmentFlowTests(unittest.IsolatedAsyncioTestCase):
         self.assertEqual(result['step_id'], 'live')
         call.side_effect = None
 
-    async def test_no_account_or_key_before_consent_and_no_key_in_config_entry(self):
+    async def test_no_account_or_key_before_confirmation_and_no_key_in_config_entry(self):
         subject = self.subject()
         with patch.object(flow.Relay, 'call', new_callable=AsyncMock) as call:
             await self.start(subject, call)
-            self.assertEqual((await subject.async_step_consent({'consent': False}))['errors']['base'], 'consent_required')
+            notice = await subject.async_step_consent()
+            self.assertEqual(notice['step_id'], 'consent')
+            self.assertEqual(notice['data_schema'].schema, {})
+            self.assertEqual((await subject.async_step_consent({'consent': False}))['type'], 'form')
             self.assertEqual(self.hass.storage, {})
             self.assertEqual(call.await_count, 2)
             call.return_value = {'tenant_id': 'household', 'write_token': 'a' * 64}
-            result = await subject.async_step_consent({'consent': True})
+            result = await subject.async_step_consent({})
             method, path, payload = call.call_args.args
             self.assertEqual((method, path), ('POST', '/v2/enroll'))
             self.assertEqual(set(payload), {'installation_key', 'timezone'})
@@ -47,13 +50,13 @@ class EnrollmentFlowTests(unittest.IsolatedAsyncioTestCase):
             first = self.subject()
             await self.start(first, call)
             call.side_effect = api.RelayError('registration_unavailable')
-            self.assertEqual((await first.async_step_consent({'consent': True}))['type'], 'form')
+            self.assertEqual((await first.async_step_consent({}))['type'], 'form')
             key = call.call_args.args[2]['installation_key']
             self.hass.data = {}  # Simulate restart; persisted storage survives.
             second = self.subject()
             await self.start(second, call)
             call.return_value = {'tenant_id': 'same-household', 'write_token': 'a' * 64}
-            self.assertEqual((await second.async_step_consent({'consent': True}))['type'], 'create_entry')
+            self.assertEqual((await second.async_step_consent({}))['type'], 'create_entry')
             self.assertEqual(call.call_args.args[2]['installation_key'], key)
 
     async def test_only_missing_capability_route_falls_back(self):
@@ -65,25 +68,25 @@ class EnrollmentFlowTests(unittest.IsolatedAsyncioTestCase):
                 self.assertEqual((await subject.async_step_invite({'invite': ' code '}))['step_id'], 'live')
                 call.side_effect = None
                 call.return_value = {'tenant_id': 'old', 'write_token': 'b' * 64}
-                await subject.async_step_consent({'consent': True})
+                await subject.async_step_consent({})
                 self.assertEqual(call.call_args.args[1:], ('/v1/enroll', {'invite': 'code', 'timezone': 'Europe/Berlin'}))
         with patch.object(flow.Relay, 'call', side_effect=[{'ok': True}, api.RelayError('cannot_connect')]):
             result = await self.subject().async_step_user({})
             self.assertEqual(result['errors']['base'], 'cannot_connect')
 
-    async def test_revoked_key_requires_new_explicit_consent(self):
+    async def test_revoked_key_requires_new_explicit_confirmation(self):
         subject = self.subject()
         with patch.object(flow.Relay, 'call', new_callable=AsyncMock) as call:
             await self.start(subject, call)
             call.side_effect = api.RelayError('registration_revoked')
-            result = await subject.async_step_consent({'consent': True})
+            result = await subject.async_step_consent({})
             old_key = call.call_args.args[2]['installation_key']
             self.assertEqual(result['errors']['base'], 'registration_revoked')
             self.assertEqual(call.await_count, 3)  # No automatic second registration.
             self.assertFalse(self.hass.storage)
             call.side_effect = None
             call.return_value = {'tenant_id': 'new', 'write_token': 'b' * 64}
-            await subject.async_step_consent({'consent': True})
+            await subject.async_step_consent({})
             self.assertNotEqual(call.call_args.args[2]['installation_key'], old_key)
 
     async def test_private_keys_are_separate_by_server_and_deleted_selectively(self):
@@ -100,14 +103,14 @@ class EnrollmentFlowTests(unittest.IsolatedAsyncioTestCase):
         subject = self.subject()
         subject._connection = {'mode': 'automatic', 'relay_url': const.DEFAULT_RELAY}
         with patch.object(flow, 'installation_key', side_effect=OSError('disk full')), patch.object(flow.Relay, 'call') as call:
-            self.assertEqual((await subject.async_step_consent({'consent': True}))['errors']['base'], 'cannot_connect')
+            self.assertEqual((await subject.async_step_consent({}))['errors']['base'], 'cannot_connect')
             call.assert_not_called()
 
     async def test_silently_failed_storage_write_prevents_account_creation(self):
         subject = self.subject()
         subject._connection = {'mode': 'automatic', 'relay_url': const.DEFAULT_RELAY}
         with patch.object(MemoryStore, 'async_save', new_callable=AsyncMock), patch.object(flow.Relay, 'call') as call:
-            result = await subject.async_step_consent({'consent': True})
+            result = await subject.async_step_consent({})
             self.assertEqual(result['errors']['base'], 'cannot_connect')
             call.assert_not_called()
 
@@ -122,7 +125,7 @@ class EnrollmentFlowTests(unittest.IsolatedAsyncioTestCase):
             await self.start(subject, call)
             for error in ('registration_full', 'registration_rate_limited'):
                 call.side_effect = api.RelayError(error)
-                result = await subject.async_step_consent({'consent': True})
+                result = await subject.async_step_consent({})
                 self.assertEqual(result['errors']['base'], error)
                 key = call.call_args.args[2]['installation_key']
                 self.assertEqual(await flow.installation_key(self.hass, const.DEFAULT_RELAY), key)
@@ -148,6 +151,9 @@ class EnrollmentFlowTests(unittest.IsolatedAsyncioTestCase):
             self.assertEqual(set(content['step']['user']['data']), {'custom_server'})
             self.assertEqual(set(content['step']['server']['data']), {'relay_url'})
             self.assertEqual(set(content['step']['invite']['data']), {'invite'})
+            self.assertNotIn('data', content['step']['consent'])
+            self.assertTrue(content['step']['consent']['submit'])
+            self.assertIn('{privacy_url}', content['step']['consent']['description'])
             for code in ('registration_full', 'registration_rate_limited', 'registration_revoked',
                          'registration_not_ready', 'registration_invalid', 'registration_ip_unavailable',
                          'registration_unavailable'):

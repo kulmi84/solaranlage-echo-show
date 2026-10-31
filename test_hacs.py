@@ -110,7 +110,7 @@ class FlowTests(unittest.IsolatedAsyncioTestCase):
         self.mapping, self.states = fixture()
         self.hass = types.SimpleNamespace(data={}, storage={}, states=types.SimpleNamespace(get=self.states.get), session=object(), config=types.SimpleNamespace(time_zone='Europe/Berlin'))
 
-    async def test_enrollment_only_after_sensor_validation_and_explicit_consent(self):
+    async def test_enrollment_only_after_sensor_validation_and_explicit_confirmation(self):
         subject = flow.SolarConfigFlow(); subject.hass = self.hass
         with patch.object(flow.Relay, 'call', new_callable=AsyncMock) as call:
             call.return_value = {'ok': True}
@@ -124,7 +124,7 @@ class FlowTests(unittest.IsolatedAsyncioTestCase):
             self.assertEqual((await subject.async_step_consent({'consent': False}))['type'], 'form')
             self.assertEqual(call.await_count, 1)
             call.return_value = {'tenant_id': 'tenant', 'write_token': 'a' * 64}
-            done = await subject.async_step_consent({'consent': True})
+            done = await subject.async_step_consent({})
             self.assertEqual(done['type'], 'create_entry')
             self.assertNotIn('invite', done['data']); self.assertNotIn('ha_token', done['data'])
             self.assertEqual(done['data']['sensors'], self.mapping)

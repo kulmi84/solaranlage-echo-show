@@ -41,7 +41,7 @@ class HttpSetupTests(unittest.IsolatedAsyncioTestCase):
         self.assertEqual((await subject.async_step_user({}))['step_id'], 'live')
         self.assertEqual((await subject.async_step_live({'power_w': mapping['power_w']}))['step_id'], 'energy')
         self.assertEqual((await subject.async_step_energy({}))['step_id'], 'consent')
-        result = await subject.async_step_consent({'consent': True})
+        result = await subject.async_step_consent({})
         self.assertEqual(result['type'], 'create_entry')
         return result['data']
 
