@@ -1,5 +1,13 @@
 # Solaranlage auf dem Echo Show
 
+## Aktueller Stand · 31.10.2026
+
+**Bildwidget 2.0.1:** gemeinsame Kontoverknüpfung funktioniert; Nachladen, Zugangserneuerung, Bildpuffer und Vollbild-Zuordnung am Gerät bestätigt. Die weiße Fußzeile wurde neu gebaut und gesendet; Gerätebestätigung dafür steht aus. **HACS 1.0.9 ist vorbereitet, noch nicht veröffentlicht.**
+
+Alte Widgetversuche und der separate alte Test-Skill sind archiviert und entfernt. Zwei alte Adressen bleiben bis zur vollständigen Kundenmigration als Weiterleitungen bestehen. Der öffentliche Skill bleibt erhalten.
+
+[Kurzer Projektstatus](docs/ALEXA-STATUS.md) · [Offene Punkte #10](https://github.com/kulmi84/solaranlage-echo-show/issues/10) · [Entwicklungsstand PR #9](https://github.com/kulmi84/solaranlage-echo-show/pull/9)
+
 ## Version 1.0.8: Bild-Widget mit scharfer Stand-Zeile
 
 **Vom Betreiber auf dem Echo Show bestätigt:** transparente große Werte, tatsächliche Empfangszeit, Aktualisierung alle 60 Sekunden und Antippen zur normalen Vollbildansicht. Der separate widerrufbare Bildzugang benötigt kein tägliches Neuöffnen. Der Alexa Data Store wird für diese Werteanzeige nicht verwendet.

@@ -1,47 +1,24 @@
-# Alexa-Skill: Verfügbarkeit und Einrichtung
+# Projektstatus · 31.10.2026
 
-## Stand vom 28. Oktober 2026
+## Widget und HACS
 
-Der normale Skill **Solaranlage** wird in der Amazon-Konsole als **Live** geführt.
-[Öffentlicher Skill im Alexa Store](https://www.amazon.de/dp/B0HN5CSTW6/).
-Daneben gibt es einen getrennten **In Dev**-Stand. Das ist keine zweite öffentliche Installation.
+- **Bildwidget 2.0.1:** gemeinsamer Kontozugang, sofortiges Nachladen beim Einblenden, automatische Zugangserneuerung, vollständiger Bildpuffer bei Fehlern und richtige Vollbild-Zuordnung am Gerät bestätigt.
+- Weiße Zeile „2.0.1 · Live · alle 60 Sekunden“ unter dem Zeitstand: Amazon-Build und einmaliger Installationsauftrag bestätigt; tatsächliche Geräteansicht noch offen.
+- **HACS 1.0.9 vorbereitet, nicht veröffentlicht:** automatische Adressübernahme mit erhaltenen Konten/Sensoren sowie klarere PV-/BKW-Feldnamen und Hilfen. 13 HACS- und 11 Bilddienst-Tests bestanden.
+- Einladung bleibt vorerst bestehen. Vereinfachte Einrichtung und zweiter Haushalt sind noch zu testen. Keine neue öffentliche Widget-Freigabe.
 
-Das neu bestätigte Bild-Widget ist derzeit privat eingerichtet. Für seine allgemeine Store-Auslieferung fehlt noch die automatische individuelle Bildzugangsbereitstellung pro Konto. Es wurde mit dieser GitHub-/HACS-Version nicht als gemeinsames Paket eingereicht. Private Bildadressen einer Anlage dürfen nicht an alle Nutzer verteilt werden. Diese datierte Statusseite ist keine automatische Live-Abfrage.
+## Erhaltene Skills
 
-## Was andere Nutzer benötigen
+| Skill | Aufgabe |
+|---|---|
+| Data Store Labor | Enthält das funktionierende Bildwidget SolarAccountImage; der historische Skillname bleibt vorerst. |
+| Solaranlage | Öffentlicher Skill mit zugehörigem Development-Stand für bestehende Nutzer. |
+| Mein Zuhause | Separates Projekt, unverändert. |
 
-- Home Assistant mit HACS und der Integration **Solaranlage Echo Show**.
-- Eigene Leistungs- und Energiezähler; optionale Akku- und Netzsensoren.
-- Eine persönliche Relay-Einladung: support@dorisundmarcin.de.
-  Der gemeinsame Dienst ist zunächst auf **20 Haushalte** begrenzt.
-- Den gemeinsamen Alexa-Skill nach dessen Store-Freigabe. Für die Anzeige einen
-  Echo Show; Sprachabfragen funktionieren auch auf Geräten ohne Bildschirm.
+## Aufgeräumt
 
-**HACS installiert die Home-Assistant-Integration, nicht den Alexa-Skill.**
-Die öffentliche GitHub-Verfügbarkeit bedeutet daher noch nicht, dass beliebige
-Amazon-Konten den eingereichten Skill bereits aktivieren können.
+Alte Test-Widgetpakete, das einzelne Labor-Testwidget und der Skill „Meine Solaranlage Test“ sind privat archiviert und gelöscht. Der alte Zahlenversuch und seine Worker `solaranlage-datastore-beta` / `solaranlage-widget` sind stillgelegt; er ist keine aktive Beta mehr. Der ursprüngliche Data-Store-Fehler ist dadurch nicht als behoben ausgewiesen.
 
-Nach der Freigabe: Einladung anfragen → HACS-Integration installieren → Sensoren
-auswählen → Alexa-Skill aktivieren → in HA **Alexa verbinden** öffnen → den
-einmaligen Code in die Kontoverknüpfung der Alexa-App kopieren.
+Cloudflare: **6 Worker, 2 Datenbanken**. Kontodienst, Bilder und Mein Zuhause bleiben erhalten, ebenso der separate Tageslimit-Warn-Worker. `solaranlage-public-beta` und `solaranlage-display` leiten noch intern auf die neuen Namen weiter. Erst nach Umstellung aller HA-/Alexa-/Bildadressen und Prüfung der bestehenden Haushalte entfernen; danach bleiben vier Worker inklusive Warn-Worker. Keine erneute Kontoverknüpfung ist vorgesehen.
 
-Für diesen gemeinsamen Dienst brauchen Nutzer weder einen eigenen Alexa-
-Entwickler-Skill noch ein eigenes Cloudflare-Konto. Bis zur Freigabe bleibt
-die dokumentierte [eigene Infrastruktur](EINFACH-EINRICHTEN.md) eine Alternative;
-ein Amazon-Beta-Test wäre nur eine zeitlich begrenzte Testmöglichkeit.
-
-## Bereits verbundene Nutzer
-
-Aufruf: **„Alexa, öffne meine Solaranlage.“** Bestehende Kontoverknüpfungen und
-Sensoren bleiben erhalten. **Solaranlage Archiv** ist die ältere unabhängige
-Einzelanlagen-Version und wird für den aktuellen Skill nicht benötigt.
-
-## Datenschutz und Kontakt
-
-- [Datenschutzhinweise](https://solaranlage-public-beta.kulmi84.workers.dev/privacy)
-- [Kontakt und Einladungen](https://solaranlage-public-beta.kulmi84.workers.dev/contact)
-- [Bebilderte HACS-Anleitung](HACS.md)
-- [Sprachbefehle und Bedienung](ANLEITUNG.md)
-
-Die öffentlichen Projektseiten nennen Marcin Kulmaczewski und
-support@dorisundmarcin.de. Eine Privatanschrift wird dort nicht veröffentlicht.
+[Offene Abnahme #10](https://github.com/kulmi84/solaranlage-echo-show/issues/10) · [Entwurf PR #9](https://github.com/kulmi84/solaranlage-echo-show/pull/9)
