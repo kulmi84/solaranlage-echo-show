@@ -3,6 +3,7 @@
 HA framework edges are explicit test doubles; this is not an HA runtime test.
 """
 import importlib.util
+import copy
 import json
 from pathlib import Path
 import sys
@@ -42,9 +43,20 @@ class Coordinator:
     def async_set_updated_data(self, data): self.data = data
 
 
+class MemoryStore:
+    def __init__(self, hass, version, key, *, private=False, atomic_writes=False):
+        assert private and atomic_writes
+        self.hass, self.key = hass, key
+    async def async_load(self): return copy.deepcopy(self.hass.storage.get(self.key))
+    async def async_save(self, value): self.hass.storage[self.key] = copy.deepcopy(value)
+    async def async_remove(self): self.hass.storage.pop(self.key, None)
+
+
 fake_entries = types.SimpleNamespace(ConfigFlow=FrameworkFlow, OptionsFlow=FrameworkFlow)
 fake_ha = types.SimpleNamespace(config_entries=fake_entries)
 fake_helpers = {
+    'homeassistant.exceptions': types.SimpleNamespace(HomeAssistantError=type('HomeAssistantError', (Exception,), {})),
+    'homeassistant.helpers.storage': types.SimpleNamespace(Store=MemoryStore),
     'homeassistant': fake_ha, 'homeassistant.config_entries': fake_entries,
     'homeassistant.core': types.SimpleNamespace(callback=lambda f: f),
     'homeassistant.const': types.SimpleNamespace(Platform=types.SimpleNamespace(SENSOR='sensor'), EVENT_HOMEASSISTANT_STARTED='start'),
@@ -96,7 +108,7 @@ class PayloadTests(unittest.TestCase):
 class FlowTests(unittest.IsolatedAsyncioTestCase):
     async def asyncSetUp(self):
         self.mapping, self.states = fixture()
-        self.hass = types.SimpleNamespace(states=types.SimpleNamespace(get=self.states.get), session=object(), config=types.SimpleNamespace(time_zone='Europe/Berlin'))
+        self.hass = types.SimpleNamespace(data={}, storage={}, states=types.SimpleNamespace(get=self.states.get), session=object(), config=types.SimpleNamespace(time_zone='Europe/Berlin'))
 
     async def test_enrollment_only_after_sensor_validation_and_explicit_consent(self):
         subject = flow.SolarConfigFlow(); subject.hass = self.hass
@@ -172,6 +184,61 @@ class UploadTests(unittest.IsolatedAsyncioTestCase):
         self.assertEqual(instance.data['status'], 'sensor_missing')
         instance.entry.options['revoked'] = True
         await instance.upload(); instance.relay.call.assert_not_awaited()
+
+
+class AddressMigrationTests(unittest.IsolatedAsyncioTestCase):
+    def fixture(self, address):
+        mapping, _ = fixture()
+        entry = types.SimpleNamespace(
+            entry_id='existing-entry',
+            data={'relay_url': address, 'tenant_id': 'existing-household',
+                  'write_token': 'a' * 64, 'sensors': mapping},
+            options={'sensors': {'power_w': 'sensor.custom_selection'}},
+        )
+        def update(subject, *, data):
+            subject.data = data
+        hass = types.SimpleNamespace(config_entries=types.SimpleNamespace(
+            async_update_entry=unittest.mock.Mock(side_effect=update)))
+        return hass, entry
+
+    async def test_existing_account_and_sensor_choices_survive_address_change(self):
+        hass, entry = self.fixture(const.LEGACY_RELAY + '/')
+        old = dict(entry.data)
+        options = dict(entry.options)
+        with patch.object(upload.migrate_relay_address.__globals__['Relay'], 'call', new_callable=AsyncMock,
+                          return_value={'ok': True, 'api': 1}) as call:
+            self.assertTrue(await upload.migrate_relay_address(hass, entry, object()))
+            call.assert_awaited_once_with('GET', '/v1/health')
+        self.assertEqual(entry.data, {**old, 'relay_url': const.DEFAULT_RELAY})
+        self.assertEqual(entry.entry_id, 'existing-entry')
+        self.assertEqual(entry.options, options)
+        # Starting the uploader now uses the new URL with the original token.
+        hass.session = object()
+        instance = upload.SolarUploader(hass, entry)
+        self.assertEqual(instance.relay.base, const.DEFAULT_RELAY)
+        self.assertEqual(instance.relay.token, old['write_token'])
+
+    async def test_unavailable_or_wrong_service_preserves_working_legacy_entry(self):
+        for failure in (upload.migrate_relay_address.__globals__['RelayError']('cannot_connect'), {'ok': False},
+                        {'ok': True, 'api': 2}):
+            hass, entry = self.fixture(const.LEGACY_RELAY)
+            old = dict(entry.data)
+            kwargs = {'side_effect': failure} if isinstance(failure, Exception) else {'return_value': failure}
+            with patch.object(upload.migrate_relay_address.__globals__['Relay'], 'call', new_callable=AsyncMock, **kwargs):
+                self.assertFalse(await upload.migrate_relay_address(hass, entry, object()))
+            hass.config_entries.async_update_entry.assert_not_called()
+            self.assertEqual(entry.data, old)
+
+    async def test_custom_endpoints_and_already_migrated_entries_are_not_contacted(self):
+        for address in ('https://custom.example', const.DEFAULT_RELAY,
+                        const.LEGACY_RELAY + '.example',
+                        const.LEGACY_RELAY + '?token=private',
+                        'http://solaranlage-public-beta.kulmi84.workers.dev'):
+            hass, entry = self.fixture(address)
+            with patch.object(upload.migrate_relay_address.__globals__['Relay'], 'call', new_callable=AsyncMock) as call:
+                self.assertFalse(await upload.migrate_relay_address(hass, entry, object()))
+                call.assert_not_awaited()
+            hass.config_entries.async_update_entry.assert_not_called()
 
 
 class AlexaAccountTests(unittest.TestCase):

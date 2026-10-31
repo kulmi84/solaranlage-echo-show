@@ -4,8 +4,9 @@
 
 - **Bildwidget 2.0.1:** gemeinsamer Kontozugang, sofortiges Nachladen beim Einblenden, automatische Zugangserneuerung, vollständiger Bildpuffer bei Fehlern und richtige Vollbild-Zuordnung am Gerät bestätigt.
 - Weiße Zeile „2.0.1 · Live · alle 60 Sekunden“ unter dem Zeitstand: Amazon-Build und einmaliger Installationsauftrag bestätigt; tatsächliche Geräteansicht noch offen.
-- **HACS 1.0.9 vorbereitet, nicht veröffentlicht:** automatische Adressübernahme mit erhaltenen Konten/Sensoren sowie klarere PV-/BKW-Feldnamen und Hilfen. 13 HACS- und 11 Bilddienst-Tests bestanden.
-- Einladung bleibt vorerst bestehen. Vereinfachte Einrichtung und zweiter Haushalt sind noch zu testen. Keine neue öffentliche Widget-Freigabe.
+- **HACS 1.0.9:** automatische Kontoanlage nach Zustimmung ohne Einladung, IP-/Kapazitätsschutz, sichere Wiederholungen und verständliche Fehler. Bestehende Konten/Sensoren bleiben bei der Adressübernahme erhalten; klarere PV-/BKW-Hilfen.
+- Kontodienst am 31.10.2026 freigeschaltet. Zwei neue Testhaushalte über den tatsächlichen HACS-Code angemeldet, getrennte Werte hochgeladen und über bestehendes OAuth abgerufen; danach Testhaushalte gelöscht. Die vier bisherigen Haushalte und ihre Tokenanzahlen blieben erhalten. 28 Python- und 24 Backendtests bestanden.
+- Noch offen: echte HA-Oberflächenabnahme einer Neueinrichtung und Updates der externen Bestandsinstallationen. Keine neue öffentliche Amazon-Widget-Freigabe.
 
 ## Erhaltene Skills
 

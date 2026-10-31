@@ -2,11 +2,17 @@
 
 ## Aktueller Stand · 31.10.2026
 
-**Bildwidget 2.0.1:** gemeinsame Kontoverknüpfung funktioniert; Nachladen, Zugangserneuerung, Bildpuffer und Vollbild-Zuordnung am Gerät bestätigt. Die weiße Fußzeile wurde neu gebaut und gesendet; Gerätebestätigung dafür steht aus. **HACS 1.0.9 ist vorbereitet, noch nicht veröffentlicht.**
+**Bildwidget 2.0.1:** gemeinsame Kontoverknüpfung funktioniert; Nachladen, Zugangserneuerung, Bildpuffer und Vollbild-Zuordnung am Gerät bestätigt. Die weiße Fußzeile wurde neu gebaut und gesendet; Gerätebestätigung dafür steht aus. **HACS 1.0.9:** Einrichtung ohne Einladung, geschützte Kontoanlage und automatische Übernahme der bestehenden Relay-Adresse.
 
 Alte Widgetversuche und der separate alte Test-Skill sind archiviert und entfernt. Zwei alte Adressen bleiben bis zur vollständigen Kundenmigration als Weiterleitungen bestehen. Der öffentliche Skill bleibt erhalten.
 
 [Kurzer Projektstatus](docs/ALEXA-STATUS.md) · [Offene Punkte #10](https://github.com/kulmi84/solaranlage-echo-show/issues/10) · [Entwicklungsstand PR #9](https://github.com/kulmi84/solaranlage-echo-show/pull/9)
+
+## Version 1.0.9: Einrichtung ohne Einladung
+
+HACS einrichten, Sensoren auswählen und der Übertragung zustimmen. Ein Konto wird automatisch angelegt; Alexa wird anschließend wie bisher einmal verbunden. Begrenzung je Internetanschluss schützt den Dienst. Bestehende Konten und Verknüpfungen bleiben erhalten. Dieses HACS-Update veröffentlicht oder ersetzt kein Amazon-Widget.
+
+[Einrichtung](docs/HACS.md) · [Änderungen und Rückkehr](docs/V1.0.9.md)
 
 ## Version 1.0.8: Bild-Widget mit scharfer Stand-Zeile
 

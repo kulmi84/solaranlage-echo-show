@@ -27,15 +27,32 @@ class Relay:
         try:
             async with self.session.request(method, self.base + path, json=payload, headers=headers,
                     allow_redirects=False, timeout=aiohttp.ClientTimeout(total=15)) as response:
-                if response.status not in (200, 201):
-                    raise RelayError({401: "invalid_auth", 403: "invalid_invite", 409: "beta_full",
-                                      429: "rate_limited"}.get(response.status, "cannot_connect"))
                 raw = bytearray()
                 async for chunk in response.content.iter_chunked(4096):
                     raw.extend(chunk)
                     if len(raw) > 8192:
                         raise RelayError("cannot_connect")
                 import json
-                return json.loads(raw)
+                if response.status not in (200, 201):
+                    if path == "/v2/enrollment" and response.status == 404:
+                        raise RelayError("enrollment_unsupported")
+                    if path == "/v2/enroll":
+                        try:
+                            failure = json.loads(raw)
+                        except ValueError:
+                            failure = {}
+                        code = failure.get("error") if isinstance(failure, dict) else None
+                        allowed = {"registration_rate_limited": 429, "registration_full": 503,
+                                   "registration_revoked": 410, "registration_not_ready": 503,
+                                   "registration_invalid": 400, "registration_ip_unavailable": 400,
+                                   "registration_unavailable": 503}
+                        raise RelayError(code if code in allowed and allowed[code] == response.status
+                                         else "registration_unavailable")
+                    raise RelayError({401: "invalid_auth", 403: "invalid_invite", 409: "beta_full",
+                                      429: "rate_limited"}.get(response.status, "cannot_connect"))
+                result = json.loads(raw)
+                if not isinstance(result, dict):
+                    raise RelayError("cannot_connect")
+                return result
         except (aiohttp.ClientError, asyncio.TimeoutError, ValueError) as error:
             raise RelayError("cannot_connect") from error

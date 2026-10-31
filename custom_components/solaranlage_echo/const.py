@@ -1,10 +1,11 @@
 """Configuration and the small, explicit data allowlist."""
 DOMAIN = "solaranlage_echo"
-DEFAULT_RELAY = "https://solaranlage-public-beta.kulmi84.workers.dev"
+DEFAULT_RELAY = "https://solaranlage-kontodienst.kulmi84.workers.dev"
+LEGACY_RELAY = "https://solaranlage-public-beta.kulmi84.workers.dev"
 FIELDS = {
-    "power_w": ("PV-Gesamtleistung inklusive BKW", "power"),
-    "pv_dc_w": ("PV-Leistung ohne BKW", "power"),
-    "bkw_w": ("BKW-Leistung", "power"),
+    "power_w": ("Gesamte Solarleistung (Pflicht)", "power"),
+    "pv_dc_w": ("PV-Anlage einzeln (optional)", "power"),
+    "bkw_w": ("Balkonkraftwerk einzeln (optional)", "power"),
     "home_w": ("Hausverbrauch", "power"),
     "grid_import_w": ("Netzbezug", "power"),
     "grid_export_w": ("Einspeisung", "power"),

@@ -1,6 +1,7 @@
 // Separate multi-household backend. No access to the single-household tables.
 import { publicPage } from './public-pages.mjs';
 import { reviewerRoute, reviewerEnabled, demoValues } from './reviewer.mjs';
+import { publicEnrollment, cleanupEnrollmentLimits } from './enrollment.mjs';
 const headers = { 'Cache-Control': 'no-store', 'X-Content-Type-Options': 'nosniff', 'Referrer-Policy': 'no-referrer' };
 const reply = (value, status = 200) => Response.json(value, { status, headers });
 const now = () => Math.floor(Date.now() / 1000);
@@ -88,7 +89,8 @@ export default {
     try {
       const url = new URL(request.url), path = url.pathname, method = request.method;
       if (url.protocol !== 'https:') return reply({ error: 'https_required' }, 400);
-      const page = method === 'GET' || method === 'HEAD' ? publicPage(path) : null;
+      if (path === '/v2/enroll') return await publicEnrollment(request, env, { headers, body, hash, now });
+      const page = method === 'GET' || method === 'HEAD' ? publicPage(path, env.PUBLIC_ENROLLMENT_ENABLED === 'true') : null;
       if (page) return new Response(method === 'HEAD' ? null : page, { headers: { ...headers, 'Content-Type': 'text/html; charset=utf-8', 'Content-Security-Policy': "default-src 'none'; style-src 'unsafe-inline'; frame-ancestors 'none'; base-uri 'none'; form-action 'none'" } });
       if (!env.LIMITER) return reply({ error: 'limiter_not_ready' }, 503);
       const limit = await env.LIMITER.limit({ key: request.headers.get('CF-Connecting-IP') || 'unknown' });
@@ -96,6 +98,8 @@ export default {
       const review = await reviewerRoute(request, env, { headers, body, hash, equal, random, now, failure });
       if (review) return review;
       if (path === '/v1/health' && method === 'GET') return reply({ ok: true, api: 1 });
+      if (path === '/v2/enrollment' && method === 'GET')
+        return reply({ mode: env.PUBLIC_ENROLLMENT_ENABLED === 'true' ? 'automatic' : 'invitation' });
       if (path === '/admin/invites' && method === 'POST') {
         if (!env.ADMIN_TOKEN || env.ADMIN_TOKEN.length < 32 || !await equal(bearer(request), env.ADMIN_TOKEN)) failure('unauthorized', 401);
         const invite = random();
@@ -208,5 +212,6 @@ export default {
   },
   async scheduled(_event, env) {
     await env.DB.batch(['pair_codes', 'oauth_codes', 'access_tokens', 'refresh_tokens', 'invites'].map(table => env.DB.prepare(`DELETE FROM ${table} WHERE expires<?`).bind(now())));
+    await cleanupEnrollmentLimits(env, now());
   }
 };

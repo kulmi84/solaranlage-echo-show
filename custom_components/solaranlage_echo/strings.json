@@ -3,26 +3,30 @@
   "config": {
     "step": {
       "user": {
-        "title": "Connect to the solar relay",
-        "description": "Configure the selected solar dashboard settings.",
+        "title": "Set up solar dashboard",
+        "description": "Connect your solar dashboard. No invitation is needed when automatic registration is enabled. An account is created only after your consent.",
         "data": {
-          "relay_url": "Relay address",
-          "invite": "Relay invitation"
+          "custom_server": "Use a custom server"
         }
       },
       "live": {
         "title": "Select live sensors",
-        "description": "Configure the selected solar dashboard settings.",
+        "description": "Only total solar power is required. Without balcony solar, select your PV power sensor there and leave both separate fields empty. With balcony solar, the total sensor must already include PV + balcony solar; separate values are not added automatically. Select the optional separate sensors for the fullscreen breakdown. The small widget shows total power.",
         "data": {
-          "power_w": "PV power including balcony solar",
-          "pv_dc_w": "PV power excluding balcony solar",
-          "bkw_w": "Balcony solar power",
+          "power_w": "Total solar power (required)",
+          "pv_dc_w": "PV array separately (optional)",
+          "bkw_w": "Balcony solar separately (optional)",
           "home_w": "Home consumption",
           "grid_import_w": "Grid import power",
           "grid_export_w": "Grid export power",
           "battery_soc": "Battery state of charge",
           "battery_charge_w": "Battery charge power",
           "battery_discharge_w": "Battery discharge power"
+        },
+        "data_description": {
+          "power_w": "Without balcony solar: PV power. With balcony solar: combined PV + balcony solar sensor.",
+          "pv_dc_w": "Optional separate PV reading; may be left empty.",
+          "bkw_w": "Select only if balcony solar exists; otherwise leave empty."
         }
       },
       "energy": {
@@ -43,6 +47,20 @@
         "data": {
           "consent": "I consent to transmitting my selected readings."
         }
+      },
+      "server": {
+        "title": "Custom server",
+        "description": "Change only if you operate your own service.",
+        "data": {
+          "relay_url": "Server address"
+        }
+      },
+      "invite": {
+        "title": "Enter invitation",
+        "description": "This server still requires an invitation from its operator.",
+        "data": {
+          "invite": "Invitation code"
+        }
       }
     },
     "error": {
@@ -55,7 +73,14 @@
       "invalid_sensor": "Sensor missing or incompatible unit.",
       "invalid_energy": "Select a cumulative energy counter.",
       "duplicate_energy": "Do not select the same energy counter twice.",
-      "consent_required": "Consent is required before transmitting data."
+      "consent_required": "Consent is required before transmitting data.",
+      "registration_rate_limited": "Too many new accounts from this internet connection. Please try again later.",
+      "registration_full": "The service cannot accept more installations right now. Existing accounts remain available.",
+      "registration_revoked": "This previous setup was deleted. Confirm again to create a new account.",
+      "registration_not_ready": "Automatic registration is not available yet. Please try again later.",
+      "registration_invalid": "Registration could not be processed. Please reopen setup.",
+      "registration_ip_unavailable": "The service could not verify the connection. Please try again later.",
+      "registration_unavailable": "Registration is currently unavailable. Retry safely without creating a second account."
     },
     "abort": {
       "already_configured": "Solar dashboard is already configured."
@@ -73,17 +98,22 @@
       },
       "live": {
         "title": "Select live sensors",
-        "description": "Configure the selected solar dashboard settings.",
+        "description": "Only total solar power is required. Without balcony solar, select your PV power sensor there and leave both separate fields empty. With balcony solar, the total sensor must already include PV + balcony solar; separate values are not added automatically. Select the optional separate sensors for the fullscreen breakdown. The small widget shows total power.",
         "data": {
-          "power_w": "PV power including balcony solar",
-          "pv_dc_w": "PV power excluding balcony solar",
-          "bkw_w": "Balcony solar power",
+          "power_w": "Total solar power (required)",
+          "pv_dc_w": "PV array separately (optional)",
+          "bkw_w": "Balcony solar separately (optional)",
           "home_w": "Home consumption",
           "grid_import_w": "Grid import power",
           "grid_export_w": "Grid export power",
           "battery_soc": "Battery state of charge",
           "battery_charge_w": "Battery charge power",
           "battery_discharge_w": "Battery discharge power"
+        },
+        "data_description": {
+          "power_w": "Without balcony solar: PV power. With balcony solar: combined PV + balcony solar sensor.",
+          "pv_dc_w": "Optional separate PV reading; may be left empty.",
+          "bkw_w": "Select only if balcony solar exists; otherwise leave empty."
         }
       },
       "energy": {
@@ -104,7 +134,7 @@
       },
       "erase": {
         "title": "Delete relay data and revoke access",
-        "description": "Permanently delete stored readings and all Alexa credentials for this household. Local HA sensors remain unchanged. Remove the integration afterwards; enrolling again requires a new invitation.",
+        "description": "Permanently delete stored readings and all Alexa links. Local HA sensors remain unchanged. Remove the integration afterwards. Setting up again creates a new account; if the server requires invitations, you need a new invitation.",
         "data": {
           "confirm": "Permanently delete my relay data and account links."
         }
