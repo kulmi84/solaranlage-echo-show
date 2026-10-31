@@ -20,6 +20,14 @@ Das Relay erfordert eine Einladung und erlaubt zunächst maximal 20 Haushalte.
 Bitte vor der Einrichtung unter support@dorisundmarcin.de nachfragen. Das GitHub-Repository
 ist öffentlich und kann in HACS als benutzerdefiniertes Repository hinzugefügt werden.
 
+## Vorbereitetes Update 1.0.9 (noch nicht veröffentlicht)
+
+Bestehende Einrichtungen übernehmen beim Start automatisch die neue Adresse `https://solaranlage-kontodienst.kulmi84.workers.dev`. Konto, Zugangsdaten, Sensorauswahl und Alexa-Verknüpfung bleiben erhalten. Ist der neue Dienst nicht erreichbar, bleibt die bisherige Adresse erhalten. Eigene Relay-Adressen werden nicht verändert. Neue Einrichtungen verwenden direkt den Kontodienst.
+
+Die PV-/BKW-Felder erklären Pflichtwert und optionale Einzelwerte. Die bisherige Einladung bleibt in diesem Update erhalten; die vereinfachte Einrichtung wird später umgesetzt.
+
+Der alte Data-Store-Versuch einschließlich seiner Weiterleitung ist archiviert und stillgelegt. Die zwei verbleibenden alten Adressen (Kontodienst und Bilder) dürfen erst nach erfolgreichem Update der externen Haushalte und Umstellung der Alexa-/Bildkonfigurationen entfernt werden. HACS aktualisiert die Alexa-Konfigurationen nicht automatisch. Danach bleiben Kontodienst, Bilder und Mein Zuhause sowie der separate Tageslimit-Warn-Worker.
+
 ## Der neue Ablauf für Nutzer
 
 Die Skill-Aktivierung in Schritt 4 setzt die Amazon-Freigabe oder bereits
@@ -47,7 +55,9 @@ verwenden. Eine neue Kontoverknüpfung ist bei der Umbenennung der HACS-Beta nic
 
 ## Sensorauswahl
 
-- PV-Gesamtleistung in W/kW ist Pflicht und enthält das BKW bereits.
+- **Gesamte Solarleistung (Pflicht):** Sensor in W/kW auswählen. Ohne BKW ist das einfach die PV-Leistung. Mit BKW muss dieser Sensor PV + BKW bereits enthalten; die Integration addiert die Einzelfelder nicht automatisch.
+- **PV-Anlage einzeln** und **Balkonkraftwerk einzeln** sind optional und dienen der getrennten Anzeige in der Vollbildansicht. Ohne BKW dürfen beide Felder leer bleiben. Das kleine Widget zeigt die Gesamtleistung.
+- Die Sprachabfrage zur Erzeugung nennt die Gesamtleistung; getrennte PV-/BKW-Sprachabfragen sind derzeit nicht hinterlegt.
 - Weitere Leistungen und Akkustand in Prozent sind optional.
 - **Hausverbrauch prüfen:** Eine Energieflusskarte kann diesen Wert selbst berechnen.
   Ein gleichnamiger Sensor muss nicht dieselbe Berechnung liefern. Vergleiche die

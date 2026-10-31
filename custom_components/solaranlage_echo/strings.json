@@ -12,17 +12,22 @@
       },
       "live": {
         "title": "Select live sensors",
-        "description": "Configure the selected solar dashboard settings.",
+        "description": "Only total solar power is required. Without balcony solar, select your PV power sensor there and leave both separate fields empty. With balcony solar, the total sensor must already include PV + balcony solar; separate values are not added automatically. Select the optional separate sensors for the fullscreen breakdown. The small widget shows total power.",
         "data": {
-          "power_w": "PV power including balcony solar",
-          "pv_dc_w": "PV power excluding balcony solar",
-          "bkw_w": "Balcony solar power",
+          "power_w": "Total solar power (required)",
+          "pv_dc_w": "PV array separately (optional)",
+          "bkw_w": "Balcony solar separately (optional)",
           "home_w": "Home consumption",
           "grid_import_w": "Grid import power",
           "grid_export_w": "Grid export power",
           "battery_soc": "Battery state of charge",
           "battery_charge_w": "Battery charge power",
           "battery_discharge_w": "Battery discharge power"
+        },
+        "data_description": {
+          "power_w": "Without balcony solar: PV power. With balcony solar: combined PV + balcony solar sensor.",
+          "pv_dc_w": "Optional separate PV reading; may be left empty.",
+          "bkw_w": "Select only if balcony solar exists; otherwise leave empty."
         }
       },
       "energy": {
@@ -73,17 +78,22 @@
       },
       "live": {
         "title": "Select live sensors",
-        "description": "Configure the selected solar dashboard settings.",
+        "description": "Only total solar power is required. Without balcony solar, select your PV power sensor there and leave both separate fields empty. With balcony solar, the total sensor must already include PV + balcony solar; separate values are not added automatically. Select the optional separate sensors for the fullscreen breakdown. The small widget shows total power.",
         "data": {
-          "power_w": "PV power including balcony solar",
-          "pv_dc_w": "PV power excluding balcony solar",
-          "bkw_w": "Balcony solar power",
+          "power_w": "Total solar power (required)",
+          "pv_dc_w": "PV array separately (optional)",
+          "bkw_w": "Balcony solar separately (optional)",
           "home_w": "Home consumption",
           "grid_import_w": "Grid import power",
           "grid_export_w": "Grid export power",
           "battery_soc": "Battery state of charge",
           "battery_charge_w": "Battery charge power",
           "battery_discharge_w": "Battery discharge power"
+        },
+        "data_description": {
+          "power_w": "Without balcony solar: PV power. With balcony solar: combined PV + balcony solar sensor.",
+          "pv_dc_w": "Optional separate PV reading; may be left empty.",
+          "bkw_w": "Select only if balcony solar exists; otherwise leave empty."
         }
       },
       "energy": {
