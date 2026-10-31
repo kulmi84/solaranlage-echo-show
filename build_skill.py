@@ -11,6 +11,8 @@ def build():
     runtime=(root/'image_runtime.py').read_text(encoding='utf-8')
     status=(root/'status_speech.py').read_text(encoding='utf-8')
     source=reader+'\n\n'+native+'\n\n'+status+'\n\n'+runtime
+    source += '\n\n_widget_account_previous = lambda_handler\n' + (root/'widget_account.py').read_text(encoding='utf-8')
+    source += "\ndef lambda_handler(event, context):\n    return route_widget_account(event, context, _widget_account_previous, create_image_session, image_config, image_access_token)\n"
     ast.parse(source,feature_version=(3,8))
     return source
 

@@ -5,244 +5,1087 @@
   "mainTemplate": {
     "items": [
       {
-        "type": "TouchWrapper",
+        "type": "Container",
+        "id": "imageWidget",
         "width": "100vw",
         "height": "100vh",
-        "onPress": [
+        "padding": 16,
+        "bind": [
           {
-            "type": "SendEvent",
-            "arguments": [
-              "solar.widget.open.v1"
-            ],
-            "flags": {
-              "interactionMode": "STANDARD"
-            }
+            "name": "imageBase",
+            "value": ""
+          },
+          {
+            "name": "imageNonce",
+            "value": 0
+          },
+          {
+            "name": "lastRefresh",
+            "value": 0
+          },
+          {
+            "name": "loaded",
+            "value": 0
+          },
+          {
+            "name": "imageFailed",
+            "value": false
+          },
+          {
+            "name": "statusImageBase",
+            "value": ""
+          },
+          {
+            "name": "grantReady",
+            "value": false
+          },
+          {
+            "name": "grantRefreshAt",
+            "value": 0
+          },
+          {
+            "name": "lastGrantRequest",
+            "value": 0
+          },
+          {
+            "name": "accountMessage",
+            "value": "Verbindung wird hergestellt …"
+          },
+          {
+            "name": "activeBuffer",
+            "value": 0
+          },
+          {
+            "name": "hasImage",
+            "value": false
+          },
+          {
+            "name": "loading",
+            "value": false
+          },
+          {
+            "name": "lastImageNonce",
+            "value": -1
+          },
+          {
+            "name": "readyPv",
+            "value": false
+          },
+          {
+            "name": "readyHome",
+            "value": false
+          },
+          {
+            "name": "readyBattery",
+            "value": false
+          },
+          {
+            "name": "readyStatus",
+            "value": false
+          },
+          {
+            "name": "valueBase0",
+            "value": ""
+          },
+          {
+            "name": "statusBase0",
+            "value": ""
+          },
+          {
+            "name": "nonce0",
+            "value": 0
+          },
+          {
+            "name": "valueBase1",
+            "value": ""
+          },
+          {
+            "name": "statusBase1",
+            "value": ""
+          },
+          {
+            "name": "nonce1",
+            "value": 0
           }
         ],
-        "item": {
-          "type": "Container",
-          "id": "imageWidget",
-          "width": "100vw",
-          "height": "100vh",
-          "padding": 16,
-          "bind": [
-            {
-              "name": "imageBase",
-              "value": "__PRIVATE_WIDGET_IMAGE_BASE__"
-            },
-            {
-              "name": "imageNonce",
-              "value": 0
-            },
-            {
-              "name": "lastRefresh",
-              "value": 0
-            },
-            {
-              "name": "loaded",
-              "value": 0
-            },
-            {
-              "name": "imageFailed",
-              "value": false
-            },
-            {
-              "name": "statusImageBase",
-              "value": "__PRIVATE_WIDGET_STATUS_BASE__"
-            }
-          ],
-          "handleTick": [
-            {
-              "minimumDelay": 1000,
-              "when": "${elapsedTime - lastRefresh >= 60000}",
-              "commands": [
-                {
-                  "type": "SetValue",
-                  "componentId": "imageWidget",
-                  "property": "imageNonce",
-                  "value": "${elapsedTime}"
-                },
-                {
-                  "type": "SetValue",
-                  "componentId": "imageWidget",
-                  "property": "lastRefresh",
-                  "value": "${elapsedTime}"
-                }
-              ]
-            }
-          ],
-          "items": [
-            {
-              "type": "Text",
-              "text": "Solaranlage",
-              "fontSize": 48,
-              "fontWeight": "700",
-              "color": "white",
-              "maxLines": 1,
-              "width": "100%"
-            },
-            {
-              "type": "Text",
-              "text": "Live · alle 60 Sekunden",
-              "fontSize": 15,
-              "color": "#FFD166",
-              "spacing": 5,
-              "maxLines": 1,
-              "width": "100%"
-            },
-            {
-              "type": "Container",
-              "spacing": 18,
-              "items": [
-                {
-                  "type": "Text",
-                  "text": "PV + BKW",
-                  "fontSize": 21,
-                  "color": "white",
-                  "maxLines": 1
-                },
-                {
-                  "type": "Image",
-                  "id": "valueImage0",
-                  "source": "${imageBase + \"&page=live&row=0&col=0&layout=final&n=\" + imageNonce}",
-                  "width": "100%",
-                  "height": 76,
-                  "scale": "best-fit",
-                  "align": "top-left",
-                  "onLoad": [
-                    {
-                      "type": "SetValue",
-                      "componentId": "imageWidget",
-                      "property": "loaded",
-                      "value": "${loaded + 1}"
+        "handleTick": [
+          {
+            "minimumDelay": 1000,
+            "when": "${grantReady && !loading && (imageNonce != lastImageNonce || elapsedTime - lastRefresh >= (imageFailed ? 10000 : 60000))}",
+            "commands": [
+              {
+                "type": "Sequential",
+                "commands": [
+                  {
+                    "type": "Sequential",
+                    "when": "${grantReady && !loading}",
+                    "commands": [
+                      {
+                        "type": "SetValue",
+                        "componentId": "imageWidget",
+                        "property": "readyPv",
+                        "value": false
+                      },
+                      {
+                        "type": "SetValue",
+                        "componentId": "imageWidget",
+                        "property": "readyHome",
+                        "value": false
+                      },
+                      {
+                        "type": "SetValue",
+                        "componentId": "imageWidget",
+                        "property": "readyBattery",
+                        "value": false
+                      },
+                      {
+                        "type": "SetValue",
+                        "componentId": "imageWidget",
+                        "property": "readyStatus",
+                        "value": false
+                      },
+                      {
+                        "type": "SetValue",
+                        "componentId": "imageWidget",
+                        "property": "loading",
+                        "value": true
+                      },
+                      {
+                        "type": "SetValue",
+                        "componentId": "imageWidget",
+                        "property": "lastRefresh",
+                        "value": "${elapsedTime}"
+                      },
+                      {
+                        "type": "SetValue",
+                        "componentId": "imageWidget",
+                        "property": "lastImageNonce",
+                        "value": "${imageNonce}"
+                      },
+                      {
+                        "type": "SetValue",
+                        "componentId": "imageWidget",
+                        "property": "valueBase0",
+                        "value": "${imageBase}",
+                        "when": "${activeBuffer != 0}"
+                      },
+                      {
+                        "type": "SetValue",
+                        "componentId": "imageWidget",
+                        "property": "statusBase0",
+                        "value": "${statusImageBase}",
+                        "when": "${activeBuffer != 0}"
+                      },
+                      {
+                        "type": "SetValue",
+                        "componentId": "imageWidget",
+                        "property": "nonce0",
+                        "value": "${elapsedTime}",
+                        "when": "${activeBuffer != 0}"
+                      },
+                      {
+                        "type": "SetValue",
+                        "componentId": "imageWidget",
+                        "property": "valueBase1",
+                        "value": "${imageBase}",
+                        "when": "${activeBuffer != 1}"
+                      },
+                      {
+                        "type": "SetValue",
+                        "componentId": "imageWidget",
+                        "property": "statusBase1",
+                        "value": "${statusImageBase}",
+                        "when": "${activeBuffer != 1}"
+                      },
+                      {
+                        "type": "SetValue",
+                        "componentId": "imageWidget",
+                        "property": "nonce1",
+                        "value": "${elapsedTime}",
+                        "when": "${activeBuffer != 1}"
+                      }
+                    ]
+                  },
+                  {
+                    "type": "SendEvent",
+                    "when": "${!grantReady}",
+                    "arguments": [
+                      "solar.widget.images.v1"
+                    ],
+                    "flags": {
+                      "interactionMode": "INLINE"
                     },
-                    {
-                      "type": "SetValue",
-                      "componentId": "imageWidget",
-                      "property": "imageFailed",
-                      "value": false
-                    }
-                  ],
-                  "onFail": [
-                    {
-                      "type": "SetValue",
-                      "componentId": "imageWidget",
-                      "property": "imageFailed",
-                      "value": true
-                    }
-                  ]
-                }
-              ]
-            },
-            {
-              "type": "Container",
-              "spacing": 18,
-              "items": [
-                {
-                  "type": "Text",
-                  "text": "Hausverbrauch",
-                  "fontSize": 21,
-                  "color": "white",
-                  "maxLines": 1
+                    "sequencer": "widgetAccount"
+                  }
+                ]
+              }
+            ]
+          },
+          {
+            "minimumDelay": 1000,
+            "when": "${elapsedTime - lastGrantRequest >= 60000 && (!grantReady || elapsedTime >= grantRefreshAt)}",
+            "commands": [
+              {
+                "type": "SetValue",
+                "componentId": "imageWidget",
+                "property": "lastGrantRequest",
+                "value": "${elapsedTime}"
+              },
+              {
+                "type": "SendEvent",
+                "arguments": [
+                  "solar.widget.images.v1"
+                ],
+                "flags": {
+                  "interactionMode": "INLINE"
                 },
-                {
-                  "type": "Image",
-                  "id": "valueImage1",
-                  "source": "${imageBase + \"&page=live&row=0&col=1&layout=final&n=\" + imageNonce}",
-                  "width": "100%",
-                  "height": 76,
-                  "scale": "best-fit",
-                  "align": "top-left",
-                  "onLoad": [
-                    {
-                      "type": "SetValue",
-                      "componentId": "imageWidget",
-                      "property": "loaded",
-                      "value": "${loaded + 1}"
-                    },
-                    {
-                      "type": "SetValue",
-                      "componentId": "imageWidget",
-                      "property": "imageFailed",
-                      "value": false
-                    }
-                  ],
-                  "onFail": [
-                    {
-                      "type": "SetValue",
-                      "componentId": "imageWidget",
-                      "property": "imageFailed",
-                      "value": true
-                    }
-                  ]
+                "sequencer": "widgetAccount"
+              }
+            ]
+          },
+          {
+            "minimumDelay": 1000,
+            "when": "${loading && elapsedTime - lastRefresh >= 15000}",
+            "commands": [
+              {
+                "type": "SetValue",
+                "componentId": "imageWidget",
+                "property": "loading",
+                "value": false
+              },
+              {
+                "type": "SetValue",
+                "componentId": "imageWidget",
+                "property": "imageFailed",
+                "value": true
+              }
+            ]
+          }
+        ],
+        "items": [
+          {
+            "type": "TouchWrapper",
+            "width": "100%",
+            "onPress": [
+              {
+                "type": "SendEvent",
+                "arguments": [
+                  "solar.widget.open.v1"
+                ],
+                "flags": {
+                  "interactionMode": "STANDARD"
                 }
-              ]
-            },
-            {
+              }
+            ],
+            "item": {
               "type": "Container",
-              "spacing": 18,
-              "items": [
-                {
-                  "type": "Text",
-                  "text": "Akku",
-                  "fontSize": 21,
-                  "color": "white",
-                  "maxLines": 1
-                },
-                {
-                  "type": "Image",
-                  "id": "valueImage3",
-                  "source": "${imageBase + \"&page=live&row=0&col=3&layout=final&n=\" + imageNonce}",
-                  "width": "100%",
-                  "height": 76,
-                  "scale": "best-fit",
-                  "align": "top-left",
-                  "onLoad": [
-                    {
-                      "type": "SetValue",
-                      "componentId": "imageWidget",
-                      "property": "loaded",
-                      "value": "${loaded + 1}"
-                    },
-                    {
-                      "type": "SetValue",
-                      "componentId": "imageWidget",
-                      "property": "imageFailed",
-                      "value": false
-                    }
-                  ],
-                  "onFail": [
-                    {
-                      "type": "SetValue",
-                      "componentId": "imageWidget",
-                      "property": "imageFailed",
-                      "value": true
-                    }
-                  ]
-                }
-              ]
-            },
-            {
-              "type": "Image",
-              "id": "measurementStatus",
               "width": "100%",
-              "height": 28,
-              "spacing": 14,
-              "scale": "best-fit",
-              "align": "left",
-              "source": "${statusImageBase + \"&n=\" + imageNonce}"
-            },
-            {
-              "type": "Text",
-              "text": "${imageFailed ? \"Bildabruf fehlgeschlagen\" : \"Antippen: Vollbild öffnen\"}",
-              "fontSize": 13,
-              "color": "#AFC1D1",
-              "spacing": 4,
-              "maxLines": 1
+              "items": [
+                {
+                  "type": "Text",
+                  "text": "Solaranlage",
+                  "fontSize": 48,
+                  "fontWeight": "700",
+                  "color": "white",
+                  "maxLines": 1,
+                  "width": "100%"
+                },
+                {
+                  "type": "Text",
+                  "text": "Live · Version 1.1.3",
+                  "fontSize": 15,
+                  "color": "#FFD166",
+                  "spacing": 5,
+                  "maxLines": 1,
+                  "width": "100%"
+                },
+                {
+                  "type": "Container",
+                  "spacing": 18,
+                  "items": [
+                    {
+                      "type": "Text",
+                      "text": "PV + BKW",
+                      "fontSize": 21,
+                      "color": "white",
+                      "maxLines": 1
+                    },
+                    {
+                      "type": "Container",
+                      "width": "100%",
+                      "height": 76,
+                      "items": [
+                        {
+                          "type": "Image",
+                          "id": "valueImage0Buffer0",
+                          "source": "${valueBase0 ? valueBase0 + \"&page=live&row=0&col=0&layout=final&n=\" + nonce0 : ''}",
+                          "width": "100%",
+                          "height": 76,
+                          "scale": "best-fit",
+                          "align": "top-left",
+                          "onLoad": [
+                            {
+                              "type": "Sequential",
+                              "when": "${loading && activeBuffer != 0}",
+                              "commands": [
+                                {
+                                  "type": "SetValue",
+                                  "componentId": "imageWidget",
+                                  "property": "readyPv",
+                                  "value": true
+                                },
+                                {
+                                  "type": "Sequential",
+                                  "when": "${loading && activeBuffer != 0 && readyPv && readyHome && readyBattery && readyStatus}",
+                                  "commands": [
+                                    {
+                                      "type": "SetValue",
+                                      "componentId": "imageWidget",
+                                      "property": "activeBuffer",
+                                      "value": 0
+                                    },
+                                    {
+                                      "type": "SetValue",
+                                      "componentId": "imageWidget",
+                                      "property": "hasImage",
+                                      "value": true
+                                    },
+                                    {
+                                      "type": "SetValue",
+                                      "componentId": "imageWidget",
+                                      "property": "loading",
+                                      "value": false
+                                    },
+                                    {
+                                      "type": "SetValue",
+                                      "componentId": "imageWidget",
+                                      "property": "imageFailed",
+                                      "value": false
+                                    },
+                                    {
+                                      "type": "SetValue",
+                                      "componentId": "imageWidget",
+                                      "property": "loaded",
+                                      "value": "${loaded + 1}"
+                                    }
+                                  ]
+                                }
+                              ]
+                            }
+                          ],
+                          "onFail": [
+                            {
+                              "type": "Sequential",
+                              "when": "${loading && activeBuffer != 0}",
+                              "commands": [
+                                {
+                                  "type": "SetValue",
+                                  "componentId": "imageWidget",
+                                  "property": "loading",
+                                  "value": false
+                                },
+                                {
+                                  "type": "SetValue",
+                                  "componentId": "imageWidget",
+                                  "property": "imageFailed",
+                                  "value": true
+                                }
+                              ]
+                            }
+                          ],
+                          "position": "absolute",
+                          "top": 0,
+                          "left": 0,
+                          "opacity": "${hasImage && activeBuffer == 0 ? 1 : 0}"
+                        },
+                        {
+                          "type": "Image",
+                          "id": "valueImage0Buffer1",
+                          "source": "${valueBase1 ? valueBase1 + \"&page=live&row=0&col=0&layout=final&n=\" + nonce1 : ''}",
+                          "width": "100%",
+                          "height": 76,
+                          "scale": "best-fit",
+                          "align": "top-left",
+                          "onLoad": [
+                            {
+                              "type": "Sequential",
+                              "when": "${loading && activeBuffer != 1}",
+                              "commands": [
+                                {
+                                  "type": "SetValue",
+                                  "componentId": "imageWidget",
+                                  "property": "readyPv",
+                                  "value": true
+                                },
+                                {
+                                  "type": "Sequential",
+                                  "when": "${loading && activeBuffer != 1 && readyPv && readyHome && readyBattery && readyStatus}",
+                                  "commands": [
+                                    {
+                                      "type": "SetValue",
+                                      "componentId": "imageWidget",
+                                      "property": "activeBuffer",
+                                      "value": 1
+                                    },
+                                    {
+                                      "type": "SetValue",
+                                      "componentId": "imageWidget",
+                                      "property": "hasImage",
+                                      "value": true
+                                    },
+                                    {
+                                      "type": "SetValue",
+                                      "componentId": "imageWidget",
+                                      "property": "loading",
+                                      "value": false
+                                    },
+                                    {
+                                      "type": "SetValue",
+                                      "componentId": "imageWidget",
+                                      "property": "imageFailed",
+                                      "value": false
+                                    },
+                                    {
+                                      "type": "SetValue",
+                                      "componentId": "imageWidget",
+                                      "property": "loaded",
+                                      "value": "${loaded + 1}"
+                                    }
+                                  ]
+                                }
+                              ]
+                            }
+                          ],
+                          "onFail": [
+                            {
+                              "type": "Sequential",
+                              "when": "${loading && activeBuffer != 1}",
+                              "commands": [
+                                {
+                                  "type": "SetValue",
+                                  "componentId": "imageWidget",
+                                  "property": "loading",
+                                  "value": false
+                                },
+                                {
+                                  "type": "SetValue",
+                                  "componentId": "imageWidget",
+                                  "property": "imageFailed",
+                                  "value": true
+                                }
+                              ]
+                            }
+                          ],
+                          "position": "absolute",
+                          "top": 0,
+                          "left": 0,
+                          "opacity": "${hasImage && activeBuffer == 1 ? 1 : 0}"
+                        },
+                        {
+                          "type": "Text",
+                          "text": "—",
+                          "fontSize": 48,
+                          "color": "#AFC1D1",
+                          "position": "absolute",
+                          "top": 0,
+                          "left": 0,
+                          "display": "${hasImage ? \"none\" : \"normal\"}"
+                        }
+                      ]
+                    }
+                  ]
+                },
+                {
+                  "type": "Container",
+                  "spacing": 18,
+                  "items": [
+                    {
+                      "type": "Text",
+                      "text": "Hausverbrauch",
+                      "fontSize": 21,
+                      "color": "white",
+                      "maxLines": 1
+                    },
+                    {
+                      "type": "Container",
+                      "width": "100%",
+                      "height": 76,
+                      "items": [
+                        {
+                          "type": "Image",
+                          "id": "valueImage1Buffer0",
+                          "source": "${valueBase0 ? valueBase0 + \"&page=live&row=0&col=1&layout=final&n=\" + nonce0 : ''}",
+                          "width": "100%",
+                          "height": 76,
+                          "scale": "best-fit",
+                          "align": "top-left",
+                          "onLoad": [
+                            {
+                              "type": "Sequential",
+                              "when": "${loading && activeBuffer != 0}",
+                              "commands": [
+                                {
+                                  "type": "SetValue",
+                                  "componentId": "imageWidget",
+                                  "property": "readyHome",
+                                  "value": true
+                                },
+                                {
+                                  "type": "Sequential",
+                                  "when": "${loading && activeBuffer != 0 && readyPv && readyHome && readyBattery && readyStatus}",
+                                  "commands": [
+                                    {
+                                      "type": "SetValue",
+                                      "componentId": "imageWidget",
+                                      "property": "activeBuffer",
+                                      "value": 0
+                                    },
+                                    {
+                                      "type": "SetValue",
+                                      "componentId": "imageWidget",
+                                      "property": "hasImage",
+                                      "value": true
+                                    },
+                                    {
+                                      "type": "SetValue",
+                                      "componentId": "imageWidget",
+                                      "property": "loading",
+                                      "value": false
+                                    },
+                                    {
+                                      "type": "SetValue",
+                                      "componentId": "imageWidget",
+                                      "property": "imageFailed",
+                                      "value": false
+                                    },
+                                    {
+                                      "type": "SetValue",
+                                      "componentId": "imageWidget",
+                                      "property": "loaded",
+                                      "value": "${loaded + 1}"
+                                    }
+                                  ]
+                                }
+                              ]
+                            }
+                          ],
+                          "onFail": [
+                            {
+                              "type": "Sequential",
+                              "when": "${loading && activeBuffer != 0}",
+                              "commands": [
+                                {
+                                  "type": "SetValue",
+                                  "componentId": "imageWidget",
+                                  "property": "loading",
+                                  "value": false
+                                },
+                                {
+                                  "type": "SetValue",
+                                  "componentId": "imageWidget",
+                                  "property": "imageFailed",
+                                  "value": true
+                                }
+                              ]
+                            }
+                          ],
+                          "position": "absolute",
+                          "top": 0,
+                          "left": 0,
+                          "opacity": "${hasImage && activeBuffer == 0 ? 1 : 0}"
+                        },
+                        {
+                          "type": "Image",
+                          "id": "valueImage1Buffer1",
+                          "source": "${valueBase1 ? valueBase1 + \"&page=live&row=0&col=1&layout=final&n=\" + nonce1 : ''}",
+                          "width": "100%",
+                          "height": 76,
+                          "scale": "best-fit",
+                          "align": "top-left",
+                          "onLoad": [
+                            {
+                              "type": "Sequential",
+                              "when": "${loading && activeBuffer != 1}",
+                              "commands": [
+                                {
+                                  "type": "SetValue",
+                                  "componentId": "imageWidget",
+                                  "property": "readyHome",
+                                  "value": true
+                                },
+                                {
+                                  "type": "Sequential",
+                                  "when": "${loading && activeBuffer != 1 && readyPv && readyHome && readyBattery && readyStatus}",
+                                  "commands": [
+                                    {
+                                      "type": "SetValue",
+                                      "componentId": "imageWidget",
+                                      "property": "activeBuffer",
+                                      "value": 1
+                                    },
+                                    {
+                                      "type": "SetValue",
+                                      "componentId": "imageWidget",
+                                      "property": "hasImage",
+                                      "value": true
+                                    },
+                                    {
+                                      "type": "SetValue",
+                                      "componentId": "imageWidget",
+                                      "property": "loading",
+                                      "value": false
+                                    },
+                                    {
+                                      "type": "SetValue",
+                                      "componentId": "imageWidget",
+                                      "property": "imageFailed",
+                                      "value": false
+                                    },
+                                    {
+                                      "type": "SetValue",
+                                      "componentId": "imageWidget",
+                                      "property": "loaded",
+                                      "value": "${loaded + 1}"
+                                    }
+                                  ]
+                                }
+                              ]
+                            }
+                          ],
+                          "onFail": [
+                            {
+                              "type": "Sequential",
+                              "when": "${loading && activeBuffer != 1}",
+                              "commands": [
+                                {
+                                  "type": "SetValue",
+                                  "componentId": "imageWidget",
+                                  "property": "loading",
+                                  "value": false
+                                },
+                                {
+                                  "type": "SetValue",
+                                  "componentId": "imageWidget",
+                                  "property": "imageFailed",
+                                  "value": true
+                                }
+                              ]
+                            }
+                          ],
+                          "position": "absolute",
+                          "top": 0,
+                          "left": 0,
+                          "opacity": "${hasImage && activeBuffer == 1 ? 1 : 0}"
+                        },
+                        {
+                          "type": "Text",
+                          "text": "—",
+                          "fontSize": 48,
+                          "color": "#AFC1D1",
+                          "position": "absolute",
+                          "top": 0,
+                          "left": 0,
+                          "display": "${hasImage ? \"none\" : \"normal\"}"
+                        }
+                      ]
+                    }
+                  ]
+                },
+                {
+                  "type": "Container",
+                  "spacing": 18,
+                  "items": [
+                    {
+                      "type": "Text",
+                      "text": "Akku",
+                      "fontSize": 21,
+                      "color": "white",
+                      "maxLines": 1
+                    },
+                    {
+                      "type": "Container",
+                      "width": "100%",
+                      "height": 76,
+                      "items": [
+                        {
+                          "type": "Image",
+                          "id": "valueImage3Buffer0",
+                          "source": "${valueBase0 ? valueBase0 + \"&page=live&row=0&col=3&layout=final&n=\" + nonce0 : ''}",
+                          "width": "100%",
+                          "height": 76,
+                          "scale": "best-fit",
+                          "align": "top-left",
+                          "onLoad": [
+                            {
+                              "type": "Sequential",
+                              "when": "${loading && activeBuffer != 0}",
+                              "commands": [
+                                {
+                                  "type": "SetValue",
+                                  "componentId": "imageWidget",
+                                  "property": "readyBattery",
+                                  "value": true
+                                },
+                                {
+                                  "type": "Sequential",
+                                  "when": "${loading && activeBuffer != 0 && readyPv && readyHome && readyBattery && readyStatus}",
+                                  "commands": [
+                                    {
+                                      "type": "SetValue",
+                                      "componentId": "imageWidget",
+                                      "property": "activeBuffer",
+                                      "value": 0
+                                    },
+                                    {
+                                      "type": "SetValue",
+                                      "componentId": "imageWidget",
+                                      "property": "hasImage",
+                                      "value": true
+                                    },
+                                    {
+                                      "type": "SetValue",
+                                      "componentId": "imageWidget",
+                                      "property": "loading",
+                                      "value": false
+                                    },
+                                    {
+                                      "type": "SetValue",
+                                      "componentId": "imageWidget",
+                                      "property": "imageFailed",
+                                      "value": false
+                                    },
+                                    {
+                                      "type": "SetValue",
+                                      "componentId": "imageWidget",
+                                      "property": "loaded",
+                                      "value": "${loaded + 1}"
+                                    }
+                                  ]
+                                }
+                              ]
+                            }
+                          ],
+                          "onFail": [
+                            {
+                              "type": "Sequential",
+                              "when": "${loading && activeBuffer != 0}",
+                              "commands": [
+                                {
+                                  "type": "SetValue",
+                                  "componentId": "imageWidget",
+                                  "property": "loading",
+                                  "value": false
+                                },
+                                {
+                                  "type": "SetValue",
+                                  "componentId": "imageWidget",
+                                  "property": "imageFailed",
+                                  "value": true
+                                }
+                              ]
+                            }
+                          ],
+                          "position": "absolute",
+                          "top": 0,
+                          "left": 0,
+                          "opacity": "${hasImage && activeBuffer == 0 ? 1 : 0}"
+                        },
+                        {
+                          "type": "Image",
+                          "id": "valueImage3Buffer1",
+                          "source": "${valueBase1 ? valueBase1 + \"&page=live&row=0&col=3&layout=final&n=\" + nonce1 : ''}",
+                          "width": "100%",
+                          "height": 76,
+                          "scale": "best-fit",
+                          "align": "top-left",
+                          "onLoad": [
+                            {
+                              "type": "Sequential",
+                              "when": "${loading && activeBuffer != 1}",
+                              "commands": [
+                                {
+                                  "type": "SetValue",
+                                  "componentId": "imageWidget",
+                                  "property": "readyBattery",
+                                  "value": true
+                                },
+                                {
+                                  "type": "Sequential",
+                                  "when": "${loading && activeBuffer != 1 && readyPv && readyHome && readyBattery && readyStatus}",
+                                  "commands": [
+                                    {
+                                      "type": "SetValue",
+                                      "componentId": "imageWidget",
+                                      "property": "activeBuffer",
+                                      "value": 1
+                                    },
+                                    {
+                                      "type": "SetValue",
+                                      "componentId": "imageWidget",
+                                      "property": "hasImage",
+                                      "value": true
+                                    },
+                                    {
+                                      "type": "SetValue",
+                                      "componentId": "imageWidget",
+                                      "property": "loading",
+                                      "value": false
+                                    },
+                                    {
+                                      "type": "SetValue",
+                                      "componentId": "imageWidget",
+                                      "property": "imageFailed",
+                                      "value": false
+                                    },
+                                    {
+                                      "type": "SetValue",
+                                      "componentId": "imageWidget",
+                                      "property": "loaded",
+                                      "value": "${loaded + 1}"
+                                    }
+                                  ]
+                                }
+                              ]
+                            }
+                          ],
+                          "onFail": [
+                            {
+                              "type": "Sequential",
+                              "when": "${loading && activeBuffer != 1}",
+                              "commands": [
+                                {
+                                  "type": "SetValue",
+                                  "componentId": "imageWidget",
+                                  "property": "loading",
+                                  "value": false
+                                },
+                                {
+                                  "type": "SetValue",
+                                  "componentId": "imageWidget",
+                                  "property": "imageFailed",
+                                  "value": true
+                                }
+                              ]
+                            }
+                          ],
+                          "position": "absolute",
+                          "top": 0,
+                          "left": 0,
+                          "opacity": "${hasImage && activeBuffer == 1 ? 1 : 0}"
+                        },
+                        {
+                          "type": "Text",
+                          "text": "—",
+                          "fontSize": 48,
+                          "color": "#AFC1D1",
+                          "position": "absolute",
+                          "top": 0,
+                          "left": 0,
+                          "display": "${hasImage ? \"none\" : \"normal\"}"
+                        }
+                      ]
+                    }
+                  ]
+                },
+                {
+                  "type": "Container",
+                  "width": "100%",
+                  "height": 28,
+                  "items": [
+                    {
+                      "type": "Image",
+                      "id": "measurementStatusBuffer0",
+                      "width": "100%",
+                      "height": 28,
+                      "scale": "best-fit",
+                      "align": "left",
+                      "source": "${statusBase0 ? statusBase0 + \"&n=\" + nonce0 : ''}",
+                      "position": "absolute",
+                      "top": 0,
+                      "left": 0,
+                      "opacity": "${hasImage && activeBuffer == 0 ? 1 : 0}",
+                      "onLoad": [
+                        {
+                          "type": "Sequential",
+                          "when": "${loading && activeBuffer != 0}",
+                          "commands": [
+                            {
+                              "type": "SetValue",
+                              "componentId": "imageWidget",
+                              "property": "readyStatus",
+                              "value": true
+                            },
+                            {
+                              "type": "Sequential",
+                              "when": "${loading && activeBuffer != 0 && readyPv && readyHome && readyBattery && readyStatus}",
+                              "commands": [
+                                {
+                                  "type": "SetValue",
+                                  "componentId": "imageWidget",
+                                  "property": "activeBuffer",
+                                  "value": 0
+                                },
+                                {
+                                  "type": "SetValue",
+                                  "componentId": "imageWidget",
+                                  "property": "hasImage",
+                                  "value": true
+                                },
+                                {
+                                  "type": "SetValue",
+                                  "componentId": "imageWidget",
+                                  "property": "loading",
+                                  "value": false
+                                },
+                                {
+                                  "type": "SetValue",
+                                  "componentId": "imageWidget",
+                                  "property": "imageFailed",
+                                  "value": false
+                                },
+                                {
+                                  "type": "SetValue",
+                                  "componentId": "imageWidget",
+                                  "property": "loaded",
+                                  "value": "${loaded + 1}"
+                                }
+                              ]
+                            }
+                          ]
+                        }
+                      ],
+                      "onFail": [
+                        {
+                          "type": "Sequential",
+                          "when": "${loading && activeBuffer != 0}",
+                          "commands": [
+                            {
+                              "type": "SetValue",
+                              "componentId": "imageWidget",
+                              "property": "loading",
+                              "value": false
+                            },
+                            {
+                              "type": "SetValue",
+                              "componentId": "imageWidget",
+                              "property": "imageFailed",
+                              "value": true
+                            }
+                          ]
+                        }
+                      ]
+                    },
+                    {
+                      "type": "Image",
+                      "id": "measurementStatusBuffer1",
+                      "width": "100%",
+                      "height": 28,
+                      "scale": "best-fit",
+                      "align": "left",
+                      "source": "${statusBase1 ? statusBase1 + \"&n=\" + nonce1 : ''}",
+                      "position": "absolute",
+                      "top": 0,
+                      "left": 0,
+                      "opacity": "${hasImage && activeBuffer == 1 ? 1 : 0}",
+                      "onLoad": [
+                        {
+                          "type": "Sequential",
+                          "when": "${loading && activeBuffer != 1}",
+                          "commands": [
+                            {
+                              "type": "SetValue",
+                              "componentId": "imageWidget",
+                              "property": "readyStatus",
+                              "value": true
+                            },
+                            {
+                              "type": "Sequential",
+                              "when": "${loading && activeBuffer != 1 && readyPv && readyHome && readyBattery && readyStatus}",
+                              "commands": [
+                                {
+                                  "type": "SetValue",
+                                  "componentId": "imageWidget",
+                                  "property": "activeBuffer",
+                                  "value": 1
+                                },
+                                {
+                                  "type": "SetValue",
+                                  "componentId": "imageWidget",
+                                  "property": "hasImage",
+                                  "value": true
+                                },
+                                {
+                                  "type": "SetValue",
+                                  "componentId": "imageWidget",
+                                  "property": "loading",
+                                  "value": false
+                                },
+                                {
+                                  "type": "SetValue",
+                                  "componentId": "imageWidget",
+                                  "property": "imageFailed",
+                                  "value": false
+                                },
+                                {
+                                  "type": "SetValue",
+                                  "componentId": "imageWidget",
+                                  "property": "loaded",
+                                  "value": "${loaded + 1}"
+                                }
+                              ]
+                            }
+                          ]
+                        }
+                      ],
+                      "onFail": [
+                        {
+                          "type": "Sequential",
+                          "when": "${loading && activeBuffer != 1}",
+                          "commands": [
+                            {
+                              "type": "SetValue",
+                              "componentId": "imageWidget",
+                              "property": "loading",
+                              "value": false
+                            },
+                            {
+                              "type": "SetValue",
+                              "componentId": "imageWidget",
+                              "property": "imageFailed",
+                              "value": true
+                            }
+                          ]
+                        }
+                      ]
+                    }
+                  ],
+                  "spacing": 14
+                }
+              ]
             }
-          ]
-        }
+          },
+          {
+            "type": "Text",
+            "text": "${accountMessage}",
+            "fontSize": 13,
+            "color": "#FFD166",
+            "display": "${accountMessage ? \"normal\" : \"none\"}",
+            "maxLines": 2
+          }
+        ]
       }
     ]
-  }
+  },
+  "onMount": [
+    {
+      "type": "SendEvent",
+      "arguments": [
+        "solar.widget.images.v1"
+      ],
+      "flags": {
+        "interactionMode": "INLINE"
+      },
+      "sequencer": "widgetAccount"
+    }
+  ]
 }
