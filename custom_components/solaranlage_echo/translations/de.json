@@ -3,26 +3,30 @@
   "config": {
     "step": {
       "user": {
-        "title": "Mit dem Solaranlage-Relay verbinden",
-        "description": "Du brauchst kein Cloudflare-Konto und keinen HA-Zugangstoken. Verwende die Einladung des Relay-Betreibers. Der Alexa-Skill läuft derzeit im Entwicklerbetrieb.",
+        "title": "Solaranlage einrichten",
+        "description": "Verbinde deine Solaranlage. Wenn der Dienst die automatische Anmeldung freigibt, brauchst du keine Einladung. Ein Konto wird erst nach deiner Zustimmung angelegt.",
         "data": {
-          "relay_url": "Relay-Adresse",
-          "invite": "Einladungscode"
+          "custom_server": "Eigenen Server verwenden"
         }
       },
       "live": {
         "title": "Live-Sensoren auswählen",
-        "description": "PV-Gesamtleistung muss das BKW bereits enthalten. Optionale Sensoren dürfen leer bleiben.",
+        "description": "Nur die gesamte Solarleistung ist Pflicht. Ohne Balkonkraftwerk (BKW) wähle dort deinen PV-Leistungssensor und lasse die beiden Einzelfelder leer. Mit BKW muss der Gesamtsensor PV + BKW bereits enthalten; die Einzelwerte werden nicht automatisch addiert. Für die getrennte Anzeige in der Vollbildansicht kannst du zusätzlich die beiden Einzelfelder belegen. Das kleine Widget zeigt die Gesamtleistung.",
         "data": {
-          "power_w": "PV-Gesamtleistung inklusive BKW",
-          "pv_dc_w": "PV-Leistung ohne BKW",
-          "bkw_w": "BKW-Leistung",
+          "power_w": "Gesamte Solarleistung (Pflicht)",
+          "pv_dc_w": "PV-Anlage einzeln (optional)",
+          "bkw_w": "Balkonkraftwerk einzeln (optional)",
           "home_w": "Hausverbrauch",
           "grid_import_w": "Netzbezug",
           "grid_export_w": "Einspeisung",
           "battery_soc": "Akkustand",
           "battery_charge_w": "Akku-Ladeleistung",
           "battery_discharge_w": "Akku-Entladeleistung"
+        },
+        "data_description": {
+          "power_w": "Ohne BKW: PV-Leistung. Mit BKW: gemeinsamer Sensor für PV + BKW.",
+          "pv_dc_w": "Nur für die getrennte PV-Anzeige; kann leer bleiben.",
+          "bkw_w": "Nur bei vorhandenem BKW auswählen; sonst leer lassen."
         }
       },
       "energy": {
@@ -43,6 +47,20 @@
         "data": {
           "consent": "Ich stimme der Übertragung der ausgewählten Messwerte zu."
         }
+      },
+      "server": {
+        "title": "Eigener Server",
+        "description": "Nur ändern, wenn du einen eigenen Dienst betreibst.",
+        "data": {
+          "relay_url": "Server-Adresse"
+        }
+      },
+      "invite": {
+        "title": "Einladung eingeben",
+        "description": "Dieser Server benötigt weiterhin eine Einladung des Betreibers.",
+        "data": {
+          "invite": "Einladungscode"
+        }
       }
     },
     "error": {
@@ -55,7 +73,14 @@
       "invalid_sensor": "Sensor fehlt oder hat eine unpassende Einheit.",
       "invalid_energy": "Bitte einen kumulierten Energiezähler wählen.",
       "duplicate_energy": "Einen Energiezähler nicht doppelt auswählen.",
-      "consent_required": "Bitte der Übertragung zustimmen."
+      "consent_required": "Bitte der Übertragung zustimmen.",
+      "registration_rate_limited": "Zu viele neue Konten über diesen Internetanschluss. Bitte später erneut versuchen.",
+      "registration_full": "Der Dienst nimmt derzeit keine weiteren Anlagen auf. Bestehende Konten funktionieren weiter.",
+      "registration_revoked": "Diese frühere Einrichtung wurde gelöscht. Erneut bestätigen, um ein neues Konto anzulegen.",
+      "registration_not_ready": "Die automatische Anmeldung ist noch nicht verfügbar. Bitte später erneut versuchen.",
+      "registration_invalid": "Die Anmeldung konnte nicht verarbeitet werden. Bitte die Einrichtung erneut öffnen.",
+      "registration_ip_unavailable": "Der Dienst konnte den Internetanschluss nicht prüfen. Bitte später erneut versuchen.",
+      "registration_unavailable": "Die Anmeldung ist momentan nicht erreichbar. Bitte erneut versuchen; es wird kein zweites Konto angelegt."
     },
     "abort": {
       "already_configured": "Solaranlage ist bereits eingerichtet."
@@ -73,17 +98,22 @@
       },
       "live": {
         "title": "Live-Sensoren auswählen",
-        "description": "PV-Gesamtleistung muss das BKW bereits enthalten. Optionale Sensoren dürfen leer bleiben.",
+        "description": "Nur die gesamte Solarleistung ist Pflicht. Ohne Balkonkraftwerk (BKW) wähle dort deinen PV-Leistungssensor und lasse die beiden Einzelfelder leer. Mit BKW muss der Gesamtsensor PV + BKW bereits enthalten; die Einzelwerte werden nicht automatisch addiert. Für die getrennte Anzeige in der Vollbildansicht kannst du zusätzlich die beiden Einzelfelder belegen. Das kleine Widget zeigt die Gesamtleistung.",
         "data": {
-          "power_w": "PV-Gesamtleistung inklusive BKW",
-          "pv_dc_w": "PV-Leistung ohne BKW",
-          "bkw_w": "BKW-Leistung",
+          "power_w": "Gesamte Solarleistung (Pflicht)",
+          "pv_dc_w": "PV-Anlage einzeln (optional)",
+          "bkw_w": "Balkonkraftwerk einzeln (optional)",
           "home_w": "Hausverbrauch",
           "grid_import_w": "Netzbezug",
           "grid_export_w": "Einspeisung",
           "battery_soc": "Akkustand",
           "battery_charge_w": "Akku-Ladeleistung",
           "battery_discharge_w": "Akku-Entladeleistung"
+        },
+        "data_description": {
+          "power_w": "Ohne BKW: PV-Leistung. Mit BKW: gemeinsamer Sensor für PV + BKW.",
+          "pv_dc_w": "Nur für die getrennte PV-Anzeige; kann leer bleiben.",
+          "bkw_w": "Nur bei vorhandenem BKW auswählen; sonst leer lassen."
         }
       },
       "energy": {
@@ -104,7 +134,7 @@
       },
       "erase": {
         "title": "Relay-Daten dauerhaft löschen",
-        "description": "Löscht deine gespeicherten Messwerte und alle Alexa-Verknüpfungen unwiderruflich. HA-Sensoren bleiben bestehen. Danach diese Integration entfernen; zum erneuten Einrichten ist eine neue Einladung nötig.",
+        "description": "Löscht deine gespeicherten Messwerte und alle Alexa-Verknüpfungen unwiderruflich. HA-Sensoren bleiben bestehen. Danach diese Integration entfernen. Bei erneuter Einrichtung wird ein neues Konto angelegt; verlangt der Server Einladungen, brauchst du eine neue Einladung.",
         "data": {
           "confirm": "Meine Relay-Daten und Verknüpfungen dauerhaft löschen."
         }

@@ -1,12 +1,19 @@
 {
-  "name": "solaranlage-public-beta",
+  "name": "solaranlage-kontodienst",
   "main": "worker.mjs",
   "compatibility_date": "2026-10-17",
   "workers_dev": true,
   "preview_urls": false,
   "observability": { "enabled": false },
-  "vars": { "MAX_HOUSEHOLDS": "20", "OAUTH_CLIENT_ID": "solaranlage-public-beta", "OAUTH_REDIRECT_URIS": "[]" },
+  // Keep automatic enrollment off until additive schema, secret, limiter and HA flow are ready.
+  // REGISTRATION_KEY is a dedicated private secret; never put its value in this file.
+  "vars": { "MAX_HOUSEHOLDS": "20", "OAUTH_CLIENT_ID": "solaranlage-public-beta", "OAUTH_REDIRECT_URIS": "[]",
+    "PUBLIC_ENROLLMENT_ENABLED": "false", "ENROLLMENT_HOURLY_LIMIT": "3", "ENROLLMENT_DAILY_LIMIT": "10" },
   "d1_databases": [{ "binding": "DB", "database_name": "solaranlage", "database_id": "REPLACE_WITH_NEW_D1_ID" }],
-  "ratelimits": [{ "name": "LIMITER", "namespace_id": "10077", "simple": { "limit": 120, "period": 60 } }],
+  "ratelimits": [
+    { "name": "LIMITER", "namespace_id": "10077", "simple": { "limit": 120, "period": 60 } }
+    // Add a separate SIGNUP_LIMITER with an unused namespace_id and { limit: 10, period: 60 }
+    // before enabling enrollment. Do not share the existing LIMITER counter.
+  ],
   "triggers": { "crons": ["17 3 * * *"] }
 }
