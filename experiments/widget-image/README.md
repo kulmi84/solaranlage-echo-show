@@ -1,3 +1,5 @@
+> **Historischer Ansatz, nicht der aktuelle Release-Kandidat.** Der frühere Inline-Bootstrap ist abgelöst. Aktuelle kontoneutrale Quellen: [Kontobildwidget 2.0.1](../widget-account-image/README.md). [Offene Freigabe #10](https://github.com/kulmi84/solaranlage-echo-show/issues/10).
+
 # Solaranlage: Kontobildwidget 2.0.1
 
 Nach einmaliger Kontoverknüpfung werden individuelle Bildadressen zur Laufzeit über den Data Store bereitgestellt. Das Paket enthält keinen persönlichen Bildzugang. Der Erfolg gilt für den neuen separaten Skill, nicht als Reparatur des ursprünglichen Skills.
