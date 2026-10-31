@@ -1,5 +1,7 @@
 # Alexa-Store: Vorbereitung und Betrieb
 
+> Historische Einreichungsdokumentation. Aktuell: normaler Skill öffentlich, Bildwidget 2.0.1 im separaten Skill am Gerät bestätigt; sein allgemeiner Amazon-Rollout bleibt offen. Maßgeblich ist der [aktuelle Projektstatus](ALEXA-STATUS.md).
+
 Stand: 19. Oktober 2026. Eine erfolgreiche automatische Validierung ist noch
 keine Amazon-Zertifizierung und keine Zusage einer Store-Freigabe.
 

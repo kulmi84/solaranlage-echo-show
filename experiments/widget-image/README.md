@@ -1,5 +1,7 @@
 # Solaranlage: Bild-Widget
 
+> Archivierter privater Bildtest der Version 1.0.8. Das aktuelle kontogebundene Widget 2.0.1 verwendet einen anderen Bereitstellungsweg. Dieser alte Builder darf nicht für den laufenden Skill ausgerollt werden. [Aktueller Stand](../../docs/ALEXA-STATUS.md).
+
 **v1.0.8: Am 28. Oktober 2026 auf dem Echo Show vom Betreiber bestätigt und zur Übernahme freigegeben.**
 
 Das Widget zeigt PV + BKW, Hausverbrauch und Akkustand als transparente Bilder. Es ruft sie alle 60 Sekunden ab, solange Alexa den Widget-Timer ausführt. Die Stand-Zeile zeigt die tatsächliche Empfangszeit der Messwerte in der Zeitzone der Anlage. Sie wird mit 789×84 Pixeln, voller Alpha-Transparenz und geglätteten Schriftkanten gerendert. Nach drei Minuten ohne frische Daten erscheint „Veraltet“. Antippen öffnet über `solar.widget.open.v1` die bestehende normale Vollbildansicht.
