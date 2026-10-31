@@ -1,25 +1,25 @@
 # Projektstatus · 31.10.2026
 
-## Widget und HACS
-
-- **Bildwidget 2.0.1:** gemeinsamer Kontozugang, sofortiges Nachladen beim Einblenden, automatische Zugangserneuerung, vollständiger Bildpuffer bei Fehlern und richtige Vollbild-Zuordnung am Gerät bestätigt.
-- Weiße Zeile „2.0.1 · Live · alle 60 Sekunden“ unter dem Zeitstand: durch Gerätefoto vom 31.10.2026 bestätigt.
-- **HACS 1.0.9:** automatische Kontoanlage nach Zustimmung ohne Einladung, IP-/Kapazitätsschutz, sichere Wiederholungen und verständliche Fehler. Bestehende Konten/Sensoren bleiben bei der Adressübernahme erhalten; klarere PV-/BKW-Hilfen.
-- Kontodienst am 31.10.2026 freigeschaltet. Zwei neue Testhaushalte über den tatsächlichen HACS-Code angemeldet, getrennte Werte hochgeladen und über bestehendes OAuth abgerufen; danach Testhaushalte gelöscht. Die vier bisherigen Haushalte und ihre Tokenanzahlen blieben erhalten. 28 Python- und 24 Backendtests bestanden.
-- Noch offen: echte HA-Oberflächenabnahme einer Neueinrichtung und Updates der externen Bestandsinstallationen. Keine neue öffentliche Amazon-Widget-Freigabe.
+- **HACS 1.0.11 veröffentlicht:** Einrichtung ohne Einladung, abschließend **Verbinden und übertragen** statt Zustimmungscheckbox; Hinweis zum jeweils letzten gespeicherten Datensatz.
+- **Bildwidget 2.0.1 am Echo bestätigt:** Nachladen beim Einblenden, automatische Zugangserneuerung, kompletter Bildpuffer, passende Vollbildansicht und weiße Fußzeile. Gerätefoto ohne erkennbaren Hintergrund; Vollbild-Übersichtsbild beibehalten.
+- **Punkt 6 teilweise bestanden:** Bestandsupdate ohne Neuverknüpfung und echte HA-Neueinrichtung ohne Einladung samt Upload bestätigt. Der Testhaushalt ist separat angelegt; fünf Haushalte vorhanden. Datentrennung am Echo noch offen.
+- 28 Python-Tests einschließlich HTTP-Durchlauf bestanden; Backend unverändert seit den 24 erfolgreichen Backendtests. Die zwei früheren automatisierten Testkonten wurden gelöscht; der jetzige HA-Testhaushalt bleibt erhalten.
+- Die Beschriftung **Eigenen Solaranlage-Dienst verwenden (Expertenoption)** ist im Hauptzweig vorbereitet und noch nicht Teil des Releases 1.0.11.
 
 ## Erhaltene Skills
 
 | Skill | Aufgabe |
 |---|---|
-| Data Store Labor | Enthält das funktionierende Bildwidget SolarAccountImage; der historische Skillname bleibt vorerst. |
-| Solaranlage | Öffentlicher Skill mit zugehörigem Development-Stand für bestehende Nutzer. |
+| Data Store Labor | Enthält das funktionierende Bildwidget SolarAccountImage 2.0.1; historischer Name. |
+| Solaranlage | Öffentlicher Skill samt Development für bestehende Nutzer. |
 | Mein Zuhause | Separates Projekt, unverändert. |
 
-## Aufgeräumt
+## Noch offen
 
-Alte Test-Widgetpakete, das einzelne Labor-Testwidget und der Skill „Meine Solaranlage Test“ sind privat archiviert und gelöscht. Der alte Zahlenversuch und seine Worker `solaranlage-datastore-beta` / `solaranlage-widget` sind stillgelegt; er ist keine aktive Beta mehr. Der ursprüngliche Data-Store-Fehler ist dadurch nicht als behoben ausgewiesen.
+6. Datentrennung der Haushalte am Echo; Updates der externen Bestandsinstallationen nachhalten.
+7. Zwei Weiterleitungen nach vollständiger HA-/Alexa-/Bildmigration entfernen.
+8. Widget-Runtime integrieren, abschließend prüfen und bei Amazon veröffentlichen.
 
-Cloudflare: **6 Worker, 2 Datenbanken**. Kontodienst, Bilder und Mein Zuhause bleiben erhalten, ebenso der separate Tageslimit-Warn-Worker. `solaranlage-public-beta` und `solaranlage-display` leiten noch intern auf die neuen Namen weiter. Erst nach Umstellung aller HA-/Alexa-/Bildadressen und Prüfung der bestehenden Haushalte entfernen; danach bleiben vier Worker inklusive Warn-Worker. Keine erneute Kontoverknüpfung ist vorgesehen.
+Cloudflare: weiterhin **6 Worker / 2 Datenbanken**. Zwei Worker sind Übergangsweiterleitungen, einer ist der separate Tageslimit-Warner. Keine weitere Löschung im Rahmen dieser Aktualisierung.
 
-[Offene Abnahme #10](https://github.com/kulmi84/solaranlage-echo-show/issues/10) · [Entwurf PR #9](https://github.com/kulmi84/solaranlage-echo-show/pull/9)
+[Checkliste #10](https://github.com/kulmi84/solaranlage-echo-show/issues/10) · [Widget-Entwurf PR #9](https://github.com/kulmi84/solaranlage-echo-show/pull/9)
