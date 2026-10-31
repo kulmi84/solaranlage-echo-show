@@ -58,9 +58,9 @@ Solarleistung, Hausverbrauch, Akkustand und Datenstand direkt neben den anderen 
 
 Aktuelle PV-/BKW-Leistung, Hausverbrauch, Netz und Akku sowie die Tageswerte im Überblick.
 
-![Solaranlage auf dem Echo Show: Vollbildansicht mit Live- und Tageswerten](docs/screenshots/echo-show-vollbild.jpg)
+![Solaranlage auf dem Echo Show: Vollbildansicht mit Live- und Tageswerten](docs/screenshots/v1-live-heute.webp)
 
-Echte Gerätefotos vom 31. Oktober 2026; die Messwerte sind Momentaufnahmen.
+Widget: Gerätefoto vom 31. Oktober 2026. Vollbildansicht: Bildschirmaufnahme aus dem Alexa-Simulator. Die Messwerte sind Momentaufnahmen.
 
 ## Version 1.0.8 · HACS
 
