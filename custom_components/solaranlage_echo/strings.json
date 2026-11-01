@@ -4,7 +4,7 @@
     "step": {
       "user": {
         "title": "Set up solar dashboard",
-        "description": "Connect your solar dashboard without an invitation. Your account is created only after you select “Connect and transmit”.",
+        "description": "Use our solar service or select the expert option below for your own service. Then select your sensors and link Alexa.",
         "data": {
           "custom_server": "Use your own solar service (expert option)"
         }
