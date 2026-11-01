@@ -2,13 +2,31 @@
 
 Die ausführlichen Änderungen stehen hier. Die [Projektübersicht](README.md) beschreibt die Funktionen und zeigt die Ansichten.
 
-## Vorbereitet für Veröffentlichung – Bildwidget 2.0.1
+## Bildwidget 2.0.1 – bei Amazon eingereicht
 
 - Allgemeine Widgetquellen ohne private Bildzugänge mit dem Skill-Builder verbunden.
 - Kontowechsel am Gerät bestätigt: Nach dem Neuverknüpfen genügt einmaliges Antippen der vorhandenen Kachel; Vollbild und Widget zeigen den neuen Haushalt.
 - Antippen erneuert den Widget-Bildzugang vor dem Öffnen der Vollbildansicht. Ein vorübergehender Schreibfehler verhindert das Öffnen nicht.
 - Vollbild fordert bei jedem Öffnen frische Bildadressen an und lädt beim erneuten Sichtbarwerden sofort nach. Das 60-Sekunden-Intervall bleibt bestehen.
-- Amazon-Zertifizierung und öffentliche Veröffentlichung stehen noch aus. HACS 1.0.11 bleibt bis zum nächsten Release aktuell.
+- Am 01.11.2026 bei Amazon zur Zertifizierung und automatischen Veröffentlichung eingereicht. Build 8 erfolgreich; automatische Validierung ohne Fehler. Freigabe steht aus.
+
+## 1.0.15 – Dienstwahl verständlich erklärt
+
+- Der erste Einrichtungsschritt erklärt die Wahl zwischen unserem Solaranlage-Dienst und einem selbst betriebenen Dienst.
+- Der Hinweis zum Zeitpunkt der Kontoanlage entfällt an dieser Stelle. Die spätere Bestätigung der Übertragung bleibt erhalten.
+
+## 1.0.14 – Einladungshinweis
+
+- Der Einrichtungstext beschreibt die bereits freigeschaltete Anmeldung ohne Einladung direkt.
+
+## 1.0.13 – Klare Expertenoption
+
+- „Eigenen Solaranlage-Dienst verwenden (Expertenoption)“ statt „Eigenen Server verwenden“, auch im veröffentlichten HACS-Paket.
+
+## 1.0.12 – Kompakte HACS-Bildvorschau
+
+- Widgetfoto mit 640 Pixeln Breite und proportionaler Höhe. Die Originaldatei bleibt unverändert.
+- Keine Funktionsänderungen an HA, Widget oder Vollbild.
 
 ## 1.0.11 – Einrichtung und Datenübertragung
 
@@ -35,9 +53,8 @@ Die ausführlichen Änderungen stehen hier. Die [Projektübersicht](README.md) b
 - Versions- und Aktualisierungshinweis unter dem Datenstand in Weiß.
 - Die allgemeine Amazon-Veröffentlichung und die verbleibenden Abnahmen werden getrennt in [#10](https://github.com/kulmi84/solaranlage-echo-show/issues/10) geführt.
 
-## Hauptzweig – noch nicht als neue HACS-Version veröffentlicht
+## Projektdokumentation
 
-- Expertenoption umbenannt in „Eigenen Solaranlage-Dienst verwenden (Expertenoption)“.
 - Projektbeschreibung mit Gerätefoto des kleinen Widgets und Bildern der Vollbildansicht überarbeitet.
 - Ausführlicher Änderungsverlauf von der kurzen Projektbeschreibung getrennt.
 
