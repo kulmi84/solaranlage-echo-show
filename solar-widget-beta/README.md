@@ -4,7 +4,8 @@ Eigenständiger Versuch zu Idee 1: Zahlen direkt in ein Alexa-Widget übertragen
 Stand 1. November 2026: eigener Amazon-Skill und Widget angelegt, Backend
 bereitgestellt und Modell erfolgreich gebaut. Amazon bestätigt um 15:00 Uhr
 (Europe/Berlin) die simulierte Installation auf Küche (Echo Show 8, 2. Generation).
-Die sichtbare Ankunft am Gerät und Live-Daten sind noch nicht bestätigt.
+Die sichtbare Ankunft am Gerät und die Anzeige von Livewerten im Widget sind
+noch nicht bestätigt.
 Die separate EU-D1-Datenbank und der eigene Worker sind eingerichtet.
 Das zusätzliche Package `/config/integrations/solar_widget_beta.yaml` ist im
 Home Assistant installiert; Konfigurationsprüfung und YAML-Neuladen erfolgreich.
@@ -17,6 +18,38 @@ HTTP 500 `DATASTORE_UNAVAILABLE`. LWA-Credentials sind gültig; eine erfolgreich
 Zustellung der Livewerte an das Gerät ist noch nicht bestätigt. Der Worker
 versucht beim nächsten Minutenlauf erneut den jeweils aktuellen Snapshot.
 Kein Zertifizierungsstand.
+
+## Aktueller Umfang und nächster Schritt
+
+Mit **„kleines Widget“** ist hier die Kachel auf dem Echo-Startbildschirm gemeint.
+Es handelt sich um ein eigenständiges BETA-Widget, nicht um eine Vollbildansicht.
+Die technische Paketgröße ist derzeit `WIDGET_M`; diese Größenbezeichnung
+beschreibt keine zusätzliche Ansicht.
+
+- Vorhanden: ein neuer Skill und eine neue Startbildschirm-Kachel mit nativen
+  Textkomponenten und direkter Data-Store-Bindung.
+- Vorgesehene Werte: PV inklusive BKW, Hausverbrauch, Akkustand, heutige
+  Gesamtproduktion und heutige Einspeisung.
+- Bestätigt: HA-Konfiguration gültig, zusätzliche Automation aktiv und echte
+  Messwerte in der separaten Datenbank. Weiterer automatischer Empfang am
+  01.11.2026 um 15:14:00 Uhr (Europe/Berlin): PV 651,9 W, Akku 59,2 %.
+- Noch offen: erfolgreiche Amazon-Zustellung und sichtbare, fortlaufend
+  aktualisierte Messwerte in der Kachel. `DATASTORE_UNAVAILABLE` ist der
+  beobachtete API-Fehler, keine abschließend geklärte Ursache.
+- Noch nicht umgesetzt: eigene BETA-Vollbildansicht, Monats-/Jahresseite und
+  Antippen zum Öffnen einer solchen Vollbildansicht.
+
+**Unmittelbarer Fokus:** echte Werte zuverlässig in dieser BETA-Kachel anzeigen.
+Eine Erweiterung um Vollbild folgt erst nach erfolgreichem Data-Store-Test.
+Die BETA hat somit noch nicht den Funktionsumfang der normalen Version.
+
+Eine spätere Übernahme der direkten Werteübertragung in die normale Version
+ist das mögliche Ergebnis des Versuchs. Voraussetzung sind erfolgreiche
+Geräte-, Aktualisierungs- und Fehlerfalltests; gegebenenfalls ist dann eine
+erneute Amazon-Zertifizierung nötig. Aktuell erfolgt keine Übernahme:
+normaler Skill, bestehende Widgets, eingereichte Version und HACS bleiben
+unverändert. Eine künftig nötige BETA-HACS-Integration erhält einen separaten
+Eintrag.
 
 ## Datenweg
 
