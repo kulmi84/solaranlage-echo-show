@@ -5,8 +5,18 @@ Stand 1. November 2026: eigener Amazon-Skill und Widget angelegt, Backend
 bereitgestellt und Modell erfolgreich gebaut. Amazon bestätigt um 15:00 Uhr
 (Europe/Berlin) die simulierte Installation auf Küche (Echo Show 8, 2. Generation).
 Die sichtbare Ankunft am Gerät und Live-Daten sind noch nicht bestätigt.
-Eine separate EU-D1-Datenbank ist angelegt; Worker-Bereitstellung und die
-Home-Assistant-Anbindung stehen noch aus. Kein Zertifizierungsstand.
+Die separate EU-D1-Datenbank und der eigene Worker sind eingerichtet.
+Das zusätzliche Package `/config/integrations/solar_widget_beta.yaml` ist im
+Home Assistant installiert; Konfigurationsprüfung und YAML-Neuladen erfolgreich.
+Echte Uploads sind bestätigt, beispielsweise am 01.11.2026 um 15:13:06 Uhr
+(Europe/Berlin): PV 643,4 W, Akku 59,2 %. Die Automation ist aktiv und überträgt
+minütlich. Bestehende Solar-Packages und HACS wurden nicht geändert.
+
+**Offen:** Amazon liefert für die neue BETA bei Data-Store-Schreibaufrufen
+HTTP 500 `DATASTORE_UNAVAILABLE`. LWA-Credentials sind gültig; eine erfolgreiche
+Zustellung der Livewerte an das Gerät ist noch nicht bestätigt. Der Worker
+versucht beim nächsten Minutenlauf erneut den jeweils aktuellen Snapshot.
+Kein Zertifizierungsstand.
 
 ## Datenweg
 
