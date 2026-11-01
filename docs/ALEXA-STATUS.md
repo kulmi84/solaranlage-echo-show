@@ -1,25 +1,24 @@
-# Projektstatus · 31.10.2026
+# Projektstatus · 01.11.2026
 
-- **HACS 1.0.11 veröffentlicht:** Einrichtung ohne Einladung, abschließend **Verbinden und übertragen** statt Zustimmungscheckbox; Hinweis zum jeweils letzten gespeicherten Datensatz.
-- **Bildwidget 2.0.1 am Echo bestätigt:** Nachladen beim Einblenden, automatische Zugangserneuerung, kompletter Bildpuffer, passende Vollbildansicht und weiße Fußzeile. Gerätefoto ohne erkennbaren Hintergrund; Vollbild-Übersichtsbild beibehalten.
-- **Punkt 6 teilweise bestanden:** Bestandsupdate ohne Neuverknüpfung und echte HA-Neueinrichtung ohne Einladung samt Upload bestätigt. Der Testhaushalt ist separat angelegt; fünf Haushalte vorhanden. Datentrennung am Echo noch offen.
-- 28 Python-Tests einschließlich HTTP-Durchlauf bestanden; Backend unverändert seit den 24 erfolgreichen Backendtests. Die zwei früheren automatisierten Testkonten wurden gelöscht; der jetzige HA-Testhaushalt bleibt erhalten.
-- Die Beschriftung **Eigenen Solaranlage-Dienst verwenden (Expertenoption)** ist im Hauptzweig vorbereitet und noch nicht Teil des Releases 1.0.11.
+- **HACS 1.0.11 veröffentlicht.** Neueinrichtung ohne Einladung und bestehende Einrichtung geprüft; Konten und Sensoren bleiben erhalten.
+- **Bildwidget 2.0.1 am Echo bestätigt:** sofortiges Nachladen, Zugangserneuerung, Bildpuffer samt Zeitstand, Vollbild und weiße Fußzeile.
+- **Haushaltstest bestanden:** neuer Testhaushalt zeigte 123 W in Widget und Vollbild. Nach Rückverknüpfung und einmaligem Antippen zeigen beide die echten Werte des bisherigen Haushalts (207 W, 2,48 kW, 17 %). Keine Widget-Neuinstallation nötig. Nach einem Haushaltswechsel ist einmaliges Antippen vorgesehen.
+- **Vollbild-Sofortabruf bereitgestellt:** neue Bildadressen bei jedem Öffnen, sofortiger Abruf beim Zurückkehren; danach alle 60 Sekunden. Am Gerät nach Antippen übereinstimmende Werte bestätigt.
+- Allgemeine, zugangsfreie Widgetquellen und heutige Korrekturen werden für die Veröffentlichung zusammengeführt. Keine privaten Recovery-Zugänge im Paket. Die öffentliche Amazon-Freigabe steht weiterhin aus.
 
-## Erhaltene Skills
+## Skills
 
-| Skill | Aufgabe |
+| Skill | Stand |
 |---|---|
-| Data Store Labor | Enthält das funktionierende Bildwidget SolarAccountImage 2.0.1; historischer Name. |
-| Solaranlage | Öffentlicher Skill samt Development für bestehende Nutzer. |
-| Mein Zuhause | Separates Projekt, unverändert. |
+| Data Store Labor | Funktionierender Skill mit SolarAccountImage 2.0.1; öffentliche Namen und Einreichung werden vorbereitet. |
+| Solaranlage | Bisheriger öffentlicher Skill bleibt für bestehende Nutzer erhalten. |
+| Mein Zuhause | Unverändert. |
 
-## Noch offen
+## Offene Punkte
 
-6. Datentrennung der Haushalte am Echo; Updates der externen Bestandsinstallationen nachhalten.
-7. Zwei Weiterleitungen nach vollständiger HA-/Alexa-/Bildmigration entfernen.
-8. Widget-Runtime integrieren, abschließend prüfen und bei Amazon veröffentlichen.
+7. **Zurückgestellt:** externe HACS-Updates und vollständige Migration aller HA-/Alexa-/Bildzugriffe nachweisen, danach zwei Weiterleitungen entfernen. Aktuelle Uploads allein beweisen die verwendete Adresse nicht.
+8. Allgemeine Runtime zusammenführen, Amazon-Angaben und Widget-Metadaten bereinigen, validieren, zertifizieren und veröffentlichen. Erst den tatsächlichen Live-Status als Veröffentlichung melden.
 
-Cloudflare: weiterhin **6 Worker / 2 Datenbanken**. Zwei Worker sind Übergangsweiterleitungen, einer ist der separate Tageslimit-Warner. Keine weitere Löschung im Rahmen dieser Aktualisierung.
+Cloudflare: sechs Worker und zwei Datenbanken bleiben erhalten. Die zwei alten Adressen bleiben vorerst als Weiterleitungen aktiv.
 
-[Checkliste #10](https://github.com/kulmi84/solaranlage-echo-show/issues/10) · [Widget-Entwurf PR #9](https://github.com/kulmi84/solaranlage-echo-show/pull/9)
+[Checkliste #10](https://github.com/kulmi84/solaranlage-echo-show/issues/10) · [Widgetquellen](../alexa/widget/README.md)

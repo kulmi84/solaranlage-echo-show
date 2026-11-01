@@ -2,6 +2,14 @@
 
 Die ausführlichen Änderungen stehen hier. Die [Projektübersicht](README.md) beschreibt die Funktionen und zeigt die Ansichten.
 
+## Vorbereitet für Veröffentlichung – Bildwidget 2.0.1
+
+- Allgemeine Widgetquellen ohne private Bildzugänge mit dem Skill-Builder verbunden.
+- Kontowechsel am Gerät bestätigt: Nach dem Neuverknüpfen genügt einmaliges Antippen der vorhandenen Kachel; Vollbild und Widget zeigen den neuen Haushalt.
+- Antippen erneuert den Widget-Bildzugang vor dem Öffnen der Vollbildansicht. Ein vorübergehender Schreibfehler verhindert das Öffnen nicht.
+- Vollbild fordert bei jedem Öffnen frische Bildadressen an und lädt beim erneuten Sichtbarwerden sofort nach. Das 60-Sekunden-Intervall bleibt bestehen.
+- Amazon-Zertifizierung und öffentliche Veröffentlichung stehen noch aus. HACS 1.0.11 bleibt bis zum nächsten Release aktuell.
+
 ## 1.0.11 – Einrichtung und Datenübertragung
 
 - Die Datenübertragung wird über „Verbinden und übertragen“ bestätigt; eine zusätzliche Zustimmungs-Checkbox entfällt.

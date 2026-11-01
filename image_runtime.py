@@ -71,10 +71,12 @@ def live_image_document(grant=None, message=None):
 
 def house_image_pilot(result, grant):
     """Native dashboard shell with independently refreshed value images."""
+    import uuid
+    render_nonce = uuid.uuid4().hex
     root = result['response']['directives'][0]['document']['mainTemplate']['items'][0]
     base = grant['base_url'].replace('/dashboard.png?', '/tile.png?', 1)
     lifetime = grant['expires_in'] * 1000
-    root['bind'] += [{'name': 'tileImageBase', 'value': base}, {'name': 'tileImageLoads', 'value': 0}]
+    root['bind'] += [{'name': 'tileImageBase', 'value': base}, {'name': 'tileRenderNonce', 'value': render_nonce}, {'name': 'tileImageLoads', 'value': 0}]
     pages, timer = [], []
     for page_index, page_name in enumerate(('live', 'history')):
         refresh, rows = [], []
@@ -84,7 +86,7 @@ def house_image_pilot(result, grant):
                 image_id = 'tile_' + page_name + '_' + str(row) + '_' + str(col)
                 suffix = '&page=' + page_name + '&row=' + str(row) + '&col=' + str(col)
                 command = {'type': 'SetValue', 'componentId': image_id, 'property': 'source',
-                           'value': '${tileImageBase + "' + suffix + '&layout=final&n=" + elapsedTime}'}
+                           'value': '${tileImageBase + "' + suffix + '&layout=final&n=" + tileRenderNonce + "-" + elapsedTime}'}
                 refresh.append(command)
                 cards.append({'type': 'Frame', 'width': '23vw', 'height': '100%',
                     'backgroundColor': '#172330', 'borderRadius': '14dp',
@@ -92,7 +94,7 @@ def house_image_pilot(result, grant):
                     'item': {'type': 'Container', 'paddingLeft': '1.5vw', 'paddingRight': '1vw',
                              'paddingTop': '2vh', 'items': [text(label, '3.4vh', '#AFC1D1'),
                         {'type': 'Image', 'id': image_id, 'width': '20.5vw', 'height': '19.25vh', 'spacing': '1vh',
-                         'scale': 'best-fit', 'align': 'top-left', 'source': base + suffix + '&layout=final&n=initial',
+                         'scale': 'best-fit', 'align': 'top-left', 'source': base + suffix + '&layout=final&n=' + render_nonce,
                          'onLoad': [{'type': 'SetValue', 'componentId': 'solarRoot',
                                      'property': 'imageFailed', 'value': False},
                                     {'type': 'SetValue', 'componentId': 'solarRoot',
@@ -105,7 +107,7 @@ def house_image_pilot(result, grant):
         status_base = base.replace('/tile.png?', '/status.png?', 1)
         status_id = 'sharedStatus' + page_name
         refresh.append({'type': 'SetValue', 'componentId': status_id, 'property': 'source',
-                        'value': '${"' + status_base + '&n=" + elapsedTime}'})
+                        'value': '${"' + status_base + '&n=" + tileRenderNonce + "-" + elapsedTime}'})
         date = grant.get('local_date') or ''
         if page_index == 1 and re.fullmatch(r'\d{4}-\d\d-\d\d', date):
             month_names = ['Januar','Februar','Maerz','April','Mai','Juni','Juli','August','September','Oktober','November','Dezember']
@@ -123,7 +125,7 @@ def house_image_pilot(result, grant):
                      'position': 'absolute', 'value': 1-page_index}],
                  'item': text('Monat/Jahr' if page_index == 0 else 'Live/Heute', '3vh', '#8BCBFF', padding='1vh')}]}] + rows + [
                 {'type': 'Image', 'id': status_id, 'width': '94vw', 'height': '3vh', 'scale': 'best-fit',
-                 'align': 'left', 'spacing': '2vh', 'source': status_base + '&n=initial'},
+                 'align': 'left', 'spacing': '2vh', 'source': status_base + '&n=' + render_nonce},
                 text('1/2 - Nach rechts wischen: Monat/Jahr' if page_index == 0 else '2/2 - Nach links wischen: Live/Heute',
                      '2.3vh', '#8FA8BC', spacing='1vh')]})
         for step in refresh:
@@ -140,6 +142,8 @@ def house_image_pilot(result, grant):
         {'type': 'SetValue', 'componentId': 'solarRoot', 'property': 'imageFailed',
          'value': True, 'when': '${elapsedTime >= ' + str(lifetime) + '}'}]
     root['handleTick'][-1]['commands'] = timer
+    document = result['response']['directives'][0]['document']
+    document['onDisplayStateChange'] = [{'type': 'SetValue', 'componentId': 'solarRoot', 'property': 'lastDashboardRefresh', 'value': -60000, 'when': '${event.displayState == "foreground"}'}]
     return result
 
 
