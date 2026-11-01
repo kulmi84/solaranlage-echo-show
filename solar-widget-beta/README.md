@@ -39,6 +39,21 @@ beschreibt keine zusätzliche Ansicht.
 - Noch nicht umgesetzt: eigene BETA-Vollbildansicht, Monats-/Jahresseite und
   Antippen zum Öffnen einer solchen Vollbildansicht.
 
+### Aktualisierung beim Antippen (BETA 1.0.1)
+
+Antippen der Startbildschirm-Kachel sendet `solar.beta.refresh.v1` im
+`INLINE`-Modus an den eigenen BETA-Handler. Dieser ruft den geschützten
+BETA-Endpunkt `/push` auf und stößt damit sofort die Zustellung des zuletzt
+in der BETA-Datenbank empfangenen HA-Datensatzes an. Es erfolgt keine
+Sprachausgabe und keine Vollbildöffnung. Sprachaufrufe lösen keine
+Aktualisierung aus. Das automatische Minutenintervall bleibt zusätzlich aktiv.
+Dies erzwingt keinen neuen Sensorabruf in HA; dessen letzter Upload ist die
+Datenquelle. Der bekannte Amazon-Fehler kann auch diese Zustellung verhindern.
+
+Lokale Handler-Prüfung: `python -m unittest discover -s solar-widget-beta -p test_lambda.py`.
+Geprüft: Antippen aktualisiert still; Sprachaufruf und fremde Events aktualisieren
+nicht; fremde Skill-IDs werden vor einem Netzwerkzugriff abgewiesen.
+
 **Unmittelbarer Fokus:** echte Werte zuverlässig in dieser BETA-Kachel anzeigen.
 Eine Erweiterung um Vollbild folgt erst nach erfolgreichem Data-Store-Test.
 Die BETA hat somit noch nicht den Funktionsumfang der normalen Version.

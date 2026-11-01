@@ -1,0 +1,39 @@
+{
+  "manifest": {
+    "id": "MeineSolaranlageBetaDataStore",
+    "version": "1.0.1",
+    "presentationDefinitions": [
+      {
+        "url": "presentations/default.tpl"
+      }
+    ],
+    "appliesTo": "${viewport.mode == 'HUB'}",
+    "installStateChanges": "AUTOMATIC",
+    "updateStateChanges": "AUTOMATIC"
+  },
+  "packageVersion": "1.0",
+  "packageType": "APL_PACKAGE",
+  "publishingInformation": {
+    "schemaVersion": "1.0",
+    "locales": {
+      "de-DE": [
+        {
+          "targetViewport": "WIDGET_M",
+          "metadata": {
+            "name": "Meine Solaranlage BETA",
+            "description": "Separater Test: Solarwerte direkt aus dem Data Store, ohne Bilder.",
+            "keywords": [
+              "Solar",
+              "BETA",
+              "Data Store"
+            ],
+            "iconUri": "https://raw.githubusercontent.com/kulmi84/solaranlage-echo-show/main/assets/branding/solaranlage-icon-512.png",
+            "previews": [
+              "https://d3ozx4qyxcxwzd.cloudfront.net/default_preview.png"
+            ]
+          }
+        }
+      ]
+    }
+  }
+}
