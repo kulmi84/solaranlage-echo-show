@@ -1,6 +1,6 @@
 # Solaranlage auf dem Echo Show
 
-**HACS 1.0.13 · Bildwidget 2.0.1**
+**HACS 1.0.14 · Bildwidget 2.0.1**
 
 Solar-, Verbrauchs-, Akku- und Energiewerte aus Home Assistant auf dem Echo Show: als Vollbildansicht und Alexa+-kompatibles Widget. Sprachansagen funktionieren auch auf Alexa-Geräten ohne Display.
 
