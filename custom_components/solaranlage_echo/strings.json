@@ -4,7 +4,7 @@
     "step": {
       "user": {
         "title": "Set up solar dashboard",
-        "description": "Connect your solar dashboard. No invitation is needed when automatic registration is enabled. An account is created only after you select “Connect and transmit”.",
+        "description": "Connect your solar dashboard without an invitation. Your account is created only after you select “Connect and transmit”.",
         "data": {
           "custom_server": "Use your own solar service (expert option)"
         }
