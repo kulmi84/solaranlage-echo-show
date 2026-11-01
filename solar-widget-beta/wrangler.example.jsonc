@@ -1,0 +1,14 @@
+{
+  "name": "meine-solaranlage-widget-beta",
+  "main": "worker.mjs",
+  "compatibility_date": "2026-11-01",
+  "compatibility_flags": ["nodejs_compat"],
+  "preview_urls": false,
+  "observability": {"enabled": true},
+  "triggers": {"crons": ["* * * * *"]},
+  "d1_databases": [{
+    "binding": "BETA_DB",
+    "database_name": "meine-solaranlage-widget-beta",
+    "database_id": "REPLACE_WITH_NEW_BETA_DATABASE_ID"
+  }]
+}

@@ -1,0 +1,4 @@
+wrangler.jsonc
+.dev.vars
+.wrangler/
+__pycache__/

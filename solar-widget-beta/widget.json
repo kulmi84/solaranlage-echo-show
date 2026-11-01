@@ -1,0 +1,26 @@
+{
+  "type": "APL",
+  "version": "2023.2",
+  "extensions": [{"name": "DataStore", "uri": "alexaext:datastore:10"}],
+  "settings": {"DataStore": {"dataBindings": [{
+    "namespace": "MeineSolaranlageBeta", "key": "live",
+    "dataBindingName": "SolarBeta", "dataType": "OBJECT"
+  }]}},
+  "mainTemplate": {
+    "items": [{
+      "type": "Frame", "width": "100%", "height": "100%", "backgroundColor": "#102622",
+      "item": {
+        "type": "Container", "paddingLeft": "5vw", "paddingRight": "5vw", "paddingTop": "4vh",
+        "items": [
+          {"type": "Text", "text": "Meine Solaranlage BETA", "fontSize": "4vh", "color": "#A7E2C4", "maxLines": 1},
+          {"type": "Text", "text": "${SolarBeta.production ?? '—'}", "fontSize": "17vh", "fontWeight": "700", "color": "#FFFFFF", "maxLines": 1},
+          {"type": "Text", "text": "PV + Balkonkraftwerk", "fontSize": "5vh", "color": "#A7E2C4"},
+          {"type": "Text", "text": "${'Akku: ' + (SolarBeta.battery ?? '—') + ' · Haus: ' + (SolarBeta.consumption ?? '—')}", "fontSize": "6vh", "color": "#FFFFFF", "maxLines": 2},
+          {"type": "Text", "text": "${'Heute: ' + (SolarBeta.today ?? '—') + ' · Einspeisung: ' + (SolarBeta.export ?? '—')}", "fontSize": "5vh", "color": "#FFFFFF", "maxLines": 2},
+          {"type": "Text", "text": "${SolarBeta.status ?? 'Warte auf BETA-Daten'}", "fontSize": "4vh", "color": "#D8D5AD"},
+          {"type": "Text", "text": "${SolarBeta.received ?? 'Noch kein Empfang'}", "fontSize": "4vh", "color": "#D8D5AD"}
+        ]
+      }
+    }]
+  }
+}

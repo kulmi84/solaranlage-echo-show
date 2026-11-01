@@ -1,6 +1,29 @@
 # Ideen und geplante Erweiterungen
 
-## ~~Idee 1: Solarwerte auf weiteren Alexa-Geräten per Sprache abfragen~~
+Die Nummern bleiben dauerhaft bestehen; neue Ideen erhalten die nächste freie
+Nummer. Bestehende Einträge werden beim Erledigen nicht neu nummeriert.
+
+## 1. Test Widget Data Store
+
+**Status:** separate BETA implementiert; Amazon bestätigt am 1. November 2026
+um 15:00 Uhr die Testinstallation auf dem Küchen-Echo. Sichtbare Geräteanzeige
+und Live-Datenanbindung noch offen.
+
+Mit einer separaten Datenbank testen, ob sich Messwerte direkt an ein neues
+Widget übertragen lassen – ohne den Umweg über Bilder.
+
+- Eigenständiger Alexa-Skill **Meine Solaranlage BETA**.
+- Neues Widget-Paket, eigener Worker, eigene D1-Datenbank und eigene Schlüssel.
+- Bestehende kleine und große Widgets und der zur Zertifizierung eingereichte
+  Skill bleiben unverändert.
+- Home-Assistant-Entitäten dürfen lesend weiterverwendet werden.
+- Keine Änderung am vorhandenen HACS-Eintrag. Für diesen Test ist keine
+  HACS-Erweiterung nötig; eine spätere Integration erhält einen separaten Eintrag.
+
+Implementierung, Einrichtung und Abnahmekriterien:
+[Meine Solaranlage BETA](../solar-widget-beta/README.md).
+
+## 2. Solarwerte auf weiteren Alexa-Geräten per Sprache abfragen
 
 **Status:** umgesetzt am 17. Oktober 2026.
 
@@ -44,12 +67,12 @@ Fehlende Werte werden als nicht verfügbar angesagt. Bei veralteten Daten
 wird vor dem letzten bekannten Wert ausdrücklich gewarnt. Backend- und
 Interaktionsmodell-Tests decken beide Abfragen sowie diese Fehlerfälle ab.
 
-## Idee 2: Einstellungen in der Alexa-App
+## 3. Einstellungen in der Alexa-App
 
 Geprüft: Die nativen Skill-Einstellungen der Alexa-App lassen sich für einen
 Custom Skill nicht um eigene Felder wie Anzeigedauer ergänzen. Keine Umsetzung.
 
-## Idee 3: Zweiter Bildschirm mit Monats- und Jahreswerten
+## 4. Zweiter Bildschirm mit Monats- und Jahreswerten
 
 Umgesetzt: Rechts wischen öffnet Monat/Jahr, links wischen führt zurück.
 Die Seite zeigt Energiewerte für PV/BKW, Haus, Netz und Akku. Neue Ermittlung
