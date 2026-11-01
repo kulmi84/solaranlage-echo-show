@@ -1,6 +1,6 @@
 # Projektstatus · 01.11.2026
 
-- **HACS 1.0.11 veröffentlicht.** Neueinrichtung ohne Einladung und bestehende Einrichtung geprüft; Konten und Sensoren bleiben erhalten.
+- **HACS 1.0.15 veröffentlicht.** Neueinrichtung ohne Einladung und bestehende Einrichtung geprüft; Konten und Sensoren bleiben erhalten. Aktuelle Korrekturen: kompakte HACS-Bildvorschau, klare Expertenoption und kurze Erklärung zur Dienstwahl.
 - **Bildwidget 2.0.1 am Echo bestätigt:** sofortiges Nachladen, Zugangserneuerung, Bildpuffer samt Zeitstand, Vollbild und weiße Fußzeile.
 - **Haushaltstest bestanden:** Testhaushalt mit 123 W in Widget und Vollbild; nach Rückverknüpfung und einmaligem Antippen wieder echte Werte. Keine Neuinstallation nötig.
 - **Vollbild-Sofortabruf bestätigt:** neue Bildadressen bei jedem Öffnen, sofortiger Abruf beim Zurückkehren; danach alle 60 Sekunden.
