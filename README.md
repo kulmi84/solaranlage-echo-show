@@ -1,6 +1,6 @@
 # Solaranlage Echo Show
 
-**Version 1.0.11**
+**Version 1.0.12**
 
 Solar-, Verbrauchs-, Akku- und Energiewerte aus Home Assistant auf dem Echo Show – als Vollbildanzeige und Alexa+-kompatibles Widget. Mit Sensorauswahl, Kontoverknüpfung und Sprachansagen auch auf Alexa-Geräten ohne Display.
 
@@ -18,6 +18,6 @@ PV/BKW, Hausverbrauch, Netz und Akku sowie Tageswerte im Überblick.
 
 Solarleistung, Hausverbrauch, Akkustand und Datenstand direkt auf dem Startbildschirm.
 
-![Solaranlage-Widget auf dem Echo Show](https://raw.githubusercontent.com/kulmi84/solaranlage-echo-show/main/docs/screenshots/echo-show-widget-2.0.1.png)
+<img src="https://raw.githubusercontent.com/kulmi84/solaranlage-echo-show/main/docs/screenshots/echo-show-widget-2.0.1.png" alt="Solaranlage-Widget auf dem Echo Show" width="640">
 
 [In HACS öffnen](https://my.home-assistant.io/redirect/hacs_repository/?owner=kulmi84&repository=solaranlage-echo-show&category=integration) · [Einrichtung](https://github.com/kulmi84/solaranlage-echo-show/blob/main/docs/HACS.md) · [Datenschutz](https://solaranlage-kontodienst.kulmi84.workers.dev/privacy)
