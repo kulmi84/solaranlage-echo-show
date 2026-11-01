@@ -4,7 +4,7 @@
     "step": {
       "user": {
         "title": "Solaranlage einrichten",
-        "description": "Verbinde deine Solaranlage. Wenn der Dienst die automatische Anmeldung freigibt, brauchst du keine Einladung. Das Konto wird erst nach dem Bestätigen von „Verbinden und übertragen“ angelegt.",
+        "description": "Verbinde deine Solaranlage ohne Einladung. Dein Konto wird erst angelegt, wenn du „Verbinden und übertragen“ bestätigst.",
         "data": {
           "custom_server": "Eigenen Solaranlage-Dienst verwenden (Expertenoption)"
         }
