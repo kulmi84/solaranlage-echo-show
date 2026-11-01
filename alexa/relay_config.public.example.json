@@ -2,5 +2,9 @@
   "mode": "public_beta",
   "url": "https://solaranlage-public-beta.kulmi84.workers.dev/v1/pv",
   "image_session_url": "https://solaranlage-display.kulmi84.workers.dev/image/session",
-  "image_session_key": "YOUR_PRIVATE_SESSION_KEY"
+  "image_session_key": "YOUR_PRIVATE_SESSION_KEY",
+  "widget_datastore_credentials": {
+    "ALEXA_CLIENT_ID": "YOUR_SKILL_DATASTORE_CLIENT_ID",
+    "ALEXA_CLIENT_SECRET": "YOUR_PRIVATE_SKILL_DATASTORE_CLIENT_SECRET"
+  }
 }
