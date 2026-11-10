@@ -10,7 +10,7 @@ class ImageDisplayTests(unittest.TestCase):
         self.scope['create_image_session']=lambda *_:{'base_url':self.scope['IMAGE_ORIGIN']+'/dashboard.png?s='+'x'*100,'expires_in':86400,'local_date':'2026-10-22'}
     def event(self,intent=None,token='a'*64):
         return {'request':{'type':'IntentRequest' if intent else 'LaunchRequest','intent':{'name':intent}},'context':{'System':{'user':{'accessToken':token},'device':{'supportedInterfaces':{'Alexa.Presentation.APL':{}}}}}}
-    def test_final_layout_preserves_voice_release_and_has_no_probes_or_send_events(self):
+    def test_final_layout_and_automatic_renewal(self):
         result=self.scope['lambda_handler'](self.event(),None)
         self.assertTrue(result['response']['shouldEndSession'])
         doc=result['response']['directives'][0]['document']
@@ -18,12 +18,41 @@ class ImageDisplayTests(unittest.TestCase):
         root=doc['mainTemplate']['items'][0]
         self.assertEqual(len(root['items'][0]['items']),2)
         encoded=json.dumps(doc)
-        for forbidden in ['SendEvent','tickProbe','imageProbe','Testskill','Beta','TESTWERTE']:
+        for forbidden in ['tickProbe','imageProbe','Testskill','Beta','TESTWERTE']:
             self.assertNotIn(forbidden,encoded)
         self.assertIn('tile_live_0_1',encoded)
-        self.assertIn('elapsedTime < 86400000',encoded)
-        self.assertIn('60000',encoded)
+        ticks = root['handleTick'][0]['commands']
+        renewal = next(command for command in ticks if command['type'] == 'Sequential')
+        self.assertIn('imageAccessExpiresAt - 300000', renewal['when'])
+        self.assertIn('lastImageAccessRequest >= 60000', renewal['when'])
+        self.assertEqual(renewal['commands'][1]['sequencer'], 'solarImageAccess')
+        self.assertEqual(renewal['commands'][1]['arguments'], ['solar.fullscreen.renew.v1'])
+        for page, interval in [('live', 60000), ('history', 21600000)]:
+            status = next(command for command in ticks if command.get('componentId') == 'sharedStatus' + page)
+            self.assertIn(f'>= {interval}', status['when'])
+            self.assertIn('utcTime < imageAccessExpiresAt', status['when'])
+            self.assertIn('statusImageBase', status['value'])
         self.assertNotIn('outputSpeech',result['response'])
+    def test_renewal_updates_the_existing_document_and_rejects_wrong_tokens(self):
+        event = self.event()
+        event['request'] = {
+            'type': 'Alexa.Presentation.APL.UserEvent',
+            'arguments': ['solar.fullscreen.renew.v1'],
+            'token': 'solaranlage',
+            'source': {'id': 'solarRoot'},
+        }
+        event['context']['Alexa.Presentation.APL'] = {'token': 'solaranlage'}
+        response = self.scope['lambda_handler'](event, None)['response']
+        command = response['directives'][0]
+        self.assertEqual(command['type'], 'Alexa.Presentation.APL.ExecuteCommands')
+        self.assertEqual(command['token'], 'solaranlage')
+        values = {item['property']: item['value'] for item in command['commands']}
+        self.assertIn('/tile.png?', values['tileImageBase'])
+        self.assertIn('/status.png?', values['statusImageBase'])
+        self.assertGreater(values['imageAccessExpiresAt'], 0)
+        event['request']['token'] = 'wrong-document'
+        self.assertEqual(self.scope['lambda_handler'](event, None)['response'], {})
+
     def test_account_link_required_does_not_show_demo_values(self):
         result=self.scope['lambda_handler'](self.event(token=None),None)
         self.assertEqual(result['response']['card']['type'],'LinkAccount')

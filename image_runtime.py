@@ -48,7 +48,7 @@ def live_image_document(grant=None, message=None):
     root = {'type': 'Container', 'id': 'solarRoot', 'width': '100vw', 'height': '100vh',
         'backgroundColor': '#0C151F',
         'bind': [{'name':'currentPage','value':0}, {'name':'imageFailed','value':False},
-                 {'name':'lastDashboardRefresh','value':0}],
+                 {'name':'lastDashboardRefresh','value':0}, {'name':'lastHistoryRefresh','value':0}],
         'handleTick': [{'minimumDelay':1000,'commands':[]}],
         'items': [{'type':'Pager','id':'solarPager','width':'100vw','height':'100vh',
             'navigation':'wrap','pageDirection':'horizontal','initialPage':0,
@@ -75,10 +75,18 @@ def house_image_pilot(result, grant):
     render_nonce = uuid.uuid4().hex
     root = result['response']['directives'][0]['document']['mainTemplate']['items'][0]
     base = grant['base_url'].replace('/dashboard.png?', '/tile.png?', 1)
-    lifetime = grant['expires_in'] * 1000
+    expires_at = int(time.time() * 1000) + grant['expires_in'] * 1000
+    renew = {'type': 'SendEvent', 'arguments': ['solar.fullscreen.renew.v1'],
+             'sequencer': 'solarImageAccess'}
+    renewal_due = 'utcTime >= imageAccessExpiresAt - 300000'
+    root['bind'] += [{'name': 'statusImageBase', 'value': base.replace('/tile.png?', '/status.png?', 1)},
+                     {'name': 'imageAccessExpiresAt', 'value': expires_at},
+                     {'name': 'lastImageAccessRequest', 'value': 0}]
     root['bind'] += [{'name': 'tileImageBase', 'value': base}, {'name': 'tileRenderNonce', 'value': render_nonce}, {'name': 'tileImageLoads', 'value': 0}]
     pages, timer = [], []
     for page_index, page_name in enumerate(('live', 'history')):
+        clock = 'lastDashboardRefresh' if page_name == 'live' else 'lastHistoryRefresh'
+        interval = REFRESH_INTERVAL_MS if page_name == 'live' else HISTORY_INTERVAL_MS
         refresh, rows = [], []
         for row in range(2):
             cards = []
@@ -104,10 +112,11 @@ def house_image_pilot(result, grant):
             heading = ('LIVE' if row == 0 else 'HEUTE - seit Mitternacht') if page_index == 0 else ('MONAT' if row == 0 else 'JAHR')
             rows += [text(heading, '3vh', '#8FA8BC', spacing='1vh' if row == 0 else '2vh'),
                      {'type': 'Container', 'direction': 'row', 'height': '30vh', 'justifyContent': 'spaceBetween', 'spacing': '1vh', 'items': cards}]
-        status_base = base.replace('/tile.png?', '/status.png?', 1)
+        status_base = base.replace('/tile.png?', '/status.png?', 1) + '&page=' + page_name
         status_id = 'sharedStatus' + page_name
         refresh.append({'type': 'SetValue', 'componentId': status_id, 'property': 'source',
-                        'value': '${"' + status_base + '&n=" + tileRenderNonce + "-" + elapsedTime}'})
+                        'value': '${statusImageBase + "&page=' +
+                        page_name + '&n=" + tileRenderNonce + "-" + elapsedTime}'})
         date = grant.get('local_date') or ''
         if page_index == 1 and re.fullmatch(r'\d{4}-\d\d-\d\d', date):
             month_names = ['Januar','Februar','Maerz','April','Mai','Juni','Juli','August','September','Oktober','November','Dezember']
@@ -120,7 +129,13 @@ def house_image_pilot(result, grant):
             'items': [{'type': 'Container', 'direction': 'row', 'height': '10vh',
                        'alignItems': 'center', 'justifyContent': 'spaceBetween', 'items': [
                 text('Solaranlage' if page_index == 0 else 'Monat & Jahr', '6vh' if page_index == 0 else '5.5vh', fontWeight='700'),
-                {'type': 'TouchWrapper', 'onPress': refresh, 'item': text('Aktualisieren', '3.6vh', '#8BCBFF', padding='1.5vh')},
+                {'type': 'TouchWrapper', 'id': 'solarRefreshButton' + str(page_index),
+                 'onPress': [
+                     {'type': 'Sequential', 'when': '${' + renewal_due + '}', 'commands': [
+                         {'type': 'SetValue', 'componentId': 'solarRoot', 'property': 'lastImageAccessRequest',
+                          'value': '${utcTime}'}, renew]},
+                     {'type': 'Sequential', 'when': '${!(' + renewal_due + ')}', 'commands': refresh}],
+                 'item': text('Aktualisieren', '3.6vh', '#8BCBFF', padding='1.5vh')},
                 {'type': 'TouchWrapper', 'onPress': [{'type': 'SetPage', 'componentId': 'solarPager',
                      'position': 'absolute', 'value': 1-page_index}],
                  'item': text('Monat/Jahr' if page_index == 0 else 'Live/Heute', '3vh', '#8BCBFF', padding='1vh')}]}] + rows + [
@@ -128,23 +143,54 @@ def house_image_pilot(result, grant):
                  'align': 'left', 'spacing': '2vh', 'source': status_base + '&n=' + render_nonce},
                 text('1/2 - Nach rechts wischen: Monat/Jahr' if page_index == 0 else '2/2 - Nach links wischen: Live/Heute',
                      '2.3vh', '#8FA8BC', spacing='1vh')]})
-        for step in refresh:
-            command = dict(step)
-            command['when'] = ('${displayState == "foreground" && currentPage == ' + str(page_index) +
-                ' && elapsedTime < ' + str(lifetime) +
-                ' && (elapsedTime - lastDashboardRefresh >= 60000 || (imageFailed && elapsedTime - lastDashboardRefresh >= 10000))}')
-            timer.append(command)
+        due = ('${displayState == "foreground" && currentPage == ' + str(page_index) +
+               ' && utcTime < imageAccessExpiresAt' +
+               ' && (elapsedTime - ' + clock + ' >= ' + str(interval) +
+               ' || (imageFailed && elapsedTime - ' + clock + ' >= 10000))}')
+        timer.extend(dict(step, when=due) for step in refresh)
+        timer.append({'type': 'SetValue', 'componentId': 'solarRoot', 'property': clock,
+                      'value': '${elapsedTime}', 'when': due})
     root['items'][0]['height'] = '100vh'
     root['items'][0]['items'] = pages
     timer += [
-        {'type': 'SetValue', 'componentId': 'solarRoot', 'property': 'lastDashboardRefresh',
-         'value': '${elapsedTime}', 'when': '${displayState == "foreground" && (elapsedTime - lastDashboardRefresh >= 60000 || (imageFailed && elapsedTime - lastDashboardRefresh >= 10000))}'},
+        {'type': 'Sequential',
+         'when': '${displayState == "foreground" && ' + renewal_due +
+                 ' && utcTime - lastImageAccessRequest >= 60000}',
+         'commands': [
+             {'type': 'SetValue', 'componentId': 'solarRoot', 'property': 'lastImageAccessRequest',
+              'value': '${utcTime}'}, renew]},
         {'type': 'SetValue', 'componentId': 'solarRoot', 'property': 'imageFailed',
-         'value': True, 'when': '${elapsedTime >= ' + str(lifetime) + '}'}]
+         'value': True, 'when': '${utcTime >= imageAccessExpiresAt}'}]
     root['handleTick'][-1]['commands'] = timer
     document = result['response']['directives'][0]['document']
     document['onDisplayStateChange'] = [{'type': 'SetValue', 'componentId': 'solarRoot', 'property': 'lastDashboardRefresh', 'value': -60000, 'when': '${event.displayState == "foreground"}'}]
     return result
+
+
+def renew_fullscreen_image_access(event, access):
+    request = event['request']
+    visual = event.get('context', {}).get('Alexa.Presentation.APL', {})
+    if (not access or request.get('presentationUri')
+            or request.get('token') != 'solaranlage' or visual.get('token') != 'solaranlage'
+            or request.get('source', {}).get('id') not in ('solarRoot', 'solarRefreshButton0', 'solarRefreshButton1')):
+        return {'version': '1.0', 'response': {}}
+    issued_at = int(time.time() * 1000)
+    try:
+        grant = create_image_session(access, image_config())
+    except Exception:
+        return {'version': '1.0', 'response': {}}
+    values = {
+        'tileImageBase': grant['base_url'].replace('/dashboard.png?', '/tile.png?', 1),
+        'statusImageBase': grant['base_url'].replace('/dashboard.png?', '/status.png?', 1),
+        'imageAccessExpiresAt': issued_at + grant['expires_in'] * 1000,
+        'lastDashboardRefresh': '${elapsedTime - ' + str(REFRESH_INTERVAL_MS) + '}',
+        'lastHistoryRefresh': '${elapsedTime - ' + str(HISTORY_INTERVAL_MS) + '}',
+    }
+    return {'version': '1.0', 'response': {'directives': [{
+        'type': 'Alexa.Presentation.APL.ExecuteCommands', 'token': 'solaranlage',
+        'commands': [{'type': 'SetValue', 'componentId': 'solarRoot', 'property': name, 'value': value}
+                     for name, value in values.items()],
+    }]}}
 
 
 def lambda_handler(event, context):
@@ -152,6 +198,8 @@ def lambda_handler(event, context):
     kind,intent=request.get('type'),request.get('intent',{}).get('name')
     access=image_access_token(event)
     if kind=='Alexa.Presentation.APL.UserEvent':
+        if request.get('arguments') == ['solar.fullscreen.renew.v1']:
+            return renew_fullscreen_image_access(event, access)
         return {'version':'1.0','response':{}}
     if kind=='IntentRequest' and (intent in SPOKEN_METRICS or intent=='StatusIntent'):
         if not access:
