@@ -1,6 +1,7 @@
 import copy
 import json
 import unittest
+from unittest.mock import patch
 from widget_account import route_account_images
 
 SKILL = "amzn1.ask.skill.fixture"
@@ -14,6 +15,11 @@ class AccountDataStoreTests(unittest.TestCase):
         return route_account_images(event or self.event,None,lambda e,c:self.fallback.append(e) or "fallback",skill_id=SKILL,package_id=PACKAGE,access_factory=lambda e:access,config_factory=lambda:{},session_factory=lambda a,c:grant or {"base_url":"https://solaranlage-display.kulmi84.workers.dev/dashboard.png?s="+TOKEN,"expires_in":3600},publish=publish or (lambda device,cmd:self.published.append((device,cmd))))
     def test_current_device_and_account_grant(self):
         result=self.run_route(); self.assertEqual(result["response"],{"shouldEndSession":True});self.assertEqual(self.published[0][0],"amzn1.ask.device.fixture");command=self.published[0][1][0];self.assertEqual(command["namespace"],"SolarAccountImages");self.assertEqual(command["content"]["expiresIn"],3600);self.assertNotIn("linked-fixture",json.dumps(command))
+    def test_published_access_has_an_absolute_expiry(self):
+        with patch('widget_account.time.time', return_value=1800000000):
+            self.run_route()
+        self.assertEqual(self.published[0][1][0]['content']['expiresAt'], 1800003600000)
+
     def test_foreign_skill_rejected(self):
         self.event["context"]["System"]["application"]["applicationId"]="other";self.run_route();self.assertFalse(self.published)
     def test_foreign_package_rejected(self):
