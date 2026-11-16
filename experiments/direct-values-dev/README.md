@@ -31,3 +31,10 @@ Die zuvor gespeicherten Amazon-Geräte- und Kontobezeichner waren keine verläss
 Aus diesem Verzeichnis: python -B -m unittest test_dev_text.py und node --test worker.test.mjs. Die Tests verwenden synthetische Daten und rufen keine Cloud-Dienste auf. Vor dem Python-Test die gepinnten Anforderungen in einer eigenen Umgebung bereitstellen.
 
 Kein automatisches Deployment aus diesem Verzeichnis. Quellen vor Paketwechsel sichern, neue Paketkennung abstimmen und ein geändertes Dokument am Echo anhand der Versionszeile prüfen. Eine Änderung am Hauptzweig oder eine Store-Veröffentlichung gehört nicht zu diesem Entwicklungs-PR.
+
+
+## Vollbild Build 1611.8
+
+Der Aktualisieren-Button ist entfernt. Der DEV-Vollbildtimer verwendet elapsedTime statt absoluter Geräte-/Serverzeit, einen eigenen normalen Sequencer und eine auf 0/1 begrenzte Seitenangabe. Live/Heute fragt nach 60 Sekunden erneut ab; Monat/Jahr behält sechs Stunden. Fehlgeschlagene Abrufe behalten die letzte Anzeige und werden höchstens einmal pro Minute wiederholt. Das kleine Widget bleibt unverändert auf Build 1611.7.
+
+Die Änderung ist lokal geprüft. Der automatische Dauerlauf auf dem Echo muss für diesen Vollbildstand noch gesondert bestätigt werden; das zuvor bestätigte Öffnen allein war dafür kein Nachweis.

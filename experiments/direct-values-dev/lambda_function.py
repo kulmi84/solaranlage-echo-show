@@ -610,11 +610,8 @@ def native_handler(event, context, *, dev_text=False):
                    'items': [live_page, history_page]}]}]
 
     if dev_text:
-        live_page['items'][0]['items'][1]['onPress'][0]['arguments'] = ['solar.fullscreen.text.refresh.v1', 0]
-        history_page['items'][0]['items'].insert(1, {
-            'type': 'TouchWrapper',
-            'onPress': [{'type': 'SendEvent', 'arguments': ['solar.fullscreen.text.refresh.v1', 1]}],
-            'item': text('Aktualisieren', '3.6vh', blue, padding='1.5vh')})
+        # Keep existing header geometry; remove only the manual refresh control.
+        live_page['items'][0]['items'].pop(1)
     tick = document['handleTick'][0]
 
     tick['when'] = ('${displayState == "foreground" && utcTime < ' + str(expires_at) +
@@ -627,11 +624,20 @@ def native_handler(event, context, *, dev_text=False):
 
     if dev_text:
         document['mainTemplate']['items'][0]['items'].append({
-            'type': 'Text', 'text': 'DEV Â· 1.1.0 (Build 1611.7)',
+            'type': 'Text', 'text': 'DEV Â· 1.1.0 (Build 1611.8)',
             'fontSize': '1.8vh', 'color': '#8FA8BC', 'maxLines': 1,
             'position': 'absolute', 'right': '1vw', 'bottom': '0.5vh',
             'textAlign': 'right'})
-        tick['commands'][0]['arguments'][0] = 'solar.fullscreen.text.auto.v1'
+        # Relative time is independent of device/server wall-clock differences.
+        # A failed read retains this document and retries at most once a minute.
+        tick['when'] = ('${displayState != "hidden" && elapsedTime >= '
+                        '(currentPage == 1 ? ' + str(HISTORY_INTERVAL_MS) + ' : '
+                        + str(REFRESH_INTERVAL_MS) + ')}')
+        tick['commands'][0]['arguments'] = [
+            'solar.fullscreen.text.auto.v1', expires_at, '${currentPage == 1 ? 1 : 0}']
+        tick['commands'][0]['sequencer'] = 'solarDevFullscreenRefresh'
+        pager = document['mainTemplate']['items'][0]['items'][0]
+        pager['onPageChanged'][0]['value'] = '${event.source.page == 1 || event.source.value == 1 ? 1 : 0}' 
     document['mainTemplate']['items'][0]['handleTick'] = document.pop('handleTick')
 
     # v1.0.5: render APL while ending voice on launch and touch/tick updates.

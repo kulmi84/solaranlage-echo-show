@@ -43,7 +43,19 @@ class DevTextTests(unittest.TestCase):
         doc = self.invoke()["response"]["directives"][0]["document"]
         self.assertEqual(len(self.calls), 1)
         self.assertNotIn('"type": "Image"', json.dumps(doc))
-        self.assertIn("1611.7", json.dumps(doc))
+        self.assertIn("1611.8", json.dumps(doc))
+
+    def test_relative_timer_and_no_manual_refresh(self):
+        doc = self.invoke()["response"]["directives"][0]["document"]
+        root = doc["mainTemplate"]["items"][0]
+        tick = root["handleTick"][0]
+        self.assertEqual(tick["minimumDelay"], 60000)
+        self.assertIn("elapsedTime", tick["when"])
+        self.assertNotIn("utcTime", tick["when"])
+        self.assertIn("21600000", tick["when"])
+        self.assertIn("60000", tick["when"])
+        self.assertEqual(tick["commands"][0]["sequencer"], "solarDevFullscreenRefresh")
+        self.assertNotIn("Aktualisieren", json.dumps(doc))
 
     def test_live_uri_rejected(self):
         self.event["request"]["presentationUri"] = self.event["request"]["presentationUri"].replace("_development", "_live")
