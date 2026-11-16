@@ -34,7 +34,7 @@ Skill-Deaktivierung beendet die Zuordnung. Der Account-Linked-Event stellt vorha
 
 ## Lokale Nachweise
 
-16 Node/SQLite-Tests plus 14 Python-Tests bestanden. Alle Daten und Amazon-Antworten sind künstlich; keine Netzwerkaufrufe an echte Haushalte.
+16 Node/SQLite-Tests plus 17 Python-Tests bestanden. Alle Daten und Amazon-Antworten sind künstlich; keine Netzwerkaufrufe an echte Haushalte.
 
 Geprüft sind Haushaltstrennung, DEV/Live auf demselben synthetischen Gerät, Installation/Inline-Registrierung, Klick ins richtige Vollbild, ein gemeinsamer Vollbildabruf, Seitenbeibehaltung, Abruffehler ohne Überschreiben, Skill-Deaktivierung, Entfernen einzelner Instanzen, veraltete Ereignisse, Kontowechsel, gesperrte/gedrehte Zugänge, konkurrierende Zustellung, abgelaufene Sperren, Amazon-Fehler und Weiterverarbeitung sowie Gruppen 20/1 und Rotation über 101 Geräte.
 
@@ -65,3 +65,12 @@ Neuen Publisher zuerst stoppen. Gesicherte Hosted-/Widget-Fassung und alten Date
 
 D1-Transaktionen: https://developers.cloudflare.com/d1/worker-api/d1-database/
 Alexa Skill-Events: https://developer.amazon.com/en-AU/docs/alexa/smapi/add-events-to-your-skill-with-smapi.html
+
+
+## Aufwachen aus dem Energiesparmodus
+
+Build 1611.12 ist als DEV-Referenz für den Aufwach-Abruf am Küchen-Echo bestätigt. Das Store-Update übernimmt die Funktion in beiden Ansichten. Nach dem Einschalten des Displays fragt die kleine Kachel den aktuellen Datensatz über den bestehenden authentifizierten Widget-Weg ab. Das Vollbild aktualisiert einmal die gerade sichtbare Seite. Der reguläre Takt bleibt bei 60 Sekunden für Live/Heute und sechs Stunden für Monat/Jahr.
+
+Abnahme für das Store-Update: Kleine Kachel und Vollbild jeweils nach mehreren Minuten mit ausgeschaltetem Display prüfen. Zeit bis zum neuen Messstand auf dem Echo erfassen. Die DEV-Bestätigung gilt für Build 1611.12. Der Store-Kandidat ist separat am Gerät zu prüfen.
+
+APL-Schnittstelle: https://developer.amazon.com/en-US/docs/alexa/alexa-presentation-language/apl-document.html#ondisplaystatechange

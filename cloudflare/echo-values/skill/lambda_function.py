@@ -1276,20 +1276,18 @@ def native_handler(event, context, *, dev_text=False, live_config=None):
 
                              'value': HISTORY_INTERVAL_MS if page == 1 else REFRESH_INTERVAL_MS})
 
+        root['bind'].append({'name': 'refreshAfterWake', 'value': False})
+        document['onDisplayStateChange'] = [
+            {'type': 'SetValue', 'componentId': 'solarRoot', 'property': 'refreshAfterWake',
+             'value': True, 'when': '${event.displayState == "hidden"}'}]
         tick['minimumDelay'] = 1000
-
-        tick['when'] = '${displayState != "hidden" && elapsedTime >= nextRefreshAt}'
-
+        tick['when'] = '${displayState != "hidden" && (refreshAfterWake || elapsedTime >= nextRefreshAt)}'
         tick['commands'] = [
-
+            {'type': 'SetValue', 'componentId': 'solarRoot', 'property': 'refreshAfterWake', 'value': False},
             {'type': 'SetValue', 'componentId': 'solarRoot', 'property': 'nextRefreshAt',
-
-             'value': '${elapsedTime + 60000}'},
-
+             'value': '${elapsedTime + (currentPage == 1 ? 21600000 : 60000)}'},
             {'type': 'SendEvent', 'sequencer': 'solarDevFullscreenRefresh',
-
              'arguments': ['solar.fullscreen.live.auto.v1' if live_config else 'solar.fullscreen.text.auto.v1', expires_at, '${currentPage == 1 ? 1 : 0}']}]
-
         pager = root['items'][0]
 
         pager['onPageChanged'] = [

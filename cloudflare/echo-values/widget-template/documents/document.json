@@ -36,9 +36,46 @@
           {
             "name": "registrationConfirmed",
             "value": false
+          },
+          {
+            "name": "wakeRefreshPending",
+            "value": "${displayState == \"hidden\"}"
+          },
+          {
+            "name": "lastWakeRequestAt",
+            "value": 0
           }
         ],
         "handleTick": [
+          {
+            "minimumDelay": 1000,
+            "when": "${displayState != \"hidden\" && wakeRefreshPending && utcTime >= lastWakeRequestAt + 3000}",
+            "commands": [
+              {
+                "type": "SetValue",
+                "componentId": "imageWidget",
+                "property": "wakeRefreshPending",
+                "value": false
+              },
+              {
+                "type": "SetValue",
+                "componentId": "imageWidget",
+                "property": "lastWakeRequestAt",
+                "value": "${utcTime}"
+              },
+              {
+                "type": "SendEvent",
+                "arguments": [
+                  "solar.widget.values.register.v1"
+                ],
+                "flags": {
+                  "interactionMode": "INLINE"
+                },
+                "componentId": "imageWidget",
+                "sequencer": "solarLiveRegister"
+              }
+            ]
+          },
           {
             "minimumDelay": 60000,
             "when": "${!registrationConfirmed}",
@@ -298,6 +335,15 @@
       "type": "DataStore:WatchObject",
       "namespace": "__LIVE_NAMESPACE_PENDING__",
       "key": "snapshot"
+    }
+  ],
+  "onDisplayStateChange": [
+    {
+      "type": "SetValue",
+      "componentId": "imageWidget",
+      "property": "wakeRefreshPending",
+      "value": true,
+      "when": "${event.displayState == \"hidden\"}"
     }
   ]
 }

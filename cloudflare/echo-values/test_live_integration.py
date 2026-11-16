@@ -84,6 +84,16 @@ class LiveIntegration(unittest.TestCase):
 
   self.assertEqual(d['mainTemplate']['items'][0]['items'][0]['initialPage'],1);self.assertEqual(len(self.calls),1)
 
+ def test_fullscreen_wake_uses_existing_refresh_on_current_page(self):
+  self.event['request']={'type':'LaunchRequest'}
+  doc=self.invoke()['response']['directives'][0]['document']
+  root=doc['mainTemplate']['items'][0]
+  self.assertEqual(doc['onDisplayStateChange'][0]['property'],'refreshAfterWake')
+  tick=root['handleTick'][0]
+  self.assertIn('refreshAfterWake || elapsedTime >= nextRefreshAt',tick['when'])
+  self.assertFalse(tick['commands'][0]['value'])
+  self.assertEqual(tick['commands'][-1]['arguments'][0],'solar.fullscreen.live.auto.v1')
+  self.assertIn('currentPage',tick['commands'][-1]['arguments'][2])
  def test_refresh_failure_emits_no_overwrite(self):
 
   self.g['read_pv']=lambda *args:(_ for _ in ()).throw(OSError('offline'))
@@ -156,4 +166,21 @@ class WidgetTemplateTests(unittest.TestCase):
   doc=json.loads((HERE/'widget-template/documents/document.json').read_text())
   root=doc['mainTemplate']['items'][0]
   self.assertEqual(root['onMount'][0]['arguments'],['solar.widget.values.register.v1'])
-  self.assertEqual(root['handleTick'][0]['when'],'${!registrationConfirmed}')
+  self.assertTrue(any(tick['when']=='${!registrationConfirmed}' for tick in root['handleTick']))
+
+
+class WakeRefreshTests(unittest.TestCase):
+ def test_wake_pending_is_set_when_hidden_and_consumed_before_request(self):
+  doc=json.loads((HERE/'widget-template/documents/document.json').read_text(encoding='utf-8'))
+  change=doc['onDisplayStateChange'][0]
+  self.assertEqual(change['when'],'${event.displayState == "hidden"}')
+  tick=doc['mainTemplate']['items'][0]['handleTick'][0]
+  self.assertEqual(tick['minimumDelay'],1000)
+  self.assertIn('displayState != "hidden"',tick['when'])
+  self.assertEqual(tick['commands'][0]['property'],'wakeRefreshPending')
+  self.assertFalse(tick['commands'][0]['value'])
+  self.assertEqual(tick['commands'][-1]['arguments'],['solar.widget.values.register.v1'])
+ def test_regular_retry_interval_is_unchanged(self):
+  doc=json.loads((HERE/'widget-template/documents/document.json').read_text(encoding='utf-8'))
+  retries=[t for t in doc['mainTemplate']['items'][0]['handleTick'] if t['when']=='${!registrationConfirmed}']
+  self.assertEqual(len(retries),1);self.assertEqual(retries[0]['minimumDelay'],60000)
