@@ -43,19 +43,26 @@ class DevTextTests(unittest.TestCase):
         doc = self.invoke()["response"]["directives"][0]["document"]
         self.assertEqual(len(self.calls), 1)
         self.assertNotIn('"type": "Image"', json.dumps(doc))
-        self.assertIn("1611.8", json.dumps(doc))
+        self.assertIn("1611.11", json.dumps(doc))
 
     def test_relative_timer_and_no_manual_refresh(self):
         doc = self.invoke()["response"]["directives"][0]["document"]
         root = doc["mainTemplate"]["items"][0]
         tick = root["handleTick"][0]
-        self.assertEqual(tick["minimumDelay"], 60000)
+        self.assertEqual(tick["minimumDelay"], 1000)
         self.assertIn("elapsedTime", tick["when"])
         self.assertNotIn("utcTime", tick["when"])
-        self.assertIn("21600000", tick["when"])
-        self.assertIn("60000", tick["when"])
-        self.assertEqual(tick["commands"][0]["sequencer"], "solarDevFullscreenRefresh")
+        self.assertIn("21600000", json.dumps(root["items"][0]["onPageChanged"]))
+        self.assertEqual(root["bind"][-1], {"name": "nextRefreshAt", "value": 60000})
+        self.assertEqual(tick["commands"][1]["sequencer"], "solarDevFullscreenRefresh")
+        self.assertEqual(tick["commands"][0]["property"], "nextRefreshAt")
+        self.assertEqual(tick["commands"][0]["value"], "${elapsedTime + 60000}")
         self.assertNotIn("Aktualisieren", json.dumps(doc))
+
+    def test_dev_document_lifecycle(self):
+        response = self.invoke()["response"]
+        self.assertNotIn("shouldEndSession", response)
+        self.assertEqual(response["directives"][0]["document"]["version"], "2023.3")
 
     def test_live_uri_rejected(self):
         self.event["request"]["presentationUri"] = self.event["request"]["presentationUri"].replace("_development", "_live")
@@ -85,7 +92,9 @@ class DevTextTests(unittest.TestCase):
         def failed(*args):
             raise RuntimeError("synthetic failure")
         self.g["read_pv"] = failed
-        self.assertFalse(self.invoke()["response"].get("directives"))
+        response = self.invoke()["response"]
+        self.assertFalse(response.get("directives"))
+        self.assertNotIn("shouldEndSession", response)
 
 if __name__ == "__main__":
     unittest.main()

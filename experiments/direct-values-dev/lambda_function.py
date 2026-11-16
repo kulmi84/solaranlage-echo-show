@@ -400,7 +400,7 @@ def native_handler(event, context, *, dev_text=False):
             except Exception as error:
 
                 if dev_text and request.get('type') == 'Alexa.Presentation.APL.UserEvent':
-                    return {'version': '1.0', 'response': {'shouldEndSession': True}}
+                    return {'version': '1.0', 'response': {}}
                 if getattr(error, 'code', None) == 401:
 
                     return {'version': '1.0', 'response': {
@@ -417,7 +417,7 @@ def native_handler(event, context, *, dev_text=False):
 
     except Exception:
         if dev_text and request.get('type') == 'Alexa.Presentation.APL.UserEvent':
-            return {'version': '1.0', 'response': {'shouldEndSession': True}}
+            return {'version': '1.0', 'response': {}}
 
         pv = {'metrics': {}, 'valueText': 'â€”', 'statusText': 'Keine aktuellen Daten Â· Verbindung prÃ¼fen', 'stale': True}
 
@@ -610,6 +610,8 @@ def native_handler(event, context, *, dev_text=False):
                    'items': [live_page, history_page]}]}]
 
     if dev_text:
+        document['version'] = '2023.3'
+
         # Keep existing header geometry; remove only the manual refresh control.
         live_page['items'][0]['items'].pop(1)
     tick = document['handleTick'][0]
@@ -624,20 +626,28 @@ def native_handler(event, context, *, dev_text=False):
 
     if dev_text:
         document['mainTemplate']['items'][0]['items'].append({
-            'type': 'Text', 'text': 'DEV Â· 1.1.0 (Build 1611.8)',
+            'type': 'Text', 'text': 'DEV Â· 1.1.0 (Build 1611.11)',
             'fontSize': '1.8vh', 'color': '#8FA8BC', 'maxLines': 1,
             'position': 'absolute', 'right': '1vw', 'bottom': '0.5vh',
             'textAlign': 'right'})
-        # Relative time is independent of device/server wall-clock differences.
-        # A failed read retains this document and retries at most once a minute.
-        tick['when'] = ('${displayState != "hidden" && elapsedTime >= '
-                        '(currentPage == 1 ? ' + str(HISTORY_INTERVAL_MS) + ' : '
-                        + str(REFRESH_INTERVAL_MS) + ')}')
-        tick['commands'][0]['arguments'] = [
-            'solar.fullscreen.text.auto.v1', expires_at, '${currentPage == 1 ? 1 : 0}']
-        tick['commands'][0]['sequencer'] = 'solarDevFullscreenRefresh'
-        pager = document['mainTemplate']['items'][0]['items'][0]
-        pager['onPageChanged'][0]['value'] = '${event.source.page == 1 || event.source.value == 1 ? 1 : 0}' 
+        # Check the monotonic deadline frequently, but dispatch at most once
+        # per minute. Using 60s for both check and deadline can skip a boundary.
+        root = document['mainTemplate']['items'][0]
+        root['bind'].append({'name': 'nextRefreshAt',
+                             'value': HISTORY_INTERVAL_MS if page == 1 else REFRESH_INTERVAL_MS})
+        tick['minimumDelay'] = 1000
+        tick['when'] = '${displayState != "hidden" && elapsedTime >= nextRefreshAt}'
+        tick['commands'] = [
+            {'type': 'SetValue', 'componentId': 'solarRoot', 'property': 'nextRefreshAt',
+             'value': '${elapsedTime + 60000}'},
+            {'type': 'SendEvent', 'sequencer': 'solarDevFullscreenRefresh',
+             'arguments': ['solar.fullscreen.text.auto.v1', expires_at, '${currentPage == 1 ? 1 : 0}']}]
+        pager = root['items'][0]
+        pager['onPageChanged'] = [
+            {'type': 'SetValue', 'componentId': 'solarRoot', 'property': 'currentPage',
+             'value': '${event.source.page == 1 || event.source.value == 1 ? 1 : 0}'},
+            {'type': 'SetValue', 'componentId': 'solarRoot', 'property': 'nextRefreshAt',
+             'value': '${elapsedTime + (event.source.page == 1 || event.source.value == 1 ? 21600000 : 60000)}'}]
     document['mainTemplate']['items'][0]['handleTick'] = document.pop('handleTick')
 
     # v1.0.5: render APL while ending voice on launch and touch/tick updates.
@@ -646,7 +656,7 @@ def native_handler(event, context, *, dev_text=False):
 
     response = {'directives': [{'type': 'Alexa.Presentation.APL.RenderDocument', 'token': 'solaranlage', 'document': document}]}
 
-    if request.get('type') in ('LaunchRequest', 'Alexa.Presentation.APL.UserEvent'):
+    if not dev_text and request.get('type') in ('LaunchRequest', 'Alexa.Presentation.APL.UserEvent'):
 
         response['shouldEndSession'] = True
 

@@ -38,3 +38,10 @@ Kein automatisches Deployment aus diesem Verzeichnis. Quellen vor Paketwechsel s
 Der Aktualisieren-Button ist entfernt. Der DEV-Vollbildtimer verwendet elapsedTime statt absoluter Geräte-/Serverzeit, einen eigenen normalen Sequencer und eine auf 0/1 begrenzte Seitenangabe. Live/Heute fragt nach 60 Sekunden erneut ab; Monat/Jahr behält sechs Stunden. Fehlgeschlagene Abrufe behalten die letzte Anzeige und werden höchstens einmal pro Minute wiederholt. Das kleine Widget bleibt unverändert auf Build 1611.7.
 
 Die Änderung ist lokal geprüft. Der automatische Dauerlauf auf dem Echo muss für diesen Vollbildstand noch gesondert bestätigt werden; das zuvor bestätigte Öffnen allein war dafür kein Nachweis.
+
+
+## Aktueller Vollbildstand: Build 1611.11
+
+Die kleine Kachel bleibt bei Build 1611.7. Das Vollbild verwendet APL 2023.3 und beendet die visuelle Sitzung nicht ausdrücklich beim Öffnen oder bei vorübergehenden Abruffehlern. Der Nutzer bestätigte automatische Vollbild-Aktualisierung bereits für Build 1611.9; im Protokoll lagen die Folgeabrufe dabei etwa zwei Minuten auseinander.
+
+Build 1611.11 prüft die Laufzeitfrist jede Sekunde, löst aber höchstens einen Datenabruf pro Minute aus. Die Frist wird vor dem Senden fortgeschrieben; dadurch entsteht bei einem Fehler kein Anfrage-Sturm. Monat/Jahr behält sechs Stunden. Der manuelle Aktualisieren-Button und vorübergehende Laufzeitproben sind entfernt. Der genaue 60-Sekunden-Gerätenachweis für diesen letzten Stand bleibt gesondert festzuhalten.
