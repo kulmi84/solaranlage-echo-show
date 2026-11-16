@@ -51,4 +51,4 @@ HACS installiert die Home-Assistant-Integration. Alexa-Skill und Widget werden s
 
 ## Aktueller Development-Test
 
-[DEV 1.1.0 (Build 1611.7): native Textwerte und Vollbild per Tipp](docs/DEV-TEXTWERTE-1.1.0.md). Separater Teststand; keine Änderung der Store-Veröffentlichung.
+[DEV 1.1.0: native Textwerte und Vollbild per Tipp](docs/DEV-TEXTWERTE-1.1.0.md). Separater Teststand; keine Änderung der Store-Veröffentlichung.

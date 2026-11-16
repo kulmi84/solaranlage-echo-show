@@ -1,6 +1,6 @@
 # Textwerte in Development: 1.1.0 (Build 1611.7)
 
-Dieser getrennte Entwicklungsstand ersetzt die vier Messwertbilder der kleinen Kachel durch native Textwerte. Die Vollbildansicht rendert ebenfalls Text. Der sichtbare Versionshinweis lautet DEV · 1.1.0 (Build 1611.7); Amazons interne Paketversion lautet 1.1.7.
+Dieser getrennte Entwicklungsstand ersetzt die vier Messwertbilder der kleinen Kachel durch native Textwerte. Die Vollbildansicht rendert ebenfalls Text. Die kleine Kachel trägt DEV · 1.1.0 (Build 1611.7), das Vollbild DEV · 1.1.0 (Build 1611.11). Amazons interne Widget-Paketversion bleibt 1.1.7.
 
 ## Datenweg und Kosten
 
@@ -44,4 +44,4 @@ Die Änderung ist lokal geprüft. Der automatische Dauerlauf auf dem Echo muss f
 
 Die kleine Kachel bleibt bei Build 1611.7. Das Vollbild verwendet APL 2023.3 und beendet die visuelle Sitzung nicht ausdrücklich beim Öffnen oder bei vorübergehenden Abruffehlern. Der Nutzer bestätigte automatische Vollbild-Aktualisierung bereits für Build 1611.9; im Protokoll lagen die Folgeabrufe dabei etwa zwei Minuten auseinander.
 
-Build 1611.11 prüft die Laufzeitfrist jede Sekunde, löst aber höchstens einen Datenabruf pro Minute aus. Die Frist wird vor dem Senden fortgeschrieben; dadurch entsteht bei einem Fehler kein Anfrage-Sturm. Monat/Jahr behält sechs Stunden. Der manuelle Aktualisieren-Button und vorübergehende Laufzeitproben sind entfernt. Der genaue 60-Sekunden-Gerätenachweis für diesen letzten Stand bleibt gesondert festzuhalten.
+Build 1611.11 prüft die Laufzeitfrist jede Sekunde, löst aber höchstens einen Datenabruf pro Minute aus. Die Frist wird vor dem Senden fortgeschrieben; dadurch entsteht bei einem Fehler kein Anfrage-Sturm. Monat/Jahr behält sechs Stunden. Der manuelle Aktualisieren-Button und vorübergehende Laufzeitproben sind entfernt. Nach erneutem Öffnen dieses Stands wurden drei automatische Folgeabrufe ohne weiteres Antippen nachgewiesen: 61,9 / 61,7 / 61,7 Sekunden Abstand, jeweils HTTP 200, ein Worker-Aufruf, ein D1-SELECT, keine internen Worker-Weiterleitungen und keine Bildabrufe. Die Geräteöffnung wurde vom Nutzer bestätigt. Ein längerer Dauerlauf bleibt offen.
