@@ -1,0 +1,23 @@
+{
+  "name": "solaranlage-dev-text-publisher",
+  "main": "worker.mjs",
+  "compatibility_date": "2026-11-16",
+  "workers_dev": true,
+  "preview_urls": false,
+  "triggers": {
+    "crons": [
+      "* * * * *"
+    ]
+  },
+  "d1_databases": [
+    {
+      "binding": "SOURCE_DB",
+      "database_name": "CONFIGURE_EXISTING_DATABASE",
+      "database_id": "CONFIGURE_PRIVATELY"
+    }
+  ],
+  "observability": {
+    "enabled": true,
+    "head_sampling_rate": 1
+  }
+}
