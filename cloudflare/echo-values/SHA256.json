@@ -1,0 +1,19 @@
+{
+  "live-preparation.json": "ced24c000353607d851468fd5e69564b14e7337f6487693c0a46a8563ca16f79",
+  "README.md": "e5b6a98c890a84640a41aba5f98d3ba0bf721c6faa20be3b7207098406693f70",
+  "schema.sql": "c6876221d6eec5f375553fab89ffa288d43a09a31b94e3682d0c71cdd10c2324",
+  "skill/lambda_function.py": "16595d0e9ffad26bddd0b5f09f749d4197909a99f26153cf43843408464ba998",
+  "skill/relay_config.example.json": "68e038646b6317fe6b6c0a85bf6549598c2c2c652e05536d4a9982bb1de11fc7",
+  "skill/requirements.txt": "ded3e98c1d6383ff4a9beecba1039a075855036e080a1d8e77b05a8b2515c1ec",
+  "skill/skill_registration.py": "51fa2c5b45cc397c9899324b9487278a82f684bd208bd3b5c74ec5f3db4655fc",
+  "skill-events.merge.json": "77a955a5c035e6c1e7445a40ca5db4e1c6b871861cb5e3c016d9a453c93413a6",
+  "skill_registration.py": "51fa2c5b45cc397c9899324b9487278a82f684bd208bd3b5c74ec5f3db4655fc",
+  "test_live_integration.py": "898f69e9a4af574f9c291bc4f3dc6b6296ea2d4e9f9b33c5c4bb4c0bef2c1a5d",
+  "test_skill_registration.py": "4bbd5600844ea5175097a9660a3ac7367a613374392cd18db05243166edc20bd",
+  "widget-template/datasources/default.json": "44136fa355b3678a1146ad16f7e8649e94fb4fc21fe77e8310c060f61caaff8a",
+  "widget-template/documents/document.json": "c04025054b985bbd361aa4b34175cdc7491185ff69d6fc0e23245148e5143f0c",
+  "widget-template/manifest.json": "07adc7a15bdf82736f007849142df41a03d31e2518626d581a0e1f0c20b0922c",
+  "widget-template/presentations/default.tpl": "72fef538b2955ce9105368e9b84e32de10f88d0ad39ba2f7c8d804f6a3bd879f",
+  "worker.mjs": "ce7c2c39af1e1cf010eb247ff9dcacf1c06220fb5c761f61e9d4f80ed529aaa7",
+  "worker.test.mjs": "3ae6017b03f090dcfdcbb9c27f40f75a75d98712fb0a80a56c83280d279ff89b"
+}

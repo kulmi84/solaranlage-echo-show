@@ -1,0 +1,38 @@
+{
+  "manifest": {
+    "id": "__LIVE_PACKAGE_ID_PENDING__",
+    "version": "1.1.7",
+    "presentationDefinitions": [
+      {
+        "url": "presentations/default.tpl"
+      }
+    ],
+    "appliesTo": "${viewport.mode == 'HUB'}",
+    "installStateChanges": "INFORM",
+    "updateStateChanges": "AUTOMATIC"
+  },
+  "packageVersion": "1.0",
+  "packageType": "APL_PACKAGE",
+  "publishingInformation": {
+    "schemaVersion": "1.0",
+    "locales": {
+      "de-DE": [
+        {
+          "targetViewport": "WIDGET_M",
+          "metadata": {
+            "name": "Solaranlage",
+            "description": "Solarleistung, Hausverbrauch und Akku der verkn\u00fcpften Anlage. Antippen \u00f6ffnet das Vollbild.",
+            "keywords": [
+              "Solar",
+              "Solaranlage"
+            ],
+            "iconUri": "https://raw.githubusercontent.com/kulmi84/solaranlage-echo-show/main/assets/branding/solaranlage-icon-512.png",
+            "previews": [
+              "https://raw.githubusercontent.com/kulmi84/solaranlage-echo-show/main/experiments/widget-image/assets/layout-status-preview.png"
+            ]
+          }
+        }
+      ]
+    }
+  }
+}

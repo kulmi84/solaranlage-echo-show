@@ -1,0 +1,22 @@
+{
+  "mode": "public_beta",
+  "url": "https://solaranlage-kontodienst.kulmi84.workers.dev/v1/pv",
+  "widget_datastore_credentials": {
+    "ALEXA_CLIENT_ID": "CONFIGURE_PRIVATELY",
+    "ALEXA_CLIENT_SECRET": "CONFIGURE_PRIVATELY"
+  },
+  "direct_widget_test": {
+    "package_id": "SolarDirectValuesDev1611R7",
+    "allowed_device_tag": "",
+    "relay_url": "https://solaranlage-dev-text-publisher.kulmi84.workers.dev/v1/pv"
+  },
+  "live_values": {
+    "enabled": false,
+    "stage": "live",
+    "package_id": "",
+    "skill_id": "amzn1.ask.skill.80aa6d64-52ed-487a-b427-73e545a715d0",
+    "origin": "https://solaranlage-echo-werte.kulmi84.workers.dev",
+    "version_label": "1.1.0 (Build 1611)",
+    "registration_secret": ""
+  }
+}

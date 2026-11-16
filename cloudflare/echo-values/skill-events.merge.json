@@ -1,0 +1,10 @@
+{
+  "subscriptions": [
+    {
+      "eventName": "SKILL_DISABLED"
+    },
+    {
+      "eventName": "SKILL_ACCOUNT_LINKED"
+    }
+  ]
+}
