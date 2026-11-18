@@ -1,13 +1,13 @@
 {
-  "status": "LOCAL_PREPARATION_ONLY",
+  "status": "LIVE_RELEASE_STORE_DISPLAY_UNRESOLVED",
   "worker_name": "solaranlage-echo-werte",
   "database": "solaranlage",
   "reuse_existing_oauth_client": true,
   "preserve_existing_households_and_tokens": true,
   "PUBLISH_ENABLED": "false",
   "STAGE": "live",
-  "WIDGET_PACKAGE_ID": null,
-  "DATASTORE_NAMESPACE": null,
+  "WIDGET_PACKAGE_ID": "SolarAccountImageBuild1211",
+  "DATASTORE_NAMESPACE": "SolarAccountImagesV3",
   "DATASTORE_KEY": "snapshot",
   "secrets_to_provision_later": [
     "REGISTRATION_SECRET",
@@ -18,19 +18,18 @@
   "registration_adapter": {
     "enabled": false,
     "stage": "live",
-    "package_id": null,
+    "package_id": "SolarAccountImageBuild1211",
     "skill_id": "amzn1.ask.skill.80aa6d64-52ed-487a-b427-73e545a715d0",
     "origin": "https://solaranlage-echo-werte.kulmi84.workers.dev"
   },
   "deployment_blockers": [
-    "Agree package identity and datastore namespace",
-    "Fresh backups and endpoint compatibility review",
-    "Provision disabled worker and merge event subscriptions only with activation approval",
-    "Echo pilot, actual event delivery and Cloudflare request measurements"
+    "Store small-widget device display remains unresolved; see issue #20."
   ],
   "local_status": {
     "skill_integration": "implemented_and_tested",
     "delivery_hardening": "implemented_and_tested",
-    "echo_proof": "pending"
-  }
+    "echo_proof": "DEV confirmed; Store small-widget readings missing"
+  },
+  "version": "1.1.0",
+  "build": "1811"
 }

@@ -2,8 +2,18 @@ import {test} from 'node:test';
 import assert from 'node:assert/strict';
 import {DatabaseSync} from 'node:sqlite';
 import {readFileSync} from 'node:fs';
-import {digest,register,remove,unlink,relink,read,publish} from './worker.mjs';
+import {digest,register,remove,unlink,relink,read,publish,resolveStage,refreshRegistered} from './worker.mjs';
 const now=Date.parse('2026-11-16T15:00:00Z');
+test('Store profile cannot alter the default DEV destination or bypass scope checks',()=>{
+ const env={STAGE:'development',WIDGET_PACKAGE_ID:'Solaranlage1711R2',DATASTORE_NAMESPACE:'Solaranlage1711',LIVE_PACKAGE_ID:'SolarAccountImageBuild1211',LIVE_DATASTORE_NAMESPACE:'SolarAccountImagesV3'};
+ const request=stage=>new Request('https://test/internal/register',{headers:{'X-Solar-Stage':stage}});
+ const live=resolveStage(request('live'),env);
+ assert.equal(live.STAGE,'live');assert.equal(live.WIDGET_PACKAGE_ID,'SolarAccountImageBuild1211');assert.equal(live.DATASTORE_NAMESPACE,'SolarAccountImagesV3');
+ assert.equal(resolveStage(request('development'),env),env);
+ assert.equal(env.WIDGET_PACKAGE_ID,'Solaranlage1711R2');
+ assert.throws(()=>resolveStage(request('other'),env),{code:'wrong_scope'});
+ assert.throws(()=>resolveStage(request('live'),{STAGE:'development'}),{code:'wrong_scope'});
+});
 async function setup(){
  const db=new DatabaseSync(':memory:');
  db.exec(readFileSync(new URL('../public-beta/schema.sql',import.meta.url),'utf8'));
@@ -18,6 +28,40 @@ async function setup(){
  const calls=[];const send=async(url,init)=>{if(url.includes('/auth/'))return Response.json({access_token:'synthetic'});const data=JSON.parse(init.body);calls.push(data);return Response.json({results:data.target.items.map(deviceId=>({deviceId,type:'SUCCESS'}))})};
  return {db,env,request,calls,send};
 }
+
+async function registeredLive(){
+ const s=await setup();Object.assign(s.env,{STAGE:'live',WIDGET_PACKAGE_ID:'Published',LIVE_PACKAGE_ID:'Published'});
+ await register(s.request(),s.env,now);
+ s.refresh=(extra={},secret=s.env.REGISTRATION_SECRET)=>new Request('https://test/internal/refresh',{method:'POST',headers:{'X-Solar-Registration':secret},body:JSON.stringify({stage:'live',packageId:'Published',userId:'amzn1.ask.account.a',deviceId:'amzn1.ask.device.a',instanceId:'one',occurredAt:new Date(now).toISOString(),...extra})});
+ return s;
+}
+test('Registered Live refresh returns four current values without OAuth or Amazon subrequests',async()=>{
+ const s=await registeredLive();const before=s.db.prepare('SELECT updated_at FROM echo_value_devices').get().updated_at;
+ for(let i=0;i<3;i++){
+  const at=now+i*60000;s.db.prepare('UPDATE households SET live_at=?,live_json=? WHERE id=?').run(new Date(at).toISOString(),JSON.stringify({power_w:300+i,home_w:500+i,battery_soc:30+i}),'a');
+  const r=await(await refreshRegistered(s.refresh({occurredAt:new Date(at).toISOString()}),s.env,at)).json();
+  assert.equal(r.registered,true);assert.equal(r.refreshed,true);assert.equal(r.snapshot.solar,(300+i)+' W');assert.equal(r.snapshot.home,(500+i)+' W');assert.equal(r.snapshot.battery,(30+i)+' %');assert.equal(r.snapshot.sampleTime,at);assert.equal(r.snapshot.binding,r.binding);
+ }
+ assert.equal(s.calls.length,0);assert.equal(s.db.prepare('SELECT updated_at FROM echo_value_devices').get().updated_at,before);
+});
+test('Tokenless refresh never registers or reactivates unknown account/device/package usage',async()=>{
+ for(const change of [{userId:'amzn1.ask.account.b'},{deviceId:'amzn1.ask.device.b'},{instanceId:'other'},{packageId:'Other'},{stage:'development'}]){
+  const s=await registeredLive();await assert.rejects(()=>refreshRegistered(s.refresh(change),s.env,now));
+  assert.equal(s.db.prepare('SELECT COUNT(*) AS n FROM echo_value_devices').get().n,1);
+ }
+});
+test('Registered refresh rejects revocation, removal, disabled household, changed generation and expired grants',async()=>{
+ for(const mutate of [s=>unlink(s.request(),s.env,now),s=>remove(s.request(),s.env,now),s=>s.db.exec("UPDATE households SET disabled=1 WHERE id='a'"),s=>s.db.exec("UPDATE households SET write_hash='rotated' WHERE id='a'"),s=>s.db.exec('UPDATE access_tokens SET expires=0')]){
+  const s=await registeredLive();await mutate(s);await assert.rejects(()=>refreshRegistered(s.refresh(),s.env,now));
+ }
+});
+test('Registered refresh cannot substitute a client-supplied household or skip internal authentication',async()=>{
+ const s=await registeredLive();const r=await(await refreshRegistered(s.refresh({household:'b'}),s.env,now)).json();assert.equal(r.snapshot.solar,'100 W');
+ await assert.rejects(()=>refreshRegistered(s.refresh({},'wrong'),s.env,now),{code:'unauthorized'});
+});
+test('Invalid registered readings preserve the last valid display by returning no snapshot',async()=>{
+ const s=await registeredLive();s.db.exec("UPDATE households SET live_json='{}'");await assert.rejects(()=>refreshRegistered(s.refresh(),s.env,now),{code:'snapshot_unavailable'});
+});
 test('OAuth isolates household reads and rejects expired tokens',async()=>{const s=await setup();for(const [who,value] of [['a',100],['b',200]]){const r=await read(new Request('https://test/v1/pv?household=other',{headers:{Authorization:'Bearer '+who.repeat(64)}}),s.env,now);assert.equal((await r.json()).power_w,value)}s.db.exec('UPDATE access_tokens SET expires=0');await assert.rejects(()=>read(new Request('https://test/v1/pv',{headers:{Authorization:'Bearer '+'a'.repeat(64)}}),s.env,now),{code:'unauthorized'})});
 test('Publishing keeps households in separate atomic snapshots',async()=>{const s=await setup();await register(s.request('a'),s.env,now);await register(s.request('b'),s.env,now);assert.equal((await publish(s.env,now,s.send)).accepted,2);assert.equal(s.calls.length,2);assert.deepEqual(s.calls.map(c=>c.commands[0].content.solar),['100 W','200 W']);assert.ok(s.calls.every(c=>c.target.items.length===1))});
 test('Removing one instance retains another; unlink stops household delivery',async()=>{const s=await setup();await register(s.request(),s.env,now);await register(s.request('a',{instanceId:'two'}),s.env,now);await remove(s.request(),s.env,now);assert.equal((await publish(s.env,now,s.send)).accepted,1);await unlink(s.request(),s.env,now);assert.equal((await publish(s.env,now,s.send)).accepted,0);await assert.rejects(()=>register(s.request(),s.env,now),{code:'stale_event'})});
@@ -39,3 +83,104 @@ test('Expired leases recover after a crashed runner; active leases block',async(
 test('Account re-link moves registered devices with a new display binding',async()=>{const s=await setup();const first=await (await register(s.request(),s.env,now)).json();await publish(s.env,now,s.send);assert.equal(s.calls[0].commands[0].content.binding,first.binding);await relink(s.request('a',{occurredAt:new Date(now+1000).toISOString()},'b'),s.env,now+1000);await publish(s.env,now+1000,s.send);const latest=s.calls[1].commands[0].content;assert.equal(latest.solar,'200 W');assert.notEqual(latest.binding,first.binding)});
 
 test('Removal notification without instance deactivates all matching package usages',async()=>{const s=await setup();await register(s.request(),s.env,now);await register(s.request('a',{instanceId:'two'}),s.env,now);await remove(s.request('a',{instanceId:null,removeAll:true}),s.env,now);assert.equal((await publish(s.env,now,s.send)).accepted,0)});
+
+
+test('Three synthetic minute rounds publish changing atomic values with bounded calls',async()=>{
+ const s=await setup();await register(s.request(),s.env,now);
+ let d1=0,http=0;const original=s.env.DB.prepare;
+ s.env.DB.prepare=(...args)=>{const q=original(...args);const track=x=>({bind(...a){return track(x.bind(...a))},async first(){d1++;return x.first()},async all(){d1++;return x.all()},async run(){d1++;return x.run()}});return track(q)};
+ const evidence=[];
+ for(let round=0;round<3;round++){
+  const at=now+round*60000;
+  s.db.prepare('UPDATE households SET live_at=?,live_json=? WHERE id=?').run(new Date(at).toISOString(),JSON.stringify({power_w:100+round,home_w:500+round,battery_soc:50+round}),'a');
+  const beforeD1=d1,beforeHttp=http;
+  const result=await publish(s.env,at,async(...args)=>{http++;return s.send(...args)});
+  const content=s.calls.at(-1).commands[0].content;
+  assert.equal(result.accepted,1);assert.equal(result.failed,0);
+  assert.equal(content.sampleTime,at);assert.equal(content.solar,(100+round)+' W');assert.equal(content.home,(500+round)+' W');assert.equal(content.battery,(50+round)+' %');
+  assert.equal(s.calls.at(-1).commands.length,1);
+  evidence.push({round:round+1,d1:d1-beforeD1,amazonHttp:http-beforeHttp});
+ }
+ assert.deepEqual(evidence,[1,2,3].map(round=>({round,d1:8,amazonHttp:2})));
+ console.log('SYNTHETIC_MINUTE_ROUNDS '+JSON.stringify(evidence));
+});
+
+test('Stale measurements retain their original timestamp and become visibly stale',async()=>{
+ const s=await setup();await register(s.request(),s.env,now);
+ await publish(s.env,now,s.send);const first=s.calls.at(-1).commands[0].content;
+ await publish(s.env,now+300000,s.send);const last=s.calls.at(-1).commands[0].content;
+ assert.equal(last.sampleTime,first.sampleTime);assert.equal(last.stale,true);
+ assert.equal(last.stamp.replace(/^Veraltet: /,''),first.stamp.replace(/^Stand: /,''));
+});
+
+test('Client-supplied household cannot override the linked account',async()=>{
+ const s=await setup();await register(s.request('a',{household:'b'}),s.env,now);
+ await publish(s.env,now,s.send);assert.equal(s.calls[0].commands[0].content.solar,'100 W');
+});
+
+
+test('Inline mode delivers three changing rounds without a second cron delivery',async()=>{
+ const s=await setup();s.env.PUBLISH_MODE='inline';
+ for(let i=0;i<3;i++){
+  const at=now+i*60000;s.db.prepare('UPDATE households SET live_at=?,live_json=? WHERE id=?').run(new Date(at).toISOString(),JSON.stringify({power_w:300+i,home_w:600+i,battery_soc:20+i}),'a');
+  const response=await (await register(s.request('a',{occurredAt:new Date(at).toISOString()}),s.env,at,s.send)).json();
+  assert.equal(response.delivery.accepted,1);assert.equal(response.snapshot.sampleTime,at);
+  assert.equal(s.calls.length,i+1);assert.equal(s.calls.at(-1).commands.length,1);
+  assert.equal(s.calls.at(-1).commands[0].content.solar,(300+i)+' W');
+  const count=s.calls.length;assert.equal((await publish(s.env,at,s.send)).reason,'inline_mode');assert.equal(s.calls.length,count);
+ }
+});
+
+test('Inline relink clears old display before delivering the new household',async()=>{
+ const s=await setup();s.env.PUBLISH_MODE='inline';await register(s.request(),s.env,now,s.send);
+ await relink(s.request('a',{occurredAt:new Date(now+1000).toISOString()},'b'),s.env,now+1000,s.send);
+ const commands=s.calls.at(-1).commands;assert.equal(commands.length,2);
+ assert.equal(commands[0].content.stamp,'');assert.equal(commands[0].content.sampleTime,0);
+ assert.equal(commands[1].content.solar,'200 W');assert.equal(s.db.prepare('SELECT household FROM echo_value_devices').get().household,'b');
+});
+
+test('Relink without valid new measurements clears instead of retaining old household',async()=>{
+ const s=await setup();s.env.PUBLISH_MODE='inline';await register(s.request(),s.env,now,s.send);s.db.exec("UPDATE households SET live_json='{}' WHERE id='b'");
+ await relink(s.request('a',{occurredAt:new Date(now+1000).toISOString()},'b'),s.env,now+1000,s.send);
+ assert.equal(s.calls.at(-1).commands.length,1);assert.equal(s.calls.at(-1).commands[0].content.sampleTime,0);assert.equal(s.calls.at(-1).commands[0].content.stamp,'');
+});
+
+test('Failed relink clear remains retryable and does not commit new ownership',async()=>{
+ const s=await setup();s.env.PUBLISH_MODE='inline';await register(s.request(),s.env,now,s.send);s.db.exec("UPDATE households SET live_json='{}' WHERE id='b'");
+ const failure=(url,init)=>url.includes('/datastore/')?new Response('',{status:503}):s.send(url,init);
+ await assert.rejects(()=>relink(s.request('a',{occurredAt:new Date(now+1000).toISOString()},'b'),s.env,now+1000,failure),{code:'delivery_failed'});
+ assert.equal(s.db.prepare('SELECT household FROM echo_value_devices').get().household,'a');
+ await register(s.request('a',{occurredAt:new Date(now+2000).toISOString()},'b'),s.env,now+2000,s.send);
+ assert.equal(s.calls.at(-1).commands[0].content.sampleTime,0);assert.equal(s.db.prepare('SELECT household FROM echo_value_devices').get().household,'b');
+});
+
+test('Delayed disable event clears data and stops delivery, while stale events cannot restore it',async()=>{
+ const s=await setup();s.env.PUBLISH_MODE='inline';await register(s.request(),s.env,now,s.send);
+ await unlink(s.request('a',{occurredAt:new Date(now+1000).toISOString()}),s.env,now+600000,s.send);
+ assert.equal(s.db.prepare('SELECT active FROM echo_value_devices').get().active,0);assert.equal(s.calls.at(-1).commands[0].content.sampleTime,0);
+ await assert.rejects(()=>register(s.request('a',{occurredAt:new Date(now+500).toISOString()}),s.env,now+500,s.send),{code:'stale_event'});
+});
+
+test('Inline delivery failure releases its lease and succeeds on the next regular request',async()=>{
+ const s=await setup();s.env.PUBLISH_MODE='inline';const fail=(url,init)=>url.includes('/datastore/')?new Response('',{status:429}):s.send(url,init);
+ await assert.rejects(()=>register(s.request(),s.env,now,fail),{code:'delivery_failed'});
+ assert.equal(s.db.prepare('SELECT COUNT(*) n FROM echo_value_locks').get().n,0);
+ const response=await (await register(s.request('a',{occurredAt:new Date(now+60000).toISOString()}),s.env,now+60000,s.send)).json();assert.equal(response.delivery.accepted,1);
+});
+
+test('Approved separate DEV package resolves to its own namespace without replacing the old DEV',()=>{
+ const env={STAGE:'development',WIDGET_PACKAGE_ID:'Solaranlage1711R2',DATASTORE_NAMESPACE:'Solaranlage1711',TEST_PACKAGE_ID:'Solaranlage1811',TEST_DATASTORE_NAMESPACE:'Solaranlage1811'};
+ const req=pkg=>new Request('https://test/internal/register',{headers:{'X-Solar-Stage':'development','X-Solar-Package':pkg}});
+ const target=resolveStage(req('Solaranlage1811'),env);
+ assert.equal(target.WIDGET_PACKAGE_ID,'Solaranlage1811');assert.equal(target.DATASTORE_NAMESPACE,'Solaranlage1811');
+ assert.equal(resolveStage(req('Solaranlage1711R2'),env),env);
+ assert.throws(()=>resolveStage(req('unapproved'),env),{code:'wrong_scope'});
+});
+
+test('Store development and live adapter scopes resolve the Store namespace, while DEV1811 stays separate',()=>{
+ const env={STAGE:'development',WIDGET_PACKAGE_ID:'Solaranlage1711R2',DATASTORE_NAMESPACE:'Solaranlage1711',TEST_PACKAGE_ID:'Solaranlage1811',TEST_DATASTORE_NAMESPACE:'Solaranlage1811',LIVE_PACKAGE_ID:'SolarAccountImageBuild1211',LIVE_DATASTORE_NAMESPACE:'SolarAccountImagesV3'};
+ const req=(stage,pkg)=>new Request('https://test/internal/register',{headers:{'X-Solar-Stage':stage,'X-Solar-Package':pkg}});
+ for(const stage of ['development','live']){const scoped=resolveStage(req(stage,'SolarAccountImageBuild1211'),env);assert.equal(scoped.STAGE,stage);assert.equal(scoped.WIDGET_PACKAGE_ID,'SolarAccountImageBuild1211');assert.equal(scoped.DATASTORE_NAMESPACE,'SolarAccountImagesV3');}
+ assert.equal(resolveStage(req('development','Solaranlage1811'),env).DATASTORE_NAMESPACE,'Solaranlage1811');
+ assert.throws(()=>resolveStage(req('certification','SolarAccountImageBuild1211'),env),{code:'wrong_scope'});
+});

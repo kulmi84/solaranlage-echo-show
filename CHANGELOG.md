@@ -1,3 +1,9 @@
+## 18.11.2026 · Alexa 1.1.0 (Build 1811)
+
+- Store-Update von Amazon als Live bestätigt; kleine Kachel und Vollbild mit direkten Textwerten.
+- Separate DEV 1811 mit Einblend-/Aufwachabruf und automatischer Aktualisierung erhalten.
+- Store-Messwerte der kleinen Kachel weiterhin offen; Amazon-Support aktualisiert. Bilddienste bleiben aktiv.
+
 # Änderungsverlauf
 
 Die ausführlichen Änderungen stehen hier. Die [Projektübersicht](README.md) beschreibt die Funktionen und zeigt die Ansichten.

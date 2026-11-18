@@ -1,7 +1,7 @@
 {
   "manifest": {
-    "id": "__LIVE_PACKAGE_ID_PENDING__",
-    "version": "1.1.7",
+    "id": "SolarAccountImageBuild1211",
+    "version": "1.1.0",
     "presentationDefinitions": [
       {
         "url": "presentations/default.tpl"
@@ -21,7 +21,7 @@
           "targetViewport": "WIDGET_M",
           "metadata": {
             "name": "Solaranlage",
-            "description": "Solarleistung, Hausverbrauch und Akku der verkn\u00fcpften Anlage. Antippen \u00f6ffnet das Vollbild.",
+            "description": "Solarleistung, Hausverbrauch, Akkustand und Messzeit der verknüpften Anlage. Antippen öffnet das Vollbild.",
             "keywords": [
               "Solar",
               "Solaranlage"

@@ -660,7 +660,7 @@ def native_handler(event, context, *, dev_text=False, live_config=None):
 
 
 
-    presentation_token = "solaranlage-live-werte" if live_config else "solaranlage"
+    presentation_token = live_config.get("presentation_token", "solaranlage-live-werte") if live_config else "solaranlage"
 
     now_ms = int(time.time() * 1000)
 
@@ -1258,9 +1258,9 @@ def native_handler(event, context, *, dev_text=False, live_config=None):
 
         document['mainTemplate']['items'][0]['items'].append({
 
-            'type': 'Text', 'text': live_config['version_label'] if live_config else 'DEV · 1.1.0 (Build 1611.11)',
+            'type': 'Text', 'text': (live_config.get('display_prefix','')+live_config['version_label']) if live_config else 'DEV · 1.1.0 (Build 1611.12)',
 
-            'fontSize': '1.8vh', 'color': '#8FA8BC', 'maxLines': 1,
+            'fontSize': live_config.get('version_font_size', '1.8vh') if live_config else '1.8vh', 'color': '#8FA8BC', 'maxLines': 1,
 
             'position': 'absolute', 'right': '1vw', 'bottom': '0.5vh',
 
@@ -1360,7 +1360,7 @@ IMAGE_ORIGIN = 'https://solaranlage-display.kulmi84.workers.dev'
 
 
 
-RELAY_URL = 'https://solaranlage-public-beta.kulmi84.workers.dev/v1/pv'
+RELAY_URL = 'https://solaranlage-kontodienst.kulmi84.workers.dev/v1/pv'
 
 
 
@@ -3882,9 +3882,78 @@ def lambda_handler(event, context):
 
 
 
+_before_dev_wake = lambda_handler
+
+
+
+
+
+def lambda_handler(event, context):
+
+    request = event.get("request", {})
+
+    if request.get("type") != "Alexa.Presentation.APL.UserEvent" or request.get("arguments") != ["solar.widget.dev.wake.v1"]:
+
+        return _before_dev_wake(event, context)
+
+    empty = {"version": "1.0", "response": {}}
+
+    uri = request.get("presentationUri")
+
+    if not isinstance(uri, str) or not re.fullmatch(
+
+            r"widget://" + re.escape(_direct_skill) + r"(?:_development)?/SolarDirectValuesDev1611R7/[A-Za-z0-9_.:-]{1,300}", uri):
+
+        return empty
+
+    if not dev_text_target_authorized(event):
+
+        return empty
+
+    try:
+
+        config = image_config().get("direct_widget_test", {})
+
+        url = config.get("relay_url")
+
+        if url != "https://solaranlage-dev-text-publisher.kulmi84.workers.dev/v1/pv":
+
+            return empty
+
+        with urlopen(Request(url, headers={"Authorization": "Bearer " + image_access_token(event)}), timeout=3) as response:
+
+            payload = response.read(16385)
+
+        if len(payload) > 16384:
+
+            return empty
+
+        snapshot = direct_snapshot(json.loads(payload), datetime.now(timezone.utc))
+
+    except Exception:
+
+        print("SOLAR_DEV_WAKE result=unavailable")
+
+        return empty
+
+    print("SOLAR_DEV_WAKE result=read")
+
+    return {"version": "1.0", "response": {"directives": [{
+
+        "type": "Alexa.Presentation.APL.ExecuteCommands", "presentationUri": uri,
+
+        "commands": [{"type": "SetValue", "componentId": "imageWidget", "property": "snapshot",
+
+                      "value": snapshot, "when": "${!event.target.bind.snapshot.sampleTime || event.target.bind.snapshot.sampleTime <= "
+
+                      + str(snapshot["sampleTime"]) + "}"}]}]}}
+
+
+
 # Separate Live candidate entry point. All preceding DEV routes remain intact.
 
-from skill_registration import registration_requests, send_registration
+from time import monotonic as _values_monotonic
+from skill_registration import registration_requests, send_registration, widget_trigger
 
 _before_live_values = lambda_handler
 
@@ -3892,15 +3961,15 @@ _before_live_values = lambda_handler
 
 
 
-def live_values_config():
+def live_values_config(section='live_values'):
 
-    config = json.loads(Path(__file__).with_name('relay_config.json').read_text()).get('live_values', {})
+    config = json.loads(Path(__file__).with_name('relay_config.json').read_text()).get(section, {})
 
     if not config.get('enabled'):
 
         return None
 
-    if (config.get('stage') != 'live'
+    if (config.get('stage') not in ('live', 'development')
 
             or config.get('origin') != 'https://solaranlage-echo-werte.kulmi84.workers.dev'
 
@@ -3910,25 +3979,105 @@ def live_values_config():
 
         raise ValueError('invalid_live_configuration')
 
+    if not config.get('registration_secret'):
+        credentials = json.loads(Path(__file__).with_name('relay_config.json').read_text()).get('widget_datastore_credentials', {})
+        existing_secret = credentials.get('ALEXA_CLIENT_SECRET')
+        if not isinstance(existing_secret, str) or not existing_secret:
+            raise ValueError('registration_credentials_missing')
+        config = dict(config)
+        config['registration_secret'] = _diag_hmac.new(existing_secret.encode('utf-8'), b'solaranlage-echo-werte:registration:v1', _diag_hashlib.sha256).hexdigest()
     return config
 
 
 
 
 
+_values_config_reader = live_values_config
+
 def lambda_handler(event, context):
-
-    cfg = live_values_config()
-
-    if cfg is None:
-
-        return _before_live_values(event, context)
-
+    primary_cfg = live_values_config()
+    store_cfg = _values_config_reader('store_values')
+    test_cfg = _values_config_reader('reveal_test_values')
+    # Approved separate DEV test uses the existing linked-account credentials;
+    # no additional secrets or private config are uploaded for this profile.
+    if test_cfg is None and primary_cfg and primary_cfg['stage']=='development':
+        test_cfg={**primary_cfg,'package_id':'Solaranlage1811',
+            'version_label':'1.1.0 (Build 1811)','version_font_size':'1.7vh',
+            'display_prefix':'DEV · ','presentation_token':'solaranlage-dev-1811'}
+    if store_cfg is None and primary_cfg and primary_cfg.get('package_id')=='Solaranlage1711R2':
+        store_cfg={**primary_cfg,'stage':'live','package_id':'SolarAccountImageBuild1211',
+            'version_label':'1.1.0 (Build 1811)','version_font_size':'1.7vh',
+            'display_prefix':'','presentation_token':'solaranlage-store-werte'}
     req = event.get('request', {})
+    uri = req.get('presentationUri', '')
+    event_package = (req.get('payload') or {}).get('packageId') or req.get('packageId')
+    store_uri = bool(store_cfg and isinstance(uri,str) and re.fullmatch(
+        r'widget://' + re.escape(store_cfg['skill_id']) + r'(?:_(?:live|development))?/'
+        + re.escape(store_cfg['package_id']) + r'/[A-Za-z0-9_.:-]{1,300}',uri))
+    use_store = bool(store_cfg and (store_uri or event_package == store_cfg['package_id']
+        or req.get('type') == 'LaunchRequest'
+        or req.get('token') == store_cfg.get('presentation_token','solaranlage-store-werte')))
+    test_uri=bool(test_cfg and isinstance(uri,str) and re.fullmatch(
+        r'widget://'+re.escape(test_cfg['skill_id'])+r'_development/'
+        +re.escape(test_cfg['package_id'])+r'/[A-Za-z0-9_.:-]{1,300}',uri))
+    use_test=bool(test_cfg and (test_uri or event_package==test_cfg['package_id']
+        or req.get('token')==test_cfg.get('presentation_token','solaranlage-dev-1811')))
+    store_dev_cfg=({**store_cfg,'stage':'development',
+        'presentation_token':'solaranlage-store-dev-werte'} if store_cfg else None)
+    # The URI is validated against the selected stage below. No global bypass.
+    store_dev=bool(store_cfg and ((store_uri and '_development/' in uri)
+        or req.get('token')=='solaranlage-store-dev-werte'))
+    if store_dev:
+        use_store=True
+    cfg = test_cfg if use_test else ((store_dev_cfg if store_dev else store_cfg) if use_store else primary_cfg)
+    if cfg is None:
+        return _before_live_values(event, context)
 
     kind, args = req.get('type'), req.get('arguments', [])
 
     system = event.get('context', {}).get('System', {})
+
+    if kind in ('Alexa.DataStore.Error','Alexa.DataStore.DataStoreError',
+                'System.ExceptionEncountered','Alexa.Presentation.APL.RuntimeError',
+                'Alexa.Presentation.APL.CommandExecutionError'):
+        if system.get('application',{}).get('applicationId') == cfg['skill_id']:
+            err=req.get('error')
+            err=err if isinstance(err,dict) else {}
+            body=err.get('content')
+            body=body if isinstance(body,dict) else {}
+            failed=body.get('failedCommand')
+            failed=failed if isinstance(failed,dict) else {}
+            error_type=err.get('type')
+            allowed_errors=('STORAGE_LIMIT_EXCEEDED','DATASTORE_INTERNAL_ERROR',
+                'DEVICE_UNAVAILABLE','DEVICE_PERMANENTLY_UNAVAILABLE',
+                'INVALID_RESPONSE','INVALID_DIRECTIVE','INTERNAL_ERROR',
+                'INVALID_REQUEST','INVALID_PRESENTATION_TOKEN')
+            print('SOLAR_DELIVERY_ERROR '+json.dumps({
+                'requestType':kind,
+                'errorType':error_type if error_type in allowed_errors else 'OTHER_OR_MISSING',
+                'hasDeviceId':bool(body.get('deviceId')),
+                'namespace':'store' if failed.get('namespace')=='SolarAccountImagesV3' else ('dev1811' if failed.get('namespace')=='Solaranlage1811' else 'other'),
+                'key':failed.get('key') if failed.get('key') in ('snapshot','access') else 'other',
+            },sort_keys=True))
+        # These notifications must not launch a visual session or emit speech.
+        return {'version':'1.0','response':{}}
+
+    if isinstance(uri, str) and uri.startswith('widget://'+cfg['skill_id']):
+        # Only fixed classifications; no URI, identifiers, tokens or readings.
+        observed_stage = ('development' if '_development/' in uri else
+                          'live' if '_live/' in uri else
+                          'bare' if uri.startswith('widget://'+cfg['skill_id']+'/') else 'other')
+        observed_package = ('dev1811' if '/Solaranlage1811/' in uri else
+                            'store' if '/SolarAccountImageBuild1211/' in uri else 'other')
+        observed_command = args[0] if isinstance(args,list) and args else None
+        print('SOLAR_WIDGET_ROUTE '+json.dumps({
+            'uriStage':observed_stage,'package':observed_package,'selectedStage':cfg['stage'],
+            'selectedPackage':'dev1811' if cfg['package_id']=='Solaranlage1811' else ('store' if cfg['package_id']=='SolarAccountImageBuild1211' else 'other'),
+            'applicationMatches':system.get('application',{}).get('applicationId')==cfg['skill_id'],
+            'command':observed_command if observed_command in ('solar.widget.values.register.v1','solar.widget.directValues.v1','solar.widget.text.open.v1','solar.widget.open.v1','solar.widget.images.v1') else 'other',
+            'hasSystemAccess':bool(system.get('user',{}).get('accessToken')),
+            'hasSessionAccess':bool(event.get('session',{}).get('user',{}).get('accessToken')),
+        },sort_keys=True))
 
     if system.get('application', {}).get('applicationId') != cfg['skill_id']:
 
@@ -3938,37 +4087,55 @@ def lambda_handler(event, context):
 
     matching_widget = isinstance(uri, str) and re.fullmatch(
 
-        r'widget://' + re.escape(cfg['skill_id']) + r'(?:_live)?/'
+        r'widget://' + re.escape(cfg['skill_id']) + (r'(?:_live)?/' if cfg['stage'] == 'live' else r'_development/')
 
         + re.escape(cfg['package_id']) + r'/[A-Za-z0-9_.:-]{1,300}', uri)
 
-    lifecycle = kind in ('Alexa.DataStore.PackageManager.UsagesInstalled', 'Alexa.DataStore.PackageManager.UsagesRemoved')
+    if matching_widget and isinstance(args,list) and args and args[0]=='solar.widget.values.receipt.v1':
+        try:
+            marker=widget_trigger(args,receipt=True)
+        except ValueError:
+            return {'version':'1.0','response':{'shouldEndSession':True}}
+        print('SOLAR_VALUES_RECEIPT '+json.dumps({'result':'commands_executed',**marker},sort_keys=True))
+        return {'version': '1.0', 'response': {'shouldEndSession': True}}
 
-    lifecycle = lifecycle and (req.get('payload') or {}).get('packageId') == cfg['package_id']
+    lifecycle = kind in ('Alexa.DataStore.PackageManager.UsagesInstalled', 'Alexa.DataStore.PackageManager.UsagesRemoved', 'Alexa.DataStore.PackageManager.UpdateRequest')
+
+    lifecycle = lifecycle and event_package == cfg['package_id']
 
     disabled = kind in ('AlexaSkillEvent.SkillDisabled', 'AlexaSkillEvent.SkillAccountLinked')
 
     opening = matching_widget and args in (['solar.widget.text.open.v1'], ['solar.widget.open.v1'])
 
-    registration = matching_widget and args in (['solar.widget.values.register.v1'], ['solar.widget.directValues.v1'])
+    registration = bool(matching_widget and isinstance(args,list) and args and args[0] in ('solar.widget.values.register.v1','solar.widget.directValues.v1'))
+    trigger_marker=None
+    if registration:
+        try:
+            trigger_marker=widget_trigger(args)
+        except ValueError:
+            return {'version':'1.0','response':{'shouldEndSession':True}}
+        print('SOLAR_VALUES_TRIGGER '+json.dumps(trigger_marker,sort_keys=True))
+    trigger_started=_values_monotonic()
 
     refresh = (kind == 'Alexa.Presentation.APL.UserEvent' and isinstance(args, list) and args
 
-               and args[0] == 'solar.fullscreen.live.auto.v1' and req.get('token') == 'solaranlage-live-werte')
+               and args[0] == 'solar.fullscreen.live.auto.v1' and req.get('token') == cfg.get('presentation_token','solaranlage-live-werte'))
 
-    if not (lifecycle or disabled or opening or registration or refresh or kind == 'LaunchRequest'):
+    if not (lifecycle or disabled or opening or registration or refresh or (kind == 'LaunchRequest' and cfg['stage'] == 'live')):
 
         return _before_live_values(event, context)
 
     initial = None
 
     registered = False
+    binding = None
 
     try:
 
-        for call in registration_requests(event, cfg):
-
-            result = send_registration(call, cfg)
+        profiles = [p for p in (primary_cfg,store_cfg,test_cfg,store_dev_cfg) if p] if disabled else [cfg]
+        for profile in profiles:
+          for call in registration_requests(event, profile):
+            result = send_registration(call, profile)
 
             initial = result.get('snapshot') or initial
 
@@ -3992,28 +4159,48 @@ def lambda_handler(event, context):
         return {'version': '1.0', 'response': {}}
 
     if registration:
+        # Only booleans, never household values, tokens, URI or device identifiers.
+        print('SOLAR_VALUES_REPLY ' + json.dumps({
+            'registered': registered, 'hasBinding': bool(binding),
+            'profile': 'dev1811' if cfg['package_id']=='Solaranlage1811' else ('store' if cfg['package_id']=='SolarAccountImageBuild1211' else 'other'),
+            'stage': cfg['stage'],
+            'bindingMatches': isinstance(initial, dict) and initial.get('binding') == binding,
+            'trigger':(trigger_marker or {}).get('trigger','legacy'),
+            'backendMs':round((_values_monotonic()-trigger_started)*1000),
+            'hasSnapshot': isinstance(initial, dict),
+            'hasFourValues': isinstance(initial, dict) and all(k in initial for k in ('solar', 'home', 'battery', 'stamp')),
+            'hasSampleTime': isinstance(initial, dict) and isinstance(initial.get('sampleTime'), (int, float)),
+            **widget_uri_context_diagnostics(event),
+        }, sort_keys=True))
 
         commands = []
 
-        if registered:
-
-            commands.append({'type': 'SetValue', 'componentId': 'imageWidget',
-
-                             'property': 'registrationConfirmed', 'value': True})
-
-        if initial:
-
+        # Same immediate display path as confirmed DEV 1611.12. The snapshot
+        # is returned only by the OAuth-authenticated registration endpoint.
+        # Do not make rendering depend on separate acknowledgement commands.
+        if registered and initial and binding and initial.get('binding') == binding:
             commands.append({'type': 'SetValue', 'componentId': 'imageWidget', 'property': 'snapshot',
-
                 'value': initial, 'when': '${!event.target.bind.snapshot.sampleTime || event.target.bind.snapshot.sampleTime <= '
-
                 + str(initial['sampleTime']) + '}'})
 
-        return {'version': '1.0', 'response': {'directives': [{
+        direct_response_only = (cfg['stage']=='development' and cfg['package_id']=='Solaranlage1811') or (cfg['stage']=='live' and cfg['package_id']=='SolarAccountImageBuild1211')
+        if commands and direct_response_only:
+            # Isolate immediate text delivery from client-side predicates and
+            # follow-up diagnostics. OAuth/household/binding checks above remain.
+            commands[0].pop('when', None)
+        if commands and not direct_response_only:
+            receipt_args=['solar.widget.values.receipt.v1']
+            if trigger_marker and trigger_marker['trigger']!='legacy':
+                receipt_args.append({**trigger_marker,'ackElapsedMs':'${elapsedTime}'})
+            commands.append({'type': 'SendEvent', 'sequencer': 'solarValuesReceipt',
+                'flags': {'interactionMode': 'INLINE'},
+                'arguments': receipt_args})
 
-            'type': 'Alexa.Presentation.APL.ExecuteCommands', 'presentationUri': uri,
-
-            'commands': commands}]} if commands else {}}
+        return {'version': '1.0', 'response': {
+            'shouldEndSession': True,
+            **({'directives': [{
+                'type': 'Alexa.Presentation.APL.ExecuteCommands', 'presentationUri': uri,
+                'commands': commands}]} if commands else {})}}
 
     if refresh:
 

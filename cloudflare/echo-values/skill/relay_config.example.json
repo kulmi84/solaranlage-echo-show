@@ -13,10 +13,23 @@
   "live_values": {
     "enabled": false,
     "stage": "live",
-    "package_id": "",
+    "package_id": "SolarAccountImageBuild1211",
     "skill_id": "amzn1.ask.skill.80aa6d64-52ed-487a-b427-73e545a715d0",
     "origin": "https://solaranlage-echo-werte.kulmi84.workers.dev",
-    "version_label": "1.1.0 (Build 1611)",
-    "registration_secret": ""
+    "version_label": "1.1.0 (Build 1811)",
+    "registration_secret": "",
+    "version_font_size": "1.7vh"
+  },
+  "reveal_test_values": {
+    "enabled": false,
+    "stage": "development",
+    "package_id": "Solaranlage1811",
+    "skill_id": "amzn1.ask.skill.80aa6d64-52ed-487a-b427-73e545a715d0",
+    "origin": "https://solaranlage-echo-werte.kulmi84.workers.dev",
+    "version_label": "1.1.0 (Build 1811)",
+    "registration_secret": "",
+    "version_font_size": "1.7vh",
+    "display_prefix": "DEV · ",
+    "presentation_token": "solaranlage-dev-1811"
   }
 }

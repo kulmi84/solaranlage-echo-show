@@ -18,6 +18,13 @@ class RegistrationTests(unittest.TestCase):
     def test_missing_instance_waits_without_inventing_identity(self):
         self.event['request'].update(type='Alexa.DataStore.PackageManager.UsagesInstalled',payload={'packageId':'ProposedOnly','usages':[{'location':'FAVORITE'}]})
         self.assertEqual(registration_requests(self.event,self.config),[])
+    def test_install_without_linked_token_waits_for_authenticated_mount(self):
+        del self.event['context']['System']['user']['accessToken']
+        self.event['request'].update(type='Alexa.DataStore.PackageManager.UsagesInstalled',payload={'packageId':'ProposedOnly','usages':[{'instanceId':'instance','location':'FAVORITE'}]})
+        self.assertEqual(registration_requests(self.event,self.config),[])
+    def test_delayed_lifecycle_uses_creation_time_for_ordering(self):
+        self.event['request'].update(type='AlexaSkillEvent.SkillDisabled',timestamp='2026-11-16T15:10:00Z',eventCreationTime='2026-11-16T15:00:00Z')
+        self.assertEqual(registration_requests(self.event,self.config)[0][1]['occurredAt'],'2026-11-16T15:00:00Z')
     def test_disabled_adapter_does_nothing(self):
         self.assertEqual(registration_requests(self.event,dict(self.config,enabled=False)),[])
-if __name__=='__main__': unittest.main()
+if __name__=='__main__': unittest.main()

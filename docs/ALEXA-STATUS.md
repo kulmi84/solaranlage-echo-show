@@ -1,25 +1,15 @@
-# Projektstatus · 01.11.2026
+# Projektstatus · 18.11.2026
 
-- **HACS 1.0.15 veröffentlicht.** Neueinrichtung ohne Einladung und bestehende Einrichtung geprüft; Konten und Sensoren bleiben erhalten. Aktuelle Korrekturen: kompakte HACS-Bildvorschau, klare Expertenoption und kurze Erklärung zur Dienstwahl.
-- **Bildwidget 2.0.1 am Echo bestätigt:** sofortiges Nachladen, Zugangserneuerung, Bildpuffer samt Zeitstand, Vollbild und weiße Fußzeile.
-- **Haushaltstest bestanden:** Testhaushalt mit 123 W in Widget und Vollbild; nach Rückverknüpfung und einmaligem Antippen wieder echte Werte. Keine Neuinstallation nötig.
-- **Vollbild-Sofortabruf bestätigt:** neue Bildadressen bei jedem Öffnen, sofortiger Abruf beim Zurückkehren; danach alle 60 Sekunden.
-- **Runtime über PR #19 integriert**, 93 Python-Tests bestanden. Alter PR #9 als ersetzt geschlossen. Das öffentliche Paket enthält keine privaten Recovery-Zugänge.
-- **Bei Amazon eingereicht:** Build 8 erfolgreich, Validierung ohne Fehler. Einstellung „Zertifizieren und veröffentlichen“; Amazon bestätigt **In review**. Getrenntes synthetisches Demokonto für das Prüfteam hinterlegt. Noch nicht öffentlich freigegeben.
+- **Store: 1.1.0 (Build 1811), von Amazon als Live bestätigt.** Kleine Kachel und Vollbild verwenden direkte Textwerte statt Zahlenbildern.
+- **DEV 1811 bleibt separat erhalten.** Werteanzeige, automatische Aktualisierung, Einblendabruf und Vollbild per Tipp sind am Echo bestätigt.
+- **Store-Fehler offen:** Beschriftungen sichtbar, Messwerte fehlen. Vollbild per Tipp funktioniert. Der Neustart beseitigt den Fehler nicht.
+- **Amazon-Fall 96266698 aktualisiert:** neue Gerätebeobachtungen, Konfiguration und UTC-Logzeiten übermittelt; zehn Nachträge bestätigt. Exakte historische Alexa-Request-IDs und Präsentations-URIs fehlen und sind als offen benannt.
+- **Cloudflare:** Werte-Worker `solaranlage-echo-werte`; bestehende Kontoverknüpfung und Haushalte bleiben erhalten. Bilddienste bleiben bis zum belegten Ende ihrer Nutzung aktiv.
 
-## Skills
+## Offen
 
-| Skill | Stand |
-|---|---|
-| Solaranlage (bisher Data Store Labor) | SolarAccountImage 2.0.1; neuer öffentlicher Entwurf in Amazon-Prüfung. |
-| Solaranlage (bisheriger öffentlicher Skill) | Bleibt für bestehende Nutzer erhalten. |
-| Mein Zuhause | Unverändert. |
+1. Store-Werteanzeige und automatische Aktualisierung am Echo nachweisen – [Issue #20](https://github.com/kulmi84/solaranlage-echo-show/issues/20).
+2. Amazons Rückmeldung und erforderliche Zustellprüfung auswerten.
+3. Danach verbleibende Bildabrufe prüfen und beide alten Bilddienste gesichert stilllegen.
 
-## Offene Punkte
-
-7. **Zurückgestellt:** externe HACS-Updates und vollständige Migration aller HA-/Alexa-/Bildzugriffe nachweisen, danach zwei Weiterleitungen entfernen.
-8. **Amazon-Freigabe abwarten und tatsächlichen Live-Status prüfen.** Automatische Veröffentlichung nach bestandener Zertifizierung ausgewählt.
-
-Cloudflare: sechs Worker und zwei Datenbanken. Die zwei alten Adressen bleiben vorerst als Weiterleitungen aktiv.
-
-[Checkliste #10](https://github.com/kulmi84/solaranlage-echo-show/issues/10) · [Widgetquellen](../alexa/widget/README.md)
+Quellenstand und lokale Prüfungen ersetzen keinen Nachweis am Store-Widget. Drei ununterbrochene Minutenrunden der DEV 1811 sind wegen automatischen Ausblendens nicht vollständig protokolliert; wiederholte Aktualisierung ist nutzerbestätigt.

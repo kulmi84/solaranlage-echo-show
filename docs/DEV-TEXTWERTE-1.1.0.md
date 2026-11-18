@@ -1,7 +1,7 @@
-# DEV 1.1.0: native Textwerte
+# Werte-Version 1.1.0 (Build 1811)
 
-Der getrennte [Entwicklungsstand](../experiments/direct-values-dev/README.md) enthält kleine Kachel Build 1611.7 und Vollbild Build 1611.11.
+Kleine Kachel und Vollbild rendern direkte Textwerte. Der reguläre Takt beträgt 60 Sekunden; Einblenden und Aufwachen lösen zusätzliche Abrufe aus. Bei Abruffehlern bleiben gültige Werte mit ihrer ursprünglichen Messzeit erhalten.
 
-Am Echo bestätigt sind Textwerte, automatische kleine Aktualisierung und Vollbild per Tipp. Das DEV-Vollbild enthält keinen manuellen Aktualisieren-Button mehr; es aktualisiert Live/Heute automatisch mit einer 60-Sekunden-Frist. Monat/Jahr behält sechs Stunden. Drei automatische Folgeabrufe ohne weiteres Antippen sind mit 61,9 / 61,7 / 61,7 Sekunden Abstand und jeweils HTTP 200 protokolliert. Ein längerer Dauerlauf bleibt offen.
+Die separate DEV 1811 ist am Echo bestätigt und bleibt erhalten. Store Build 1811 ist Live, die kleine Store-Kachel bleibt jedoch ohne Messwerte. Vollbild per Tipp funktioniert. Die Ursache bleibt offen; angenommene Schreibaufträge sind kein Gerätenachweis.
 
-Die Store-Variante und HACS-Version werden durch diesen Development-Pull-Request nicht geändert.
+Aktueller Stand: [Projektstatus](ALEXA-STATUS.md), [offener Fehler #20](https://github.com/kulmi84/solaranlage-echo-show/issues/20). Historische Versuchsquellen unter `experiments/` sind keine aktuelle Deployment-Vorlage.

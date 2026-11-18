@@ -12,84 +12,106 @@
         "padding": "${Math.floor(16 * layoutScale)}",
         "bind": [
           {
-            "name": "expectedBinding",
-            "value": ""
-          },
-          {
             "name": "layoutScale",
             "value": "${Math.min(1, viewport.width / 310, viewport.height / 440)}"
           },
           {
             "name": "snapshot",
             "value": {
-              "solar": "\u2014",
-              "home": "\u2014",
-              "battery": "\u2014",
+              "solar": "—",
+              "home": "—",
+              "battery": "—",
               "stamp": "",
               "stale": false
             }
           },
           {
-            "value": "${expectedBinding && SolarLive && SolarLive.binding == expectedBinding && SolarLive.sampleTime > 0 && (!snapshot.sampleTime || SolarLive.sampleTime >= snapshot.sampleTime) ? SolarLive : snapshot}",
+            "value": "${SolarLive && SolarLive.sampleTime > 0 && (!snapshot.sampleTime || SolarLive.sampleTime >= snapshot.sampleTime) ? SolarLive : snapshot}",
             "name": "displaySnapshot"
           },
           {
-            "name": "registrationConfirmed",
+            "name": "wakePending",
             "value": false
           },
           {
-            "name": "wakeRefreshPending",
-            "value": "${displayState == \"hidden\"}"
+            "name": "lastWakeAt",
+            "value": 0
           },
           {
-            "name": "lastWakeRequestAt",
+            "name": "shownAt",
             "value": 0
+          },
+          {
+            "name": "nextRefreshAt",
+            "value": 60000
           }
         ],
         "handleTick": [
           {
             "minimumDelay": 1000,
-            "when": "${displayState != \"hidden\" && wakeRefreshPending && utcTime >= lastWakeRequestAt + 3000}",
+            "when": "${displayState != \"hidden\" && wakePending && utcTime >= lastWakeAt + 3000}",
             "commands": [
               {
                 "type": "SetValue",
                 "componentId": "imageWidget",
-                "property": "wakeRefreshPending",
+                "property": "wakePending",
                 "value": false
               },
               {
                 "type": "SetValue",
                 "componentId": "imageWidget",
-                "property": "lastWakeRequestAt",
+                "property": "lastWakeAt",
                 "value": "${utcTime}"
+              },
+              {
+                "type": "SetValue",
+                "componentId": "imageWidget",
+                "property": "nextRefreshAt",
+                "value": "${elapsedTime + 60000}"
               },
               {
                 "type": "SendEvent",
                 "arguments": [
-                  "solar.widget.values.register.v1"
+                  "solar.widget.values.register.v1",
+                  {
+                    "trigger": "reveal",
+                    "shownElapsedMs": "${shownAt}",
+                    "sentElapsedMs": "${elapsedTime}"
+                  }
                 ],
                 "flags": {
                   "interactionMode": "INLINE"
                 },
                 "componentId": "imageWidget",
-                "sequencer": "solarLiveRegister"
+                "sequencer": "solarDirectValues"
               }
             ]
           },
           {
-            "minimumDelay": 60000,
-            "when": "${!registrationConfirmed}",
+            "minimumDelay": 1000,
+            "when": "${displayState != \"hidden\" && !wakePending && elapsedTime >= nextRefreshAt}",
             "commands": [
+              {
+                "type": "SetValue",
+                "componentId": "imageWidget",
+                "property": "nextRefreshAt",
+                "value": "${elapsedTime + 60000}"
+              },
               {
                 "type": "SendEvent",
                 "arguments": [
-                  "solar.widget.values.register.v1"
+                  "solar.widget.values.register.v1",
+                  {
+                    "trigger": "minute",
+                    "shownElapsedMs": "${shownAt}",
+                    "sentElapsedMs": "${elapsedTime}"
+                  }
                 ],
                 "flags": {
                   "interactionMode": "INLINE"
                 },
                 "componentId": "imageWidget",
-                "sequencer": "solarLiveRegister"
+                "sequencer": "solarDirectValues"
               }
             ]
           }
@@ -234,8 +256,8 @@
                 },
                 {
                   "type": "Text",
-                  "text": "1.1.0 (Build 1611)",
-                  "fontSize": "${Math.floor(15 * layoutScale)}",
+                  "text": "1.1.0 (Build 1811)",
+                  "fontSize": "${Math.floor(14 * layoutScale)}",
                   "color": "white",
                   "spacing": "${Math.floor(5 * layoutScale)}",
                   "maxLines": 1,
@@ -249,15 +271,44 @@
         ],
         "onMount": [
           {
+            "type": "SetValue",
+            "componentId": "imageWidget",
+            "property": "shownAt",
+            "value": "${elapsedTime}"
+          },
+          {
+            "type": "SetValue",
+            "componentId": "imageWidget",
+            "property": "wakePending",
+            "value": false
+          },
+          {
+            "type": "SetValue",
+            "componentId": "imageWidget",
+            "property": "lastWakeAt",
+            "value": "${utcTime}"
+          },
+          {
+            "type": "SetValue",
+            "componentId": "imageWidget",
+            "property": "nextRefreshAt",
+            "value": "${elapsedTime + 60000}"
+          },
+          {
             "type": "SendEvent",
             "arguments": [
-              "solar.widget.values.register.v1"
+              "solar.widget.values.register.v1",
+              {
+                "trigger": "mount",
+                "shownElapsedMs": "${shownAt}",
+                "sentElapsedMs": "${elapsedTime}"
+              }
             ],
             "flags": {
               "interactionMode": "INLINE"
             },
             "componentId": "imageWidget",
-            "sequencer": "solarLiveRegister"
+            "sequencer": "solarDirectValues"
           }
         ]
       }
@@ -275,7 +326,7 @@
         {
           "dataBindingName": "SolarLive",
           "dataType": "OBJECT",
-          "namespace": "__LIVE_NAMESPACE_PENDING__",
+          "namespace": "SolarAccountImagesV3",
           "key": "snapshot"
         }
       ]
@@ -286,20 +337,8 @@
       "value": "${event.data}",
       "componentId": "imageWidget",
       "type": "SetValue",
-      "when": "${expectedBinding && event.data.binding == expectedBinding && (!event.target.bind.snapshot.sampleTime || event.data.sampleTime >= event.target.bind.snapshot.sampleTime)}",
+      "when": "",
       "property": "snapshot"
-    },
-    {
-      "type": "SendEvent",
-      "arguments": [
-        "solar.widget.values.register.v1"
-      ],
-      "flags": {
-        "interactionMode": "INLINE"
-      },
-      "componentId": "imageWidget",
-      "sequencer": "solarLiveRegister",
-      "when": "${expectedBinding && event.data.binding && event.data.binding != expectedBinding}"
     }
   ],
   "DataStore:OnObjectChanged": [
@@ -307,33 +346,21 @@
       "value": "${event.data}",
       "componentId": "imageWidget",
       "type": "SetValue",
-      "when": "${expectedBinding && event.data.binding == expectedBinding && (!event.target.bind.snapshot.sampleTime || event.data.sampleTime >= event.target.bind.snapshot.sampleTime)}",
+      "when": "",
       "property": "snapshot"
-    },
-    {
-      "type": "SendEvent",
-      "arguments": [
-        "solar.widget.values.register.v1"
-      ],
-      "flags": {
-        "interactionMode": "INLINE"
-      },
-      "componentId": "imageWidget",
-      "sequencer": "solarLiveRegister",
-      "when": "${expectedBinding && event.data.binding && event.data.binding != expectedBinding}"
     }
   ],
   "onMount": [
     {
       "token": "direct-values",
       "type": "DataStore:GetObject",
-      "namespace": "__LIVE_NAMESPACE_PENDING__",
+      "namespace": "SolarAccountImagesV3",
       "key": "snapshot",
       "sequencer": "solarDirectRead"
     },
     {
       "type": "DataStore:WatchObject",
-      "namespace": "__LIVE_NAMESPACE_PENDING__",
+      "namespace": "SolarAccountImagesV3",
       "key": "snapshot"
     }
   ],
@@ -341,9 +368,15 @@
     {
       "type": "SetValue",
       "componentId": "imageWidget",
-      "property": "wakeRefreshPending",
-      "value": true,
-      "when": "${event.displayState == \"hidden\"}"
+      "property": "wakePending",
+      "value": true
+    },
+    {
+      "type": "SetValue",
+      "componentId": "imageWidget",
+      "property": "shownAt",
+      "value": "${elapsedTime}",
+      "when": "${event.displayState != \"hidden\"}"
     }
   ]
 }

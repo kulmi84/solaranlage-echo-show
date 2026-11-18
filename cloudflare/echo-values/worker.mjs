@@ -1,5 +1,5 @@
 // Prepared migration candidate. No automatic deployment or household backfill.
-import {snapshot, skillToken} from '../../experiments/direct-values-dev/worker.mjs';
+import {snapshot, skillToken} from './formatting.mjs';
 
 const utf8 = value => new TextEncoder().encode(value);
 export const digest = async value => Array.from(new Uint8Array(await crypto.subtle.digest('SHA-256',utf8(value))),b=>b.toString(16).padStart(2,'0')).join('');
@@ -20,12 +20,12 @@ async function body(request) {
   const bytes=new Uint8Array(size);let at=0;for(const c of chunks){bytes.set(c,at);at+=c.length;}
   try{return JSON.parse(new TextDecoder().decode(bytes));}catch{fail(400,'invalid_body');}
 }
-function scope(data,env,now) {
+function scope(data,env,now,maxAgeMs=300000) {
   if(!['live','development'].includes(env.STAGE) || !env.WIDGET_PACKAGE_ID || (typeof env.SUBJECT_HASH_KEY!=='string' || env.SUBJECT_HASH_KEY.length<32)) fail(503,'not_configured');
   if(data.stage!==env.STAGE || data.packageId!==env.WIDGET_PACKAGE_ID) fail(403,'wrong_scope');
   if(typeof data.userId!=='string'||!/^amzn1\.ask\.account\.[A-Za-z0-9_.-]{1,400}$/.test(data.userId))fail(400,'invalid_user');
   const occurred=Date.parse(data.occurredAt);
-  if(!Number.isFinite(occurred)||occurred>now+60000||occurred<now-300000)fail(400,'invalid_event_time');
+  if(!Number.isFinite(occurred)||occurred>now+60000||occurred<now-maxAgeMs)fail(400,'invalid_event_time');
   return occurred;
 }
 async function subject(user,env) {
@@ -44,19 +44,50 @@ export async function linked(request,env,now) {
   if(!row)fail(401,'unauthorized');
   return row;
 }
-async function registerUnlocked(request,env,now=Date.now()) {
+async function registerUnlocked(request,env,now=Date.now(),send) {
   await internal(request,env);const data=await body(request),occurred=scope(data,env,now);device(data);
   const row=await linked(request,env,now),who=await subject(data.userId,env),generation=await digest(row.write_hash);
+  const previous=env.PUBLISH_MODE==='inline'?await env.DB.prepare('SELECT subject_hash,household,generation FROM echo_value_devices WHERE stage=? AND device_id=?').bind(env.STAGE,data.deviceId).first():null;
   const revoked=await env.DB.prepare('SELECT revoked_at FROM echo_value_revocations WHERE stage=? AND subject_hash=?').bind(env.STAGE,who).first();
   if(revoked && occurred<=revoked.revoked_at)fail(409,'stale_event');
+  let initial;try{initial={...snapshot(row,now),binding:await digest(JSON.stringify([env.STAGE,who,row.id,generation]))};}catch{}
+  const changed=previous&&(previous.subject_hash!==who||previous.household!==row.id||previous.generation!==generation);
+  // If the new household has no reading, clear before committing its ownership.
+  // A failed clear therefore remains retryable as a household change.
+  if(changed&&!initial&&env.PUBLISH_MODE==='inline'&&env.PUBLISH_ENABLED==='true')
+    await deliver(env,[data.deviceId],[emptySnapshot()],send);
   const results=await env.DB.batch([
     env.DB.prepare('INSERT INTO echo_value_devices(stage,device_id,subject_hash,household,generation,active,updated_at) SELECT ?,?,?,?,?,1,? WHERE NOT EXISTS(SELECT 1 FROM echo_value_revocations WHERE stage=? AND subject_hash=? AND revoked_at>=?) ON CONFLICT(stage,device_id) DO UPDATE SET subject_hash=excluded.subject_hash,household=excluded.household,generation=excluded.generation,active=1,updated_at=excluded.updated_at WHERE excluded.updated_at>=echo_value_devices.updated_at').bind(env.STAGE,data.deviceId,who,row.id,generation,occurred,env.STAGE,who,occurred),
     env.DB.prepare('DELETE FROM echo_value_usages WHERE stage=? AND device_id=? AND subject_hash<>? AND EXISTS(SELECT 1 FROM echo_value_devices d WHERE d.stage=? AND d.device_id=? AND d.subject_hash=? AND d.updated_at=?)').bind(env.STAGE,data.deviceId,who,env.STAGE,data.deviceId,who,occurred),
     env.DB.prepare('INSERT INTO echo_value_usages(stage,device_id,instance_id,package_id,subject_hash,active,updated_at) SELECT ?,?,?,?,?,1,? WHERE EXISTS(SELECT 1 FROM echo_value_devices WHERE stage=? AND device_id=? AND subject_hash=? AND updated_at=?) ON CONFLICT(stage,device_id,instance_id) DO UPDATE SET package_id=excluded.package_id,subject_hash=excluded.subject_hash,active=1,updated_at=excluded.updated_at WHERE excluded.updated_at>echo_value_usages.updated_at OR (excluded.updated_at=echo_value_usages.updated_at AND echo_value_usages.active=1)').bind(env.STAGE,data.deviceId,data.instanceId,data.packageId,who,occurred,env.STAGE,data.deviceId,who,occurred)
   ]);
   if(!results[0].meta.changes||!results[2].meta.changes)fail(409,'stale_event');
-  let initial;try{initial={...snapshot(row,now),binding:await digest(JSON.stringify([env.STAGE,who,row.id,generation]))};}catch{}
-  return reply({registered:true,binding:await digest(JSON.stringify([env.STAGE,who,row.id,generation])),...(initial?{snapshot:initial}:{})});
+
+  let delivery;
+  if(env.PUBLISH_MODE==='inline'&&env.PUBLISH_ENABLED==='true'){
+    const contents=[...(changed&&initial?[emptySnapshot()]:[]),...(initial?[initial]:[])];
+    if(contents.length)delivery=await deliver(env,[data.deviceId],contents,send);
+  }
+  return reply({registered:true,binding:await digest(JSON.stringify([env.STAGE,who,row.id,generation])),...(initial?{snapshot:initial}:{}),...(delivery?{delivery}:{})});
+}
+async function refreshRegisteredUnlocked(request,env,now) {
+  await internal(request,env);
+  if(env.STAGE!=='live'||env.WIDGET_PACKAGE_ID!==env.LIVE_PACKAGE_ID)fail(403,'wrong_scope');
+  if(env.PUBLISH_ENABLED!=='true')fail(503,'publishing_disabled');
+  const data=await body(request),occurred=scope(data,env,now);device(data);
+  const who=await subject(data.userId,env);
+  // This read cannot create, reactivate, move or extend a registration. Its
+  // authority is the exact prior OAuth-verified account/device/package usage.
+  const row=await env.DB.prepare('SELECT h.*,d.generation AS registered_generation FROM echo_value_devices d JOIN echo_value_usages u ON u.stage=d.stage AND u.device_id=d.device_id AND u.subject_hash=d.subject_hash JOIN households h ON h.id=d.household WHERE d.stage=? AND d.device_id=? AND d.subject_hash=? AND d.active=1 AND u.instance_id=? AND u.package_id=? AND u.active=1 AND h.disabled=0 AND NOT EXISTS(SELECT 1 FROM echo_value_revocations r WHERE r.stage=d.stage AND r.subject_hash=d.subject_hash AND (r.revoked_at>=d.updated_at OR r.revoked_at>=?)) AND EXISTS(SELECT 1 FROM access_tokens a WHERE a.tenant=h.id AND a.expires>?)')
+    .bind(env.STAGE,data.deviceId,who,data.instanceId,env.WIDGET_PACKAGE_ID,occurred,Math.floor(now/1000)).first();
+  if(!row)fail(401,'verified_registration_required');
+  const generation=await digest(row.write_hash);
+  if(generation!==row.registered_generation)fail(401,'registration_generation_changed');
+  let current;try{current=snapshot(row,now);}catch{fail(503,'snapshot_unavailable');}
+  const binding=await digest(JSON.stringify([env.STAGE,who,row.id,generation]));
+  // One atomic reply, no extra image requests or Data Store REST delivery.
+  console.log(JSON.stringify({event:'registered_refresh',result:'reply_ready',trigger:['mount','reveal','minute'].includes(data.trigger)?data.trigger:'other',sampleAgeSeconds:Math.round((now-current.sampleTime)/1000)}));
+  return reply({registered:true,refreshed:true,binding,snapshot:{...current,binding}});
 }
 async function removeUnlocked(request,env,now=Date.now()) {
   await internal(request,env);const data=await body(request),occurred=scope(data,env,now);device(data,data.removeAll!==true);
@@ -65,19 +96,28 @@ async function removeUnlocked(request,env,now=Date.now()) {
     .bind(occurred,env.STAGE,data.deviceId,env.WIDGET_PACKAGE_ID,data.removeAll===true?1:0,data.instanceId||'',who,occurred).run();
   return reply({removed:true});
 }
-async function unlinkUnlocked(request,env,now=Date.now()) {
-  await internal(request,env);const data=await body(request),occurred=scope(data,env,now);
+async function unlinkUnlocked(request,env,now=Date.now(),send) {
+  await internal(request,env);const data=await body(request),occurred=scope(data,env,now,90*60000);
   const who=await subject(data.userId,env);
+  const targets=env.PUBLISH_MODE==='inline'?(await env.DB.prepare('SELECT device_id FROM echo_value_devices WHERE stage=? AND subject_hash=? AND updated_at<=?').bind(env.STAGE,who,occurred).all()).results.map(x=>x.device_id):[];
   await env.DB.batch([
     env.DB.prepare('INSERT INTO echo_value_revocations(stage,subject_hash,revoked_at) VALUES(?,?,?) ON CONFLICT(stage,subject_hash) DO UPDATE SET revoked_at=MAX(revoked_at,excluded.revoked_at)').bind(env.STAGE,who,occurred),
     env.DB.prepare('UPDATE echo_value_devices SET active=0,updated_at=? WHERE stage=? AND subject_hash=? AND updated_at<=?').bind(occurred,env.STAGE,who,occurred),
     env.DB.prepare('UPDATE echo_value_usages SET active=0,updated_at=? WHERE stage=? AND subject_hash=? AND updated_at<=?').bind(occurred,env.STAGE,who,occurred)
   ]);
+  if(targets.length)await deliver(env,targets,[emptySnapshot()],send);
   return reply({unlinked:true});
 }
-async function relinkUnlocked(request,env,now){
- await internal(request,env);const data=await body(request),occurred=scope(data,env,now);
+async function relinkUnlocked(request,env,now,send){
+ await internal(request,env);const data=await body(request),occurred=scope(data,env,now,90*60000);
  const row=await linked(request,env,now),who=await subject(data.userId,env),generation=await digest(row.write_hash);
+ if(env.PUBLISH_MODE==='inline'){
+  const targets=(await env.DB.prepare('SELECT device_id FROM echo_value_devices WHERE stage=? AND subject_hash=? AND active=1 AND updated_at<=? AND NOT EXISTS(SELECT 1 FROM echo_value_revocations r WHERE r.stage=? AND r.subject_hash=? AND r.revoked_at>=?)').bind(env.STAGE,who,occurred,env.STAGE,who,occurred).all()).results.map(x=>x.device_id);
+  if(targets.length){let next;try{next={...snapshot(row,now),binding:await digest(JSON.stringify([env.STAGE,who,row.id,generation]))};}catch{}
+   // Clear first under the lease. Failed delivery must not commit a new owner.
+   await deliver(env,targets,[emptySnapshot(),...(next?[next]:[])],send);
+  }
+ }
  await env.DB.prepare('UPDATE echo_value_devices SET household=?,generation=?,updated_at=? WHERE stage=? AND subject_hash=? AND active=1 AND updated_at<=? AND NOT EXISTS(SELECT 1 FROM echo_value_revocations r WHERE r.stage=? AND r.subject_hash=? AND r.revoked_at>=?)').bind(row.id,generation,occurred,env.STAGE,who,occurred,env.STAGE,who,occurred).run();
  return reply({relinked:true});
 }
@@ -88,6 +128,22 @@ export async function read(request,env,now=Date.now()) {
   return reply({...JSON.parse(row.live_json),received_at:row.live_at,local_date:part('year')+'-'+part('month')+'-'+part('day'),
     received_local:new Intl.DateTimeFormat('en-GB',{timeZone:row.timezone,hour:'2-digit',minute:'2-digit',hour12:false}).format(new Date(row.live_at)),
     history:row.history_json?{...JSON.parse(row.history_json),received_at:row.history_at}:null});
+}
+function emptySnapshot(){return {solar:'—',home:'—',battery:'—',stamp:'',sampleTime:0,stale:false,binding:''};}
+async function deliver(env,targets,contents,send){
+ if(!targets.length)return {accepted:0,failed:0};
+ if(!env.DATASTORE_NAMESPACE||!env.DATASTORE_KEY)fail(503,'not_configured');
+ const token=await skillToken(env,send);let accepted=0;
+ for(let i=0;i<targets.length;i+=20){const batch=targets.slice(i,i+20);
+  const response=await send('https://api.eu.amazonalexa.com/v1/datastore/commands',{
+   method:'POST',redirect:'manual',signal:AbortSignal.timeout(5000),
+   headers:{'Content-Type':'application/json',Authorization:'Bearer '+token},
+   body:JSON.stringify({target:{type:'DEVICES',items:batch},commands:contents.map(content=>({type:'PUT_OBJECT',namespace:env.DATASTORE_NAMESPACE,key:env.DATASTORE_KEY,content}))})});
+  if(!response.ok)fail(503,'delivery_failed');const result=await boundedResponse(response);
+  accepted+=new Set((result.results||[]).filter(x=>batch.includes(x.deviceId)&&x.type==='SUCCESS').map(x=>x.deviceId)).size;
+ }
+ if(accepted!==targets.length)fail(503,'delivery_failed');
+ return {accepted,failed:0};
 }
 async function publishUnlocked(env,now=Date.now(),send=(url,init)=>globalThis.fetch(url,init)) {
   if(env.PUBLISH_ENABLED!=='true')return {enabled:false,accepted:0,failed:0,households:0};
@@ -149,33 +205,60 @@ async function locked(env,action){
  };
  try{return await action(guarded);}finally{await env.DB.prepare('DELETE FROM echo_value_locks WHERE stage=? AND owner=?').bind(env.STAGE,owner).run();}
 }
-export async function register(request,env,now=Date.now()){
- await internal(request,env);return locked(env,()=>registerUnlocked(request,env,now));
+export async function register(request,env,now=Date.now(),send=(url,init)=>globalThis.fetch(url,init)){
+ await internal(request,env);return locked({...env,__send:send},guarded=>registerUnlocked(request,env,now,guarded));
+}
+export async function refreshRegistered(request,env,now=Date.now()){
+ await internal(request,env);return locked(env,()=>refreshRegisteredUnlocked(request,env,now));
 }
 export async function remove(request,env,now=Date.now()){
  await internal(request,env);return locked(env,()=>removeUnlocked(request,env,now));
 }
-export async function unlink(request,env,now=Date.now()){
- await internal(request,env);return locked(env,()=>unlinkUnlocked(request,env,now));
+export async function unlink(request,env,now=Date.now(),send=(url,init)=>globalThis.fetch(url,init)){
+ await internal(request,env);return locked({...env,__send:send},guarded=>unlinkUnlocked(request,env,now,guarded));
 }
-export async function relink(request,env,now=Date.now()){
- await internal(request,env);return locked(env,()=>relinkUnlocked(request,env,now));
+export async function relink(request,env,now=Date.now(),send=(url,init)=>globalThis.fetch(url,init)){
+ await internal(request,env);return locked({...env,__send:send},guarded=>relinkUnlocked(request,env,now,guarded));
 }
 export async function publish(env,now=Date.now(),send=(url,init)=>globalThis.fetch(url,init)){
+ if(env.PUBLISH_MODE==='inline')return {enabled:false,accepted:0,failed:0,households:0,reason:'inline_mode'};
  if(env.PUBLISH_ENABLED!=='true')return {enabled:false,accepted:0,failed:0,households:0};
  return locked({...env,__send:send},guarded=>publishUnlocked(env,now,guarded));
+}
+export function resolveStage(request,env){
+ const stage=request.headers.get('X-Solar-Stage')||env.STAGE;
+ if(stage===env.STAGE){
+  const pkg=request.headers.get('X-Solar-Package');
+  if(stage==='development'&&pkg&&pkg===env.TEST_PACKAGE_ID&&env.TEST_DATASTORE_NAMESPACE)
+   return {...env,WIDGET_PACKAGE_ID:pkg,DATASTORE_NAMESPACE:env.TEST_DATASTORE_NAMESPACE,DATASTORE_KEY:'snapshot'};
+  if(stage==='development'&&pkg&&pkg===env.LIVE_PACKAGE_ID&&env.LIVE_DATASTORE_NAMESPACE)
+   return {...env,WIDGET_PACKAGE_ID:pkg,DATASTORE_NAMESPACE:env.LIVE_DATASTORE_NAMESPACE,DATASTORE_KEY:env.LIVE_DATASTORE_KEY||'snapshot'};
+  if(!pkg||pkg===env.WIDGET_PACKAGE_ID)return env;
+  fail(403,'wrong_scope');
+ }
+ if(stage==='live'&&env.LIVE_PACKAGE_ID&&env.LIVE_DATASTORE_NAMESPACE)
+  return {...env,STAGE:'live',WIDGET_PACKAGE_ID:env.LIVE_PACKAGE_ID,DATASTORE_NAMESPACE:env.LIVE_DATASTORE_NAMESPACE,DATASTORE_KEY:env.LIVE_DATASTORE_KEY||'snapshot'};
+ fail(403,'wrong_scope');
 }
 export default {
   async fetch(request,env){
     try{
       const path=new URL(request.url).pathname;
+      if(path.startsWith('/internal/'))env=resolveStage(request,env);
       if(path==='/v1/pv'&&request.method==='GET')return await read(request,env);
       if(path==='/internal/register'&&request.method==='POST')return await register(request,env);
+      if(path==='/internal/refresh'&&request.method==='POST')return await refreshRegistered(request,env);
       if(path==='/internal/remove'&&request.method==='POST')return await remove(request,env);
       if(path==='/internal/unlink'&&request.method==='POST')return await unlink(request,env);
       if(path==='/internal/relink'&&request.method==='POST')return await relink(request,env);
       return reply({error:'not_found'},404);
-    }catch(error){return reply({error:error.code||'unavailable'},error.status||503);}
+    }catch(error){
+      if(new URL(request.url).pathname==='/internal/refresh'){
+        const allowed=['unauthorized','wrong_scope','not_configured','invalid_user','invalid_device','instance_required','invalid_event_time','verified_registration_required','registration_generation_changed','publishing_disabled','snapshot_unavailable','delivery_busy','stale_event'];
+        console.log(JSON.stringify({event:'registered_refresh',result:'rejected',code:allowed.includes(error.code)?error.code:'unavailable',status:error.status||503}));
+      }
+      return reply({error:error.code||'unavailable'},error.status||503);
+    }
   },
   async scheduled(controller,env){
     try{console.log(JSON.stringify({event:'echo_values_publish',...await publish(env,controller.scheduledTime)}));}

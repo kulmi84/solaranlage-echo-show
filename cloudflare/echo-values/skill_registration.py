@@ -28,6 +28,27 @@ def urlopen(request, timeout):
 
 
 
+
+def widget_trigger(arguments, receipt=False):
+    """Only enum/timing metadata; no identity, measurement, URL or free text."""
+    names = ('solar.widget.values.receipt.v1',) if receipt else ('solar.widget.values.register.v1','solar.widget.directValues.v1')
+    if not isinstance(arguments,list) or not arguments or arguments[0] not in names:
+        raise ValueError('invalid_widget_trigger')
+    if len(arguments)==1:
+        return {'trigger':'legacy'}
+    if len(arguments)!=2 or not isinstance(arguments[1],dict):
+        raise ValueError('invalid_widget_trigger')
+    marker=arguments[1]
+    keys={'trigger','shownElapsedMs','sentElapsedMs'} | ({'ackElapsedMs'} if receipt else set())
+    if set(marker)!=keys or marker.get('trigger') not in ('mount','reveal','minute'):
+        raise ValueError('invalid_widget_trigger')
+    for key in keys-{'trigger'}:
+        if type(marker[key]) not in (int,float) or not 0<=marker[key]<=604800000:
+            raise ValueError('invalid_widget_trigger')
+    if marker['shownElapsedMs']>marker['sentElapsedMs'] or (receipt and marker['ackElapsedMs']<marker['sentElapsedMs']):
+        raise ValueError('invalid_widget_trigger')
+    return dict(marker)
+
 def registration_requests(event, config):
 
     """Return internal calls; household is resolved by Worker, never supplied here."""
@@ -55,6 +76,8 @@ def registration_requests(event, config):
     base = dict(stage=stage, packageId=package, userId=user.get('userId'), occurredAt=request.get('timestamp'))
 
     kind = request.get('type')
+    if kind in ('AlexaSkillEvent.SkillDisabled','AlexaSkillEvent.SkillAccountLinked'):
+        base['occurredAt'] = request.get('eventCreationTime') or request.get('timestamp')
 
     payload = request.get('payload') or {}
 
@@ -91,9 +114,14 @@ def registration_requests(event, config):
 
     elif kind == 'Alexa.Presentation.APL.UserEvent':
 
-        if request.get('arguments') not in (["solar.widget.open.v1"], ["solar.widget.text.open.v1"], ["solar.widget.values.register.v1"], ["solar.widget.directValues.v1"]):
-
-            return []
+        arguments=request.get('arguments')
+        marker=None
+        if arguments not in (["solar.widget.open.v1"], ["solar.widget.text.open.v1"]):
+            if not isinstance(arguments,list) or not arguments or arguments[0] not in ('solar.widget.values.register.v1','solar.widget.directValues.v1'):
+                return []
+            marker=widget_trigger(arguments)
+        if marker and marker['trigger']!='legacy':
+            base['trigger']=marker['trigger']
 
         prefix = re.escape('widget://' + skill) + ('_development' if stage == 'development' else '(?:_live)?') + re.escape('/' + package + '/')
 
@@ -109,10 +137,21 @@ def registration_requests(event, config):
 
         return []
 
-    token = user.get('accessToken')
+    session_user=event.get('session', {}).get('user', {})
+    if (not user.get('accessToken') and session_user.get('accessToken')
+            and session_user.get('userId') and user.get('userId')
+            and session_user['userId']!=user['userId']):
+        raise ValueError('account_mismatch')
+    token = user.get('accessToken') or session_user.get('accessToken')
 
     if action == 'register' and (not isinstance(token, str) or not re.fullmatch(r'[a-f0-9]{64}', token)):
-
+        if (not token and kind=='Alexa.Presentation.APL.UserEvent' and marker is not None
+                and stage=='live' and package=='SolarAccountImageBuild1211'):
+            return [('refresh',dict(base,deviceId=system.get('device',{}).get('deviceId'),instanceId=instance),None) for instance in instances]
+        if kind == 'Alexa.DataStore.PackageManager.UsagesInstalled':
+            # Lifecycle notifications may omit account-linking access. Do not
+            # reject installation or invent a household; mount/wake authenticates.
+            return []
         raise ValueError('linked_access_missing')
 
     return [(action, dict(base, deviceId=system.get('device', {}).get('deviceId'), instanceId=instance), token if action == 'register' else None)
@@ -127,7 +166,7 @@ def send_registration(call, config, opener=urlopen):
 
     action, payload, token = call
 
-    if action not in ('register', 'remove', 'unlink', 'relink'):
+    if action not in ('register', 'refresh', 'remove', 'unlink', 'relink'):
 
         raise ValueError('invalid_action')
 
@@ -141,13 +180,18 @@ def send_registration(call, config, opener=urlopen):
 
         raise ValueError('secret_missing')
 
-    headers = {'Content-Type': 'application/json', 'X-Solar-Registration': secret}
+    headers = {'Content-Type': 'application/json', 'X-Solar-Registration': secret, 'X-Solar-Stage': config['stage'], 'X-Solar-Package': config['package_id'],
+               'User-Agent': 'SolaranlageSkill/1.1.0'}
 
     if token:
 
         headers['Authorization'] = 'Bearer ' + token
 
-    req = Request(config['origin'] + '/internal/' + action,
+    trigger=payload.get('trigger')
+    if trigger is not None and trigger not in ('mount','reveal','minute'):
+        raise ValueError('invalid_widget_trigger')
+    suffix=('?trigger='+trigger) if action in ('register','refresh') and trigger else ''
+    req = Request(config['origin'] + '/internal/' + action + suffix,
 
                   data=json.dumps(payload).encode('utf-8'), headers=headers, method='POST')
 

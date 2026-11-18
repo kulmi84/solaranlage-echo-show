@@ -54,13 +54,63 @@ class LiveIntegration(unittest.TestCase):
 
  def invoke(self,event=None):return self.ns['lambda_handler'](event or self.event,None)
 
+ def test_store_profile_keeps_dev_registration_separate(self):
+  dev={**self.g['live_values_config'](),'stage':'development'}
+  store={**dev,'stage':'live','package_id':'PublishedStore','presentation_token':'solaranlage-store-werte'}
+  self.g['live_values_config']=lambda:dev
+  self.g['_values_config_reader']=lambda section:store
+  self.event['request']['presentationUri']='widget://'+self.skill+'_development/SyntheticLive/one'
+  self.invoke()
+  self.assertEqual(self.registrations[-1][1]['stage'],'development')
+  self.event['request']['presentationUri']='widget://'+self.skill+'/PublishedStore/one'
+  self.invoke()
+  self.assertEqual(self.registrations[-1][1]['stage'],'live')
+  self.assertEqual(self.registrations[-1][1]['packageId'],'PublishedStore')
+  self.event['request']['arguments']=['solar.widget.text.open.v1']
+  self.assertEqual(self.invoke()['response']['directives'][0]['token'],'solaranlage-store-werte')
+
  def test_initial_widget_mount_registers_and_sets_text_without_fullscreen(self):
 
   result=self.invoke();self.assertEqual(len(self.registrations),1);self.assertEqual(self.calls,[])
+  self.assertIs(result['response'].get('shouldEndSession'), True)
+  self.assertNotIn('outputSpeech',result['response'])
 
   self.assertEqual(result['response']['directives'][0]['type'],'Alexa.Presentation.APL.ExecuteCommands')
 
-  self.assertEqual(result['response']['directives'][0]['commands'][-1]['value']['solar'],'123 W')
+  self.assertEqual(result['response']['directives'][0]['commands'][0]['value']['solar'],'123 W')
+
+ def test_immediate_display_uses_one_authenticated_snapshot_command(self):
+  commands=self.invoke()['response']['directives'][0]['commands']
+  self.assertEqual(len([c for c in commands if c['type']=='SetValue']),1)
+  self.assertEqual(commands[0]['property'],'snapshot')
+  self.assertEqual(commands[0]['value']['binding'],'c'*64)
+
+ def test_inconsistent_household_binding_does_not_replace_last_values(self):
+  self.g['send_registration']=lambda *args: {'registered':True,'binding':'d'*64,'snapshot':{'binding':'c'*64,'sampleTime':123}}
+  response=self.invoke()['response']
+  self.assertNotIn('directives',response)
+  self.assertIs(response['shouldEndSession'],True)
+
+ def test_small_widget_registration_failure_keeps_existing_values(self):
+  self.g['send_registration']=lambda *args: (_ for _ in ()).throw(OSError('upstream unavailable'))
+  response=self.invoke()['response']
+  self.assertIs(response['shouldEndSession'],True)
+  self.assertNotIn('directives',response)
+
+ def test_pilot_stage_does_not_accept_live_package_uri(self):
+  original=self.g['live_values_config']()
+  self.g['live_values_config']=lambda:{**original,'stage':'development'}
+  self.g['_before_live_values']=lambda *args:{'delegated':True}
+  self.event['request']['presentationUri']='widget://'+self.skill+'_live/SyntheticLive/one'
+  self.assertEqual(self.invoke(),{'delegated':True})
+  self.assertEqual(self.registrations,[])
+
+ def test_pilot_stage_registers_only_development_instance(self):
+  original=self.g['live_values_config']()
+  self.g['live_values_config']=lambda:{**original,'stage':'development'}
+  self.event['request']['presentationUri']='widget://'+self.skill+'_development/SyntheticLive/one'
+  self.invoke()
+  self.assertEqual(self.registrations[0][1]['stage'],'development')
 
  def test_tap_opens_live_fullscreen_with_one_read_and_no_images(self):
 
@@ -133,17 +183,19 @@ class LiveIntegration(unittest.TestCase):
 
   def normalize(value):
 
-   if isinstance(value,dict):return {k:normalize(v) for k,v in value.items()}
+   if isinstance(value,dict):
+    if isinstance(value.get('text'),str) and '1.1.0 (Build ' in value['text']: value={**value,'text':'VERSION','fontSize':'VERSION_SIZE'}
+    return {k:normalize(v) for k,v in value.items()}
 
    if isinstance(value,list):return [normalize(v) for v in value]
 
    if isinstance(value,str):
 
-    return value.replace('solar.fullscreen.live.auto.v1','solar.fullscreen.text.auto.v1').replace('1.1.0 (Build 1611)','DEV · 1.1.0 (Build 1611.11)')
+    return value.replace('solar.fullscreen.live.auto.v1','solar.fullscreen.text.auto.v1').replace('1.1.0 (Build 1711.2)','DEV · 1.1.0 (Build 1611.12)')
 
    return value
 
-  self.assertEqual(normalize(live),dev)
+  self.assertEqual(normalize(live),normalize(dev))
 
 
 
@@ -151,36 +203,27 @@ if __name__=='__main__':unittest.main()
 
 
 class WidgetTemplateTests(unittest.TestCase):
- def test_visual_tree_matches_confirmed_dev(self):
-  import copy
-  dev=json.loads((HERE/'../../experiments/direct-values-dev/widget/documents/document.json').resolve().read_text(encoding='utf-8-sig'))
-  live=json.loads((HERE/'widget-template/documents/document.json').read_text(encoding='utf-8'))
-  # Only compare visual components: registration, data binding and version text intentionally differ.
-  def normalize(v):
-   if isinstance(v,dict):return {k:normalize(x) for k,x in v.items()}
-   if isinstance(v,list):return [normalize(x) for x in v]
-   if isinstance(v,str) and v.startswith('DEV '):return '1.1.0 (Build 1611)'
-   return v
-  self.assertEqual(live['mainTemplate']['items'][0]['items'],normalize(dev['mainTemplate']['items'][0]['items']))
- def test_mount_and_retry_stop_after_registration(self):
-  doc=json.loads((HERE/'widget-template/documents/document.json').read_text())
-  root=doc['mainTemplate']['items'][0]
-  self.assertEqual(root['onMount'][0]['arguments'],['solar.widget.values.register.v1'])
-  self.assertTrue(any(tick['when']=='${!registrationConfirmed}' for tick in root['handleTick']))
-
-
-class WakeRefreshTests(unittest.TestCase):
- def test_wake_pending_is_set_when_hidden_and_consumed_before_request(self):
-  doc=json.loads((HERE/'widget-template/documents/document.json').read_text(encoding='utf-8'))
-  change=doc['onDisplayStateChange'][0]
-  self.assertEqual(change['when'],'${event.displayState == "hidden"}')
-  tick=doc['mainTemplate']['items'][0]['handleTick'][0]
-  self.assertEqual(tick['minimumDelay'],1000)
-  self.assertIn('displayState != "hidden"',tick['when'])
-  self.assertEqual(tick['commands'][0]['property'],'wakeRefreshPending')
-  self.assertFalse(tick['commands'][0]['value'])
-  self.assertEqual(tick['commands'][-1]['arguments'],['solar.widget.values.register.v1'])
- def test_regular_retry_interval_is_unchanged(self):
-  doc=json.loads((HERE/'widget-template/documents/document.json').read_text(encoding='utf-8'))
-  retries=[t for t in doc['mainTemplate']['items'][0]['handleTick'] if t['when']=='${!registrationConfirmed}']
-  self.assertEqual(len(retries),1);self.assertEqual(retries[0]['minimumDelay'],60000)
+ def document(self):
+  return json.loads((HERE/'widget-template/documents/document.json').read_text(encoding='utf-8'))
+ def test_visual_tree_matches_current_dev_except_dev_prefix(self):
+  dev=json.loads((HERE/'dev-widget/documents/document.json').read_text(encoding='utf-8'))
+  live=self.document()
+  visual=lambda d:json.dumps(d['mainTemplate']['items'][0]['items'],ensure_ascii=False)
+  self.assertEqual(visual(dev).replace('DEV · 1.1.0 (Build 1811)','1.1.0 (Build 1811)'),visual(live))
+ def test_mount_fetch_and_refresh_deadline(self):
+  root=self.document()['mainTemplate']['items'][0]
+  event=[c for c in root['onMount'] if c['type']=='SendEvent']
+  self.assertEqual(len(event),1)
+  self.assertEqual(event[0]['arguments'][1]['trigger'],'mount')
+  deadlines=[c['value'] for c in root['onMount'] if c.get('property')=='nextRefreshAt']
+  self.assertEqual(deadlines,['${elapsedTime + 60000}'])
+ def test_reveal_and_minute_are_separate_and_do_not_fire_hidden(self):
+  doc=self.document();root=doc['mainTemplate']['items'][0]
+  self.assertTrue(any(c.get('property')=='wakePending' and c['value'] is True for c in doc['onDisplayStateChange']))
+  triggers=[]
+  for tick in root['handleTick']:
+   self.assertIn('displayState != "hidden"',tick['when'])
+   self.assertTrue(any(c.get('property')=='nextRefreshAt' and c['value']=='${elapsedTime + 60000}' for c in tick['commands']))
+   triggers.extend(c['arguments'][1]['trigger'] for c in tick['commands'] if c['type']=='SendEvent')
+  self.assertEqual(triggers,['reveal','minute'])
+  self.assertNotIn('"type": "Image"',json.dumps(doc))

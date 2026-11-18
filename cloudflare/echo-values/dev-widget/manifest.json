@@ -1,0 +1,16 @@
+{
+  "manifest": {
+    "id": "Solaranlage1811",
+    "version": "1.1.0",
+    "presentationDefinitions": [
+      {
+        "url": "presentations/default.tpl"
+      }
+    ],
+    "appliesTo": "${viewport.mode == 'HUB'}",
+    "installStateChanges": "INFORM",
+    "updateStateChanges": "AUTOMATIC"
+  },
+  "packageVersion": "1.0",
+  "packageType": "APL_PACKAGE"
+}
