@@ -1,5 +1,7 @@
 # Solaranlage auf dem Echo Show
 
+> **Stand 19.11.2026:** Store **1.1.0 (Build 1811)** ist Live. Kleine Store-Kachel weiterhin ohne Messwerte; DEV 1811 und Vollbild funktionieren. [Projektstatus](docs/ALEXA-STATUS.md) · [Fehler #20](https://github.com/kulmi84/solaranlage-echo-show/issues/20).
+
 **HACS 1.0.15 · Bildwidget 2.0.1**
 
 Solar-, Verbrauchs-, Akku- und Energiewerte aus Home Assistant auf dem Echo Show: als Vollbildansicht und Alexa+-kompatibles Widget. Sprachansagen funktionieren auch auf Alexa-Geräten ohne Display.

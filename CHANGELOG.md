@@ -2,6 +2,13 @@
 
 Die ausführlichen Änderungen stehen hier. Die [Projektübersicht](README.md) beschreibt die Funktionen und zeigt die Ansichten.
 
+
+## 18.11.2026 · Alexa 1.1.0 (Build 1811)
+
+- Store-Update Live; kleine Kachel und Vollbild mit direkten Textwerten.
+- Separate DEV 1811 erhalten. Kleine Store-Kachel weiterhin ohne Messwerte; Amazon-Support offen.
+- Bilddienste bleiben bis zum belegten Ende ihrer Nutzung aktiv.
+
 ## Bildwidget 2.0.1 – bei Amazon eingereicht
 
 - Allgemeine Widgetquellen ohne private Bildzugänge mit dem Skill-Builder verbunden.

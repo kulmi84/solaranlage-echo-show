@@ -1,25 +1,9 @@
-# Projektstatus · 01.11.2026
+# Projektstatus · 19.11.2026
 
-- **HACS 1.0.15 veröffentlicht.** Neueinrichtung ohne Einladung und bestehende Einrichtung geprüft; Konten und Sensoren bleiben erhalten. Aktuelle Korrekturen: kompakte HACS-Bildvorschau, klare Expertenoption und kurze Erklärung zur Dienstwahl.
-- **Bildwidget 2.0.1 am Echo bestätigt:** sofortiges Nachladen, Zugangserneuerung, Bildpuffer samt Zeitstand, Vollbild und weiße Fußzeile.
-- **Haushaltstest bestanden:** Testhaushalt mit 123 W in Widget und Vollbild; nach Rückverknüpfung und einmaligem Antippen wieder echte Werte. Keine Neuinstallation nötig.
-- **Vollbild-Sofortabruf bestätigt:** neue Bildadressen bei jedem Öffnen, sofortiger Abruf beim Zurückkehren; danach alle 60 Sekunden.
-- **Runtime über PR #19 integriert**, 93 Python-Tests bestanden. Alter PR #9 als ersetzt geschlossen. Das öffentliche Paket enthält keine privaten Recovery-Zugänge.
-- **Bei Amazon eingereicht:** Build 8 erfolgreich, Validierung ohne Fehler. Einstellung „Zertifizieren und veröffentlichen“; Amazon bestätigt **In review**. Getrenntes synthetisches Demokonto für das Prüfteam hinterlegt. Noch nicht öffentlich freigegeben.
+- **Store: 1.1.0 (Build 1811) ist Live.** Kleine Kachel und Vollbild verwenden direkte Textwerte.
+- **DEV 1811 bleibt separat erhalten und funktioniert am Echo.**
+- **Offen:** Kleine Store-Kachel zeigt Beschriftungen, aber keine Messwerte. Vollbild per Tipp funktioniert.
+- **Amazon-Support:** Sauberer Vergleich Store mit Testmodus Off, danach DEV angefordert. Benötigt werden Alexa-Request-IDs, vollständige Präsentations-URIs, UTC-Zeiten, Fotos und ein gezielter Data-Store-Schreibtest. Manifest und Widget-Dokument als Dateien mitgeben. Kein Werksreset.
+- **Cloudflare:** Werte-Worker `solaranlage-echo-werte` aktiv. Alte Bilddienste bleiben bis zum belegten Ende ihrer Nutzung erhalten.
 
-## Skills
-
-| Skill | Stand |
-|---|---|
-| Solaranlage (bisher Data Store Labor) | SolarAccountImage 2.0.1; neuer öffentlicher Entwurf in Amazon-Prüfung. |
-| Solaranlage (bisheriger öffentlicher Skill) | Bleibt für bestehende Nutzer erhalten. |
-| Mein Zuhause | Unverändert. |
-
-## Offene Punkte
-
-7. **Zurückgestellt:** externe HACS-Updates und vollständige Migration aller HA-/Alexa-/Bildzugriffe nachweisen, danach zwei Weiterleitungen entfernen.
-8. **Amazon-Freigabe abwarten und tatsächlichen Live-Status prüfen.** Automatische Veröffentlichung nach bestandener Zertifizierung ausgewählt.
-
-Cloudflare: sechs Worker und zwei Datenbanken. Die zwei alten Adressen bleiben vorerst als Weiterleitungen aktiv.
-
-[Checkliste #10](https://github.com/kulmi84/solaranlage-echo-show/issues/10) · [Widgetquellen](../alexa/widget/README.md)
+[Offener Store-Fehler #20](https://github.com/kulmi84/solaranlage-echo-show/issues/20) · [Build-1811-Quellen](https://github.com/kulmi84/solaranlage-echo-show/tree/codex/dev-text-values-1611-7/cloudflare/echo-values)
