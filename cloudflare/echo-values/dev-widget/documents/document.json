@@ -1,0 +1,382 @@
+{
+  "type": "APL",
+  "version": "2023.3",
+  "theme": "dark",
+  "mainTemplate": {
+    "items": [
+      {
+        "type": "Container",
+        "id": "imageWidget",
+        "width": "100vw",
+        "height": "100vh",
+        "padding": "${Math.floor(16 * layoutScale)}",
+        "bind": [
+          {
+            "name": "layoutScale",
+            "value": "${Math.min(1, viewport.width / 310, viewport.height / 440)}"
+          },
+          {
+            "name": "snapshot",
+            "value": {
+              "solar": "—",
+              "home": "—",
+              "battery": "—",
+              "stamp": "",
+              "stale": false
+            }
+          },
+          {
+            "value": "${SolarLive && SolarLive.sampleTime > 0 && (!snapshot.sampleTime || SolarLive.sampleTime >= snapshot.sampleTime) ? SolarLive : snapshot}",
+            "name": "displaySnapshot"
+          },
+          {
+            "name": "wakePending",
+            "value": false
+          },
+          {
+            "name": "lastWakeAt",
+            "value": 0
+          },
+          {
+            "name": "shownAt",
+            "value": 0
+          },
+          {
+            "name": "nextRefreshAt",
+            "value": 60000
+          }
+        ],
+        "handleTick": [
+          {
+            "minimumDelay": 1000,
+            "when": "${displayState != \"hidden\" && wakePending && utcTime >= lastWakeAt + 3000}",
+            "commands": [
+              {
+                "type": "SetValue",
+                "componentId": "imageWidget",
+                "property": "wakePending",
+                "value": false
+              },
+              {
+                "type": "SetValue",
+                "componentId": "imageWidget",
+                "property": "lastWakeAt",
+                "value": "${utcTime}"
+              },
+              {
+                "type": "SetValue",
+                "componentId": "imageWidget",
+                "property": "nextRefreshAt",
+                "value": "${elapsedTime + 60000}"
+              },
+              {
+                "type": "SendEvent",
+                "arguments": [
+                  "solar.widget.values.register.v1",
+                  {
+                    "trigger": "reveal",
+                    "shownElapsedMs": "${shownAt}",
+                    "sentElapsedMs": "${elapsedTime}"
+                  }
+                ],
+                "flags": {
+                  "interactionMode": "INLINE"
+                },
+                "componentId": "imageWidget",
+                "sequencer": "solarDirectValues"
+              }
+            ]
+          },
+          {
+            "minimumDelay": 1000,
+            "when": "${displayState != \"hidden\" && !wakePending && elapsedTime >= nextRefreshAt}",
+            "commands": [
+              {
+                "type": "SetValue",
+                "componentId": "imageWidget",
+                "property": "nextRefreshAt",
+                "value": "${elapsedTime + 60000}"
+              },
+              {
+                "type": "SendEvent",
+                "arguments": [
+                  "solar.widget.values.register.v1",
+                  {
+                    "trigger": "minute",
+                    "shownElapsedMs": "${shownAt}",
+                    "sentElapsedMs": "${elapsedTime}"
+                  }
+                ],
+                "flags": {
+                  "interactionMode": "INLINE"
+                },
+                "componentId": "imageWidget",
+                "sequencer": "solarDirectValues"
+              }
+            ]
+          }
+        ],
+        "items": [
+          {
+            "type": "TouchWrapper",
+            "width": "100%",
+            "onPress": [
+              {
+                "type": "SendEvent",
+                "arguments": [
+                  "solar.widget.text.open.v1"
+                ],
+                "flags": {
+                  "interactionMode": "STANDARD"
+                },
+                "sequencer": "solarOpenFullscreen"
+              }
+            ],
+            "item": {
+              "type": "Container",
+              "width": "100%",
+              "items": [
+                {
+                  "type": "Text",
+                  "text": "Solaranlage",
+                  "fontSize": "${Math.floor(48 * layoutScale)}",
+                  "fontWeight": "700",
+                  "color": "white",
+                  "maxLines": 1,
+                  "width": "100%"
+                },
+                {
+                  "type": "Container",
+                  "spacing": "${Math.floor(18 * layoutScale)}",
+                  "items": [
+                    {
+                      "type": "Text",
+                      "text": "Solar",
+                      "fontSize": "${Math.floor(21 * layoutScale)}",
+                      "color": "white",
+                      "maxLines": 1
+                    },
+                    {
+                      "type": "Container",
+                      "width": "100%",
+                      "height": "${Math.floor(76 * layoutScale)}",
+                      "items": [
+                        {
+                          "type": "Text",
+                          "text": "${displaySnapshot.solar}",
+                          "fontSize": "${Math.floor(56 * layoutScale)}",
+                          "color": "${displaySnapshot.stamp ? '#FFD166' : '#AFC1D1'}",
+                          "position": "absolute",
+                          "top": 0,
+                          "left": 0,
+                          "fontWeight": "700",
+                          "maxLines": 1
+                        }
+                      ]
+                    }
+                  ]
+                },
+                {
+                  "type": "Container",
+                  "spacing": "${Math.floor(18 * layoutScale)}",
+                  "items": [
+                    {
+                      "type": "Text",
+                      "text": "Hausverbrauch",
+                      "fontSize": "${Math.floor(21 * layoutScale)}",
+                      "color": "white",
+                      "maxLines": 1
+                    },
+                    {
+                      "type": "Container",
+                      "width": "100%",
+                      "height": "${Math.floor(76 * layoutScale)}",
+                      "items": [
+                        {
+                          "type": "Text",
+                          "text": "${displaySnapshot.home}",
+                          "fontSize": "${Math.floor(56 * layoutScale)}",
+                          "color": "${displaySnapshot.stamp ? '#8BCBFF' : '#AFC1D1'}",
+                          "position": "absolute",
+                          "top": 0,
+                          "left": 0,
+                          "fontWeight": "700",
+                          "maxLines": 1
+                        }
+                      ]
+                    }
+                  ]
+                },
+                {
+                  "type": "Container",
+                  "spacing": "${Math.floor(18 * layoutScale)}",
+                  "items": [
+                    {
+                      "type": "Text",
+                      "text": "Akku",
+                      "fontSize": "${Math.floor(21 * layoutScale)}",
+                      "color": "white",
+                      "maxLines": 1
+                    },
+                    {
+                      "type": "Container",
+                      "width": "100%",
+                      "height": "${Math.floor(76 * layoutScale)}",
+                      "items": [
+                        {
+                          "type": "Text",
+                          "text": "${displaySnapshot.battery}",
+                          "fontSize": "${Math.floor(56 * layoutScale)}",
+                          "color": "${displaySnapshot.stamp ? '#51D3C5' : '#AFC1D1'}",
+                          "position": "absolute",
+                          "top": 0,
+                          "left": 0,
+                          "fontWeight": "700",
+                          "maxLines": 1
+                        }
+                      ]
+                    }
+                  ]
+                },
+                {
+                  "type": "Container",
+                  "width": "100%",
+                  "height": "${Math.floor(28 * layoutScale)}",
+                  "items": [
+                    {
+                      "type": "Text",
+                      "text": "${displaySnapshot.stamp}",
+                      "fontSize": "${Math.floor(16 * layoutScale)}",
+                      "color": "${displaySnapshot.stale ? '#FF6E6E' : '#FFD166'}",
+                      "maxLines": 1,
+                      "width": "100%"
+                    }
+                  ],
+                  "spacing": "${Math.floor(14 * layoutScale)}"
+                },
+                {
+                  "type": "Text",
+                  "text": "DEV · 1.1.0 (Build 1811)",
+                  "fontSize": "${Math.floor(14 * layoutScale)}",
+                  "color": "white",
+                  "spacing": "${Math.floor(5 * layoutScale)}",
+                  "maxLines": 1,
+                  "width": "100%"
+                }
+              ]
+            },
+            "height": "100%",
+            "id": "devOpenFullscreen"
+          }
+        ],
+        "onMount": [
+          {
+            "type": "SetValue",
+            "componentId": "imageWidget",
+            "property": "shownAt",
+            "value": "${elapsedTime}"
+          },
+          {
+            "type": "SetValue",
+            "componentId": "imageWidget",
+            "property": "wakePending",
+            "value": false
+          },
+          {
+            "type": "SetValue",
+            "componentId": "imageWidget",
+            "property": "lastWakeAt",
+            "value": "${utcTime}"
+          },
+          {
+            "type": "SetValue",
+            "componentId": "imageWidget",
+            "property": "nextRefreshAt",
+            "value": "${elapsedTime + 60000}"
+          },
+          {
+            "type": "SendEvent",
+            "arguments": [
+              "solar.widget.values.register.v1",
+              {
+                "trigger": "mount",
+                "shownElapsedMs": "${shownAt}",
+                "sentElapsedMs": "${elapsedTime}"
+              }
+            ],
+            "flags": {
+              "interactionMode": "INLINE"
+            },
+            "componentId": "imageWidget",
+            "sequencer": "solarDirectValues"
+          }
+        ]
+      }
+    ]
+  },
+  "extensions": [
+    {
+      "uri": "alexaext:datastore:10",
+      "name": "DataStore"
+    }
+  ],
+  "settings": {
+    "DataStore": {
+      "dataBindings": [
+        {
+          "dataBindingName": "SolarLive",
+          "dataType": "OBJECT",
+          "namespace": "Solaranlage1811",
+          "key": "snapshot"
+        }
+      ]
+    }
+  },
+  "DataStore:OnObjectReceived": [
+    {
+      "value": "${event.data}",
+      "componentId": "imageWidget",
+      "type": "SetValue",
+      "when": "",
+      "property": "snapshot"
+    }
+  ],
+  "DataStore:OnObjectChanged": [
+    {
+      "value": "${event.data}",
+      "componentId": "imageWidget",
+      "type": "SetValue",
+      "when": "",
+      "property": "snapshot"
+    }
+  ],
+  "onMount": [
+    {
+      "token": "direct-values",
+      "type": "DataStore:GetObject",
+      "namespace": "Solaranlage1811",
+      "key": "snapshot",
+      "sequencer": "solarDirectRead"
+    },
+    {
+      "type": "DataStore:WatchObject",
+      "namespace": "Solaranlage1811",
+      "key": "snapshot"
+    }
+  ],
+  "onDisplayStateChange": [
+    {
+      "type": "SetValue",
+      "componentId": "imageWidget",
+      "property": "wakePending",
+      "value": true
+    },
+    {
+      "type": "SetValue",
+      "componentId": "imageWidget",
+      "property": "shownAt",
+      "value": "${elapsedTime}",
+      "when": "${event.displayState != \"hidden\"}"
+    }
+  ]
+}

@@ -1,5 +1,8 @@
 # Solaranlage auf dem Echo Show
 
+> **Aktueller Alexa-Stand: 1.1.0 (Build 1811).** Live und separate DEV mit direkten Werten am eigenen Echo bestätigt. Tipp und Sprachstart öffnen die jeweils richtige Vollbildansicht. [Projektstatus](docs/ALEXA-STATUS.md) · [Aktuelle Quellen](cloudflare/echo-values)
+
+
 > **Stand 19.11.2026:** Store **1.1.0 (Build 1811)** ist Live. Kleine Store-Kachel weiterhin ohne Messwerte; DEV 1811 und Vollbild funktionieren. [Projektstatus](docs/ALEXA-STATUS.md) · [Fehler #20](https://github.com/kulmi84/solaranlage-echo-show/issues/20).
 
 **HACS 1.0.15 · Bildwidget 2.0.1**

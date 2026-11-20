@@ -1,3 +1,9 @@
+## 20.11.2026 · Alexa 1.1.0 (Build 1811)
+
+- Live und DEV mit direkten Werten am eigenen Echo bestätigt; Aktualisierung und Vollbild per Tipp funktionieren.
+- Store-/DEV-Darstellung getrennt; Sprachstart verwendet die Store-Werteansicht.
+- Referenzstand, Regressionstests und Wiederherstellungsregeln gesichert. Bilddienste noch nicht stillgelegt.
+
 # Änderungsverlauf
 
 Die ausführlichen Änderungen stehen hier. Die [Projektübersicht](README.md) beschreibt die Funktionen und zeigt die Ansichten.
