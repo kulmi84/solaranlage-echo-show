@@ -145,8 +145,9 @@ def registration_requests(event, config):
     token = user.get('accessToken') or session_user.get('accessToken')
 
     if action == 'register' and (not isinstance(token, str) or not re.fullmatch(r'[a-f0-9]{64}', token)):
-        if (not token and kind=='Alexa.Presentation.APL.UserEvent' and marker is not None
-                and stage=='live' and package=='SolarAccountImageBuild1211'):
+        if (not token and kind=='Alexa.Presentation.APL.UserEvent'
+                and ((stage=='live' and package=='SolarAccountImageBuild1211')
+                     or (stage=='development' and package=='Solaranlage1811'))):
             return [('refresh',dict(base,deviceId=system.get('device',{}).get('deviceId'),instanceId=instance),None) for instance in instances]
         if kind == 'Alexa.DataStore.PackageManager.UsagesInstalled':
             # Lifecycle notifications may omit account-linking access. Do not
@@ -166,7 +167,7 @@ def send_registration(call, config, opener=urlopen):
 
     action, payload, token = call
 
-    if action not in ('register', 'refresh', 'remove', 'unlink', 'relink'):
+    if action not in ('register', 'refresh', 'voice', 'remove', 'unlink', 'relink'):
 
         raise ValueError('invalid_action')
 
@@ -203,9 +204,10 @@ def send_registration(call, config, opener=urlopen):
 
             raise ValueError('registration_failed')
 
-        raw=response.read(8193)
+        limit=65536 if action in ('refresh','voice') and ((config.get('stage')=='development' and config.get('package_id')=='Solaranlage1811') or (config.get('stage') in ('live','development') and config.get('package_id')=='SolarAccountImageBuild1211')) else 8192
+        raw=response.read(limit+1)
 
-        if len(raw)>8192:
+        if len(raw)>limit:
 
             raise ValueError('response_too_large')
 

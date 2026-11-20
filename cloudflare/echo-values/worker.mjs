@@ -70,24 +70,38 @@ async function registerUnlocked(request,env,now=Date.now(),send) {
   }
   return reply({registered:true,binding:await digest(JSON.stringify([env.STAGE,who,row.id,generation])),...(initial?{snapshot:initial}:{}),...(delivery?{delivery}:{})});
 }
-async function refreshRegisteredUnlocked(request,env,now) {
+async function refreshRegisteredUnlocked(request,env,now,send) {
   await internal(request,env);
-  if(env.STAGE!=='live'||env.WIDGET_PACKAGE_ID!==env.LIVE_PACKAGE_ID)fail(403,'wrong_scope');
+  const dev1811=env.STAGE==='development'&&env.WIDGET_PACKAGE_ID==='Solaranlage1811'&&env.WIDGET_PACKAGE_ID===env.TEST_PACKAGE_ID;
+  if(!dev1811&&(env.STAGE!=='live'||env.WIDGET_PACKAGE_ID!==env.LIVE_PACKAGE_ID))fail(403,'wrong_scope');
   if(env.PUBLISH_ENABLED!=='true')fail(503,'publishing_disabled');
   const data=await body(request),occurred=scope(data,env,now);device(data);
   const who=await subject(data.userId,env);
   // This read cannot create, reactivate, move or extend a registration. Its
   // authority is the exact prior OAuth-verified account/device/package usage.
-  const row=await env.DB.prepare('SELECT h.*,d.generation AS registered_generation FROM echo_value_devices d JOIN echo_value_usages u ON u.stage=d.stage AND u.device_id=d.device_id AND u.subject_hash=d.subject_hash JOIN households h ON h.id=d.household WHERE d.stage=? AND d.device_id=? AND d.subject_hash=? AND d.active=1 AND u.instance_id=? AND u.package_id=? AND u.active=1 AND h.disabled=0 AND NOT EXISTS(SELECT 1 FROM echo_value_revocations r WHERE r.stage=d.stage AND r.subject_hash=d.subject_hash AND (r.revoked_at>=d.updated_at OR r.revoked_at>=?)) AND EXISTS(SELECT 1 FROM access_tokens a WHERE a.tenant=h.id AND a.expires>?)')
-    .bind(env.STAGE,data.deviceId,who,data.instanceId,env.WIDGET_PACKAGE_ID,occurred,Math.floor(now/1000)).first();
+  // DEV's restored account association is valid until explicit unlink/removal
+  // or household credential rotation. An unrelated OAuth access-token expiry
+  // must not silently revoke the authenticated Echo's existing association.
+  // Live requires a current OAuth grant, including a still-valid refresh grant.
+  // Expiry of only the short-lived access token is not an unlink.
+  const grant=dev1811?'':' AND (EXISTS(SELECT 1 FROM access_tokens a WHERE a.tenant=h.id AND a.expires>?) OR EXISTS(SELECT 1 FROM refresh_tokens a WHERE a.tenant=h.id AND a.expires>?))';
+  const params=[env.STAGE,data.deviceId,who,data.instanceId,env.WIDGET_PACKAGE_ID,occurred];
+  if(!dev1811)params.push(Math.floor(now/1000),Math.floor(now/1000));
+  const row=await env.DB.prepare('SELECT h.*,d.generation AS registered_generation FROM echo_value_devices d JOIN echo_value_usages u ON u.stage=d.stage AND u.device_id=d.device_id AND u.subject_hash=d.subject_hash JOIN households h ON h.id=d.household WHERE d.stage=? AND d.device_id=? AND d.subject_hash=? AND d.active=1 AND u.instance_id=? AND u.package_id=? AND u.active=1 AND h.disabled=0 AND NOT EXISTS(SELECT 1 FROM echo_value_revocations r WHERE r.stage=d.stage AND r.subject_hash=d.subject_hash AND (r.revoked_at>=d.updated_at OR r.revoked_at>=?))'+grant).bind(...params).first();
   if(!row)fail(401,'verified_registration_required');
   const generation=await digest(row.write_hash);
   if(generation!==row.registered_generation)fail(401,'registration_generation_changed');
   let current;try{current=snapshot(row,now);}catch{fail(503,'snapshot_unavailable');}
   const binding=await digest(JSON.stringify([env.STAGE,who,row.id,generation]));
-  // One atomic reply, no extra image requests or Data Store REST delivery.
+  // Preserve the original DEV registration delivery path after OAuth expiry.
+  // The same scoped reading supplies both the response and one atomic object.
+  // Live uses the same atomic delivery after its existing authorization checks.
+  // No additional household or image request; inactive bindings stay rejected.
+  const delivery=env.PUBLISH_MODE==='inline'
+    ?await deliver(env,[data.deviceId],[{...current,binding}],send):null;
   console.log(JSON.stringify({event:'registered_refresh',result:'reply_ready',trigger:['mount','reveal','minute'].includes(data.trigger)?data.trigger:'other',sampleAgeSeconds:Math.round((now-current.sampleTime)/1000)}));
-  return reply({registered:true,refreshed:true,binding,snapshot:{...current,binding}});
+  if(delivery)console.log(JSON.stringify({event:dev1811?'dev_refresh_delivery':'live_refresh_delivery',accepted:delivery.accepted,failed:delivery.failed,trigger:['mount','reveal','minute'].includes(data.trigger)?data.trigger:'other'}));
+  return reply({registered:true,refreshed:true,binding,snapshot:{...current,binding},pv:reading(row,now),...(delivery?{delivery}:{})});
 }
 async function removeUnlocked(request,env,now=Date.now()) {
   await internal(request,env);const data=await body(request),occurred=scope(data,env,now);device(data,data.removeAll!==true);
@@ -123,11 +137,14 @@ async function relinkUnlocked(request,env,now,send){
 }
 export async function read(request,env,now=Date.now()) {
   const row=await linked(request,env,now);if(!row.live_json)fail(404,'no_data');
+  return reply(reading(row,now));
+}
+function reading(row,now){
   const parts=new Intl.DateTimeFormat('en-CA',{timeZone:row.timezone,year:'numeric',month:'2-digit',day:'2-digit'}).formatToParts(now);
   const part=key=>parts.find(p=>p.type===key).value;
-  return reply({...JSON.parse(row.live_json),received_at:row.live_at,local_date:part('year')+'-'+part('month')+'-'+part('day'),
+  return {...JSON.parse(row.live_json),received_at:row.live_at,local_date:part('year')+'-'+part('month')+'-'+part('day'),
     received_local:new Intl.DateTimeFormat('en-GB',{timeZone:row.timezone,hour:'2-digit',minute:'2-digit',hour12:false}).format(new Date(row.live_at)),
-    history:row.history_json?{...JSON.parse(row.history_json),received_at:row.history_at}:null});
+    history:row.history_json?{...JSON.parse(row.history_json),received_at:row.history_at}:null};
 }
 function emptySnapshot(){return {solar:'—',home:'—',battery:'—',stamp:'',sampleTime:0,stale:false,binding:''};}
 async function deliver(env,targets,contents,send){
@@ -208,8 +225,23 @@ async function locked(env,action){
 export async function register(request,env,now=Date.now(),send=(url,init)=>globalThis.fetch(url,init)){
  await internal(request,env);return locked({...env,__send:send},guarded=>registerUnlocked(request,env,now,guarded));
 }
-export async function refreshRegistered(request,env,now=Date.now()){
- await internal(request,env);return locked(env,()=>refreshRegisteredUnlocked(request,env,now));
+export async function refreshRegistered(request,env,now=Date.now(),send=(url,init)=>globalThis.fetch(url,init)){
+ await internal(request,env);return locked({...env,__send:send},guarded=>refreshRegisteredUnlocked(request,env,now,guarded));
+}
+export async function readVoice(request,env,now=Date.now(),send=(url,init)=>globalThis.fetch(url,init)){
+ await internal(request,env);const data=await body(request);scope(data,env,now);device(data,false);
+ const who=await subject(data.userId,env);
+ const rows=(await env.DB.prepare('SELECT d.stage,d.household,d.generation,h.write_hash,u.instance_id,u.package_id FROM echo_value_devices d JOIN echo_value_usages u ON u.stage=d.stage AND u.device_id=d.device_id AND u.subject_hash=d.subject_hash JOIN households h ON h.id=d.household WHERE d.device_id=? AND d.subject_hash=? AND d.active=1 AND u.active=1 AND h.disabled=0 AND ((d.stage=\'live\' AND u.package_id=?) OR (d.stage=\'development\' AND u.package_id=?)) AND NOT EXISTS(SELECT 1 FROM echo_value_revocations r WHERE r.stage=d.stage AND r.subject_hash=d.subject_hash AND r.revoked_at>=d.updated_at) AND (EXISTS(SELECT 1 FROM access_tokens a WHERE a.tenant=h.id AND a.expires>?) OR EXISTS(SELECT 1 FROM refresh_tokens a WHERE a.tenant=h.id AND a.expires>?))').bind(data.deviceId,who,env.LIVE_PACKAGE_ID||'',env.TEST_PACKAGE_ID||'',Math.floor(now/1000),Math.floor(now/1000)).all()).results;
+ const valid=[];for(const row of rows)if(row.generation===await digest(row.write_hash))valid.push(row);
+ if(!valid.length)fail(401,'verified_registration_required');
+ if(new Set(valid.map(r=>JSON.stringify([r.household,r.generation]))).size!==1)fail(409,'ambiguous_registration');
+ valid.sort((a,b)=>(a.stage==='live'?0:1)-(b.stage==='live'?0:1)||a.instance_id.localeCompare(b.instance_id));
+ const target=valid[0],selected={...env,STAGE:target.stage,WIDGET_PACKAGE_ID:target.package_id,DATASTORE_NAMESPACE:target.stage==='live'?env.LIVE_DATASTORE_NAMESPACE:env.TEST_DATASTORE_NAMESPACE,DATASTORE_KEY:'snapshot'};
+ // Resolve only an already verified exact account/device association. The normal
+ // refresh revalidates it under its stage lock before reading or delivering data.
+ const scoped=new Request(request.url,{method:'POST',headers:request.headers,body:JSON.stringify({...data,stage:target.stage,packageId:target.package_id,instanceId:target.instance_id})});
+ const result=await(await refreshRegistered(scoped,selected,now,send)).json();
+ return reply({...result,resolvedStage:target.stage,resolvedPackageId:target.package_id,instanceId:target.instance_id});
 }
 export async function remove(request,env,now=Date.now()){
  await internal(request,env);return locked(env,()=>removeUnlocked(request,env,now));
@@ -248,6 +280,7 @@ export default {
       if(path==='/v1/pv'&&request.method==='GET')return await read(request,env);
       if(path==='/internal/register'&&request.method==='POST')return await register(request,env);
       if(path==='/internal/refresh'&&request.method==='POST')return await refreshRegistered(request,env);
+      if(path==='/internal/voice'&&request.method==='POST')return await readVoice(request,env);
       if(path==='/internal/remove'&&request.method==='POST')return await remove(request,env);
       if(path==='/internal/unlink'&&request.method==='POST')return await unlink(request,env);
       if(path==='/internal/relink'&&request.method==='POST')return await relink(request,env);
@@ -265,3 +298,5 @@ export default {
     catch{console.log(JSON.stringify({event:'echo_values_publish',result:'failed'}));}
   }
 };
+
+

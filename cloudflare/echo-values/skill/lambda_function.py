@@ -111,6 +111,9 @@ def read_pv(url, read_token):
 
 
     data = json.loads(raw)
+    return parse_pv(data)
+
+def parse_pv(data):
 
 
 
@@ -604,7 +607,7 @@ def card(label, value, detail, color, extra=''):
 
 
 
-def native_handler(event, context, *, dev_text=False, live_config=None):
+def native_handler(event, context, *, dev_text=False, live_config=None, verified_pv=None):
 
 
 
@@ -764,7 +767,7 @@ def native_handler(event, context, *, dev_text=False, live_config=None):
 
 
 
-            if not access_token:
+            if not access_token and verified_pv is None:
 
 
 
@@ -796,7 +799,7 @@ def native_handler(event, context, *, dev_text=False, live_config=None):
 
                         raise ValueError('Scoped DEV relay required')
 
-                pv = read_pv(source_url, access_token)
+                pv = parse_pv(verified_pv) if verified_pv is not None else read_pv(source_url, access_token)
 
 
 
@@ -1287,7 +1290,7 @@ def native_handler(event, context, *, dev_text=False, live_config=None):
             {'type': 'SetValue', 'componentId': 'solarRoot', 'property': 'nextRefreshAt',
              'value': '${elapsedTime + (currentPage == 1 ? 21600000 : 60000)}'},
             {'type': 'SendEvent', 'sequencer': 'solarDevFullscreenRefresh',
-             'arguments': ['solar.fullscreen.live.auto.v1' if live_config else 'solar.fullscreen.text.auto.v1', expires_at, '${currentPage == 1 ? 1 : 0}']}]
+             'arguments': ['solar.fullscreen.live.auto.v1' if live_config else 'solar.fullscreen.text.auto.v1', expires_at, '${currentPage == 1 ? 1 : 0}', *([live_config['_verified_instance_id']] if live_config and live_config.get('_verified_instance_id') else [])]}]
         pager = root['items'][0]
 
         pager['onPageChanged'] = [
@@ -1513,6 +1516,8 @@ def create_image_session(access, config):
 
 
     return result
+
+
 
 
 
@@ -4011,11 +4016,18 @@ def lambda_handler(event, context):
     req = event.get('request', {})
     uri = req.get('presentationUri', '')
     event_package = (req.get('payload') or {}).get('packageId') or req.get('packageId')
+    visual_voice = (req.get('type') == 'IntentRequest'
+                    and (req.get('intent') or {}).get('name') in ('RefreshIntent','AMAZON.NavigateHomeIntent'))
+    legacy_fullscreen = (req.get('type') == 'Alexa.Presentation.APL.UserEvent'
+                         and req.get('token') == 'solaranlage' and not uri
+                         and isinstance(req.get('arguments'),list)
+                         and (req['arguments'] == ['refresh'] or
+                              (len(req['arguments']) in (2,3) and req['arguments'][0] == 'auto_refresh')))
     store_uri = bool(store_cfg and isinstance(uri,str) and re.fullmatch(
         r'widget://' + re.escape(store_cfg['skill_id']) + r'(?:_(?:live|development))?/'
         + re.escape(store_cfg['package_id']) + r'/[A-Za-z0-9_.:-]{1,300}',uri))
     use_store = bool(store_cfg and (store_uri or event_package == store_cfg['package_id']
-        or req.get('type') == 'LaunchRequest'
+        or req.get('type') == 'LaunchRequest' or visual_voice or legacy_fullscreen
         or req.get('token') == store_cfg.get('presentation_token','solaranlage-store-werte')))
     test_uri=bool(test_cfg and isinstance(uri,str) and re.fullmatch(
         r'widget://'+re.escape(test_cfg['skill_id'])+r'_development/'
@@ -4119,9 +4131,10 @@ def lambda_handler(event, context):
 
     refresh = (kind == 'Alexa.Presentation.APL.UserEvent' and isinstance(args, list) and args
 
-               and args[0] == 'solar.fullscreen.live.auto.v1' and req.get('token') == cfg.get('presentation_token','solaranlage-live-werte'))
+               and args[0] == 'solar.fullscreen.live.auto.v1' and req.get('token') == cfg.get('presentation_token','solaranlage-live-werte')
+               and (not uri or matching_widget))
 
-    if not (lifecycle or disabled or opening or registration or refresh or (kind == 'LaunchRequest' and cfg['stage'] == 'live')):
+    if not (lifecycle or disabled or opening or registration or refresh or visual_voice or legacy_fullscreen or (kind == 'LaunchRequest' and cfg['stage'] == 'live')):
 
         return _before_live_values(event, context)
 
@@ -4129,13 +4142,49 @@ def lambda_handler(event, context):
 
     registered = False
     binding = None
+    verified_pv = None
+    verified_instance = None
 
     try:
 
         profiles = [p for p in (primary_cfg,store_cfg,test_cfg,store_dev_cfg) if p] if disabled else [cfg]
         for profile in profiles:
-          for call in registration_requests(event, profile):
+          if ((kind=='LaunchRequest' or visual_voice or opening or refresh) and not image_access_token(event)
+                  and cfg['stage'] in ('live','development') and cfg['package_id']=='SolarAccountImageBuild1211'):
+              calls=[('voice',{'stage':cfg['stage'],'packageId':cfg['package_id'],
+                  'userId':system.get('user',{}).get('userId'),'deviceId':system.get('device',{}).get('deviceId'),
+                  'occurredAt':req.get('timestamp')},None)]
+          else:
+              calls=registration_requests(event, profile)
+          if (refresh and cfg['stage']=='development' and cfg['package_id']=='Solaranlage1811'
+                  and not image_access_token(event) and isinstance(args,list) and len(args)==4
+                  and isinstance(args[3],str) and re.fullmatch(r'[A-Za-z0-9_.:-]{1,300}',args[3])):
+              calls=[('refresh',{'stage':cfg['stage'],'packageId':cfg['package_id'],
+                  'userId':system.get('user',{}).get('userId'),'deviceId':system.get('device',{}).get('deviceId'),
+                  'instanceId':args[3],'occurredAt':req.get('timestamp')},None)]
+          for call in calls:
             result = send_registration(call, profile)
+            if (call[0]=='voice' and result.get('registered') is True
+                    and isinstance(result.get('pv'),dict) and result.get('binding')
+                    and result.get('snapshot',{}).get('binding')==result['binding']):
+                resolved=next((p for p in (store_cfg,test_cfg,primary_cfg) if p
+                    and p.get('stage')==result.get('resolvedStage')
+                    and p.get('package_id')==result.get('resolvedPackageId')),None)
+                instance=result.get('instanceId')
+                if resolved is None or not isinstance(instance,str) or not re.fullmatch(r'[A-Za-z0-9_.:-]{1,300}',instance):
+                    raise ValueError('verified_voice_scope_missing')
+                # The verified data authority and the requested presentation are
+                # separate. Store entry stays Store, even when an existing DEV
+                # association authenticates this same account/device household.
+                # Timers repeat the verified reader instead of treating that
+                # DEV instance as a Store registration.
+                verified_pv=result['pv'];verified_instance=instance
+            if (((cfg['stage']=='development' and cfg['package_id']=='Solaranlage1811') or (cfg['stage']=='live' and cfg['package_id']=='SolarAccountImageBuild1211'))
+                    and call[0]=='refresh' and result.get('registered') is True
+                    and isinstance(result.get('pv'),dict) and result.get('binding')
+                    and result.get('snapshot',{}).get('binding')==result['binding']):
+                verified_pv=result['pv']
+                verified_instance=call[1]['instanceId']
 
             initial = result.get('snapshot') or initial
 
@@ -4203,12 +4252,108 @@ def lambda_handler(event, context):
                 'commands': commands}]} if commands else {})}}
 
     if refresh:
+        if ((cfg['stage']=='development' and cfg['package_id']=='Solaranlage1811') or (cfg['stage']=='live' and cfg['package_id']=='SolarAccountImageBuild1211')) and not image_access_token(event) and verified_pv is None:
+            return {'version':'1.0','response':{}}
 
-        event = {**event, 'request': {**req, 'arguments': ['auto_refresh', *args[1:]]}}
+        refresh_args=args[1:3] if verified_instance else args[1:]
+        event = {**event, 'request': {**req, 'arguments': ['auto_refresh', *refresh_args]}}
 
-    elif opening:
+    elif opening or visual_voice:
 
         event = {**event, 'request': {**req, 'type': 'LaunchRequest'}}
 
-    return native_handler(event, context, dev_text=True, live_config=cfg)
+    if verified_instance:
+        cfg={**cfg,'_verified_instance_id':verified_instance}
+    return native_handler(event, context, dev_text=True, live_config=cfg, verified_pv=verified_pv)
 
+
+# Temporary DEV-only entry/result trace. No tokens, readings or raw identities.
+_dev_open_trace_previous = lambda_handler
+def lambda_handler(event, context):
+    req=event.get('request',{})
+    args=req.get('arguments')
+    command=args[0] if isinstance(args,list) and args and isinstance(args[0],str) else None
+    kind=req.get('type')
+    trace=(time.time()<1795181400 and (kind=='LaunchRequest' or
+        (kind=='Alexa.Presentation.APL.UserEvent' and command not in (
+            'solar.widget.values.register.v1','solar.widget.directValues.v1',
+            'solar.widget.values.receipt.v1','solar.fullscreen.live.auto.v1'))))
+    if trace:
+        system=event.get('context',{}).get('System',{})
+        uri=req.get('presentationUri','')
+        print('SOLAR_DEV_OPEN_ENTRY '+json.dumps({
+            'requestType':kind,'command':command if command in ('solar.widget.text.open.v1','solar.widget.open.v1','refresh','auto_refresh') else 'other',
+            'requestId':req.get('requestId') if isinstance(req.get('requestId'),str) and req['requestId'].startswith('amzn1.echo-api.request.') else None,
+            'hasPresentationUri':bool(uri),'uriProfile':'dev1811' if '/Solaranlage1811/' in uri else ('store' if '/SolarAccountImageBuild1211/' in uri else 'other'),
+            'hasSystemAccess':bool(system.get('user',{}).get('accessToken')),
+            'hasSessionAccess':bool(event.get('session',{}).get('user',{}).get('accessToken')),
+            'hasAPL':'Alexa.Presentation.APL' in system.get('device',{}).get('supportedInterfaces',{})
+        },sort_keys=True))
+    result=_dev_open_trace_previous(event,context)
+    if trace:
+        response=result.get('response',{}) if isinstance(result,dict) else {}
+        directives=response.get('directives',[])
+        print('SOLAR_DEV_OPEN_RESULT '+json.dumps({
+            'renderDocument':any(x.get('type')=='Alexa.Presentation.APL.RenderDocument' for x in directives),
+            'executeCommands':any(x.get('type')=='Alexa.Presentation.APL.ExecuteCommands' for x in directives),
+            'linkAccount':response.get('card',{}).get('type')=='LinkAccount',
+            'hasSpeech':bool(response.get('outputSpeech')),'empty':not bool(response)
+        },sort_keys=True))
+    return result
+
+
+# Time-limited support capture: identity scope is enforced by support_trace.
+from support_trace import invoke as _support_trace_invoke
+_support_trace_base = lambda_handler
+def lambda_handler(event, context):
+    return _support_trace_invoke(_support_trace_base, event, context)
+
+
+# Retire the old full-screen visual output without removing historical sources
+# or changing any widget package, account linkage or other skill.
+_before_visual_retirement = lambda_handler
+_values_visual_entry = _dev_open_trace_previous
+
+def _legacy_visual_directive(directive):
+    if not isinstance(directive,dict) or directive.get('type')!='Alexa.Presentation.APL.RenderDocument':
+        return False
+    def image(node):
+        if isinstance(node,dict):
+            return node.get('type')=='Image' or any(image(v) for v in node.values())
+        return isinstance(node,list) and any(image(v) for v in node)
+    return directive.get('token')=='solaranlage' or image(directive.get('document'))
+
+def lambda_handler(event, context):
+    request=event.get('request',{})
+    system=event.get('context',{}).get('System',{})
+    # Route actual voice entry to values BEFORE invoking historical handlers.
+    # Widget callbacks retain their exact URI and their existing scope checks.
+    voice_entry=(request.get('type')=='LaunchRequest' or
+        (request.get('type')=='IntentRequest' and
+         (request.get('intent') or {}).get('name') in ('RefreshIntent','AMAZON.NavigateHomeIntent')))
+    if (voice_entry and not request.get('presentationUri') and
+            system.get('application',{}).get('applicationId')==_direct_skill):
+        result=_values_visual_entry(event,context)
+    else:
+        result=_before_visual_retirement(event,context)
+    response=result.get('response',{}) if isinstance(result,dict) else {}
+    if not any(_legacy_visual_directive(d) for d in response.get('directives',[])):
+        return result
+    request=event.get('request',{})
+    system=event.get('context',{}).get('System',{})
+    # Widget URI authorization must never be bypassed by rewriting a widget
+    # event into a voice launch. Only actual voice/full-screen entry is migrated.
+    full_entry=(request.get('type') in ('LaunchRequest','IntentRequest') or
+        (request.get('type')=='Alexa.Presentation.APL.UserEvent' and request.get('token')=='solaranlage'))
+    if (full_entry and not request.get('presentationUri')
+            and system.get('application',{}).get('applicationId')==_direct_skill):
+        launch={**request,'type':'LaunchRequest'}
+        launch.pop('arguments',None)
+        result=_values_visual_entry({**event,'request':launch},context)
+        response=result.get('response',{}) if isinstance(result,dict) else {}
+    # A legacy response must not restart numerical-image loading, even if a
+    # retired caller cannot be migrated. Preserve speech/cards and other output.
+    if any(_legacy_visual_directive(d) for d in response.get('directives',[])):
+        result={**result,'response':{**response,'directives':[
+            d for d in response.get('directives',[]) if not _legacy_visual_directive(d)]}}
+    return result

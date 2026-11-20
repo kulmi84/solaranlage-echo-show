@@ -124,6 +124,36 @@ class LiveIntegration(unittest.TestCase):
 
   self.assertIn('solar.fullscreen.live.auto.v1',json.dumps(d))
 
+ def test_voice_visual_intents_use_the_values_fullscreen_without_legacy_fallback(self):
+  for name in ('RefreshIntent','AMAZON.NavigateHomeIntent'):
+   with self.subTest(name=name):
+    self.calls.clear();event=copy.deepcopy(self.event)
+    event['request']={'type':'IntentRequest','intent':{'name':name}}
+    self.g['_before_live_values']=lambda *args: (_ for _ in ()).throw(AssertionError('legacy visual fallback'))
+    d=self.invoke(event)['response']['directives'][0]
+    encoded=json.dumps(d)
+    self.assertEqual(len(self.calls),1);self.assertEqual(d['token'],'solaranlage-live-werte')
+    self.assertNotIn('"type": "Image"',encoded);self.assertNotIn('Aktualisieren',encoded)
+    self.assertIn('Build',encoded);self.assertIn('solar.fullscreen.live.auto.v1',encoded)
+
+ def test_existing_legacy_fullscreen_refresh_migrates_to_values(self):
+  import time
+  for args in (['refresh'],['auto_refresh',int(time.time()*1000)+60000,0]):
+   with self.subTest(args=args):
+    self.calls.clear();event=copy.deepcopy(self.event)
+    event['request']={'type':'Alexa.Presentation.APL.UserEvent','token':'solaranlage','arguments':args}
+    self.g['_before_live_values']=lambda *a: (_ for _ in ()).throw(AssertionError('legacy visual fallback'))
+    d=self.invoke(event)['response']['directives'][0]
+    encoded=json.dumps(d);self.assertEqual(len(self.calls),1)
+    self.assertEqual(d['token'],'solaranlage-live-werte');self.assertNotIn('"type": "Image"',encoded)
+    self.assertNotIn('Aktualisieren',encoded);self.assertIn('Build',encoded)
+
+ def test_widget_with_legacy_fullscreen_token_does_not_bypass_package_scope(self):
+  event=copy.deepcopy(self.event)
+  event['request'].update(token='solaranlage',arguments=['refresh'],presentationUri='widget://'+self.skill+'/Unapproved/one')
+  self.g['_before_live_values']=lambda *a:{'delegated':True}
+  self.assertEqual(self.invoke(event),{'delegated':True});self.assertEqual(self.calls,[])
+
  def test_refresh_keeps_page_and_does_one_read(self):
 
   import time

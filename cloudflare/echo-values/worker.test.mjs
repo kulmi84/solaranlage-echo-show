@@ -2,7 +2,7 @@ import {test} from 'node:test';
 import assert from 'node:assert/strict';
 import {DatabaseSync} from 'node:sqlite';
 import {readFileSync} from 'node:fs';
-import {digest,register,remove,unlink,relink,read,publish,resolveStage,refreshRegistered} from './worker.mjs';
+import {digest,register,remove,unlink,relink,read,publish,resolveStage,refreshRegistered,readVoice} from './worker.mjs';
 const now=Date.parse('2026-11-16T15:00:00Z');
 test('Store profile cannot alter the default DEV destination or bypass scope checks',()=>{
  const env={STAGE:'development',WIDGET_PACKAGE_ID:'Solaranlage1711R2',DATASTORE_NAMESPACE:'Solaranlage1711',LIVE_PACKAGE_ID:'SolarAccountImageBuild1211',LIVE_DATASTORE_NAMESPACE:'SolarAccountImagesV3'};
@@ -35,6 +35,91 @@ async function registeredLive(){
  s.refresh=(extra={},secret=s.env.REGISTRATION_SECRET)=>new Request('https://test/internal/refresh',{method:'POST',headers:{'X-Solar-Registration':secret},body:JSON.stringify({stage:'live',packageId:'Published',userId:'amzn1.ask.account.a',deviceId:'amzn1.ask.device.a',instanceId:'one',occurredAt:new Date(now).toISOString(),...extra})});
  return s;
 }
+
+test('Voice resolves the exact verified account/device after access-token expiry without re-registering',async()=>{
+ const s=await registeredLive();Object.assign(s.env,{LIVE_DATASTORE_NAMESPACE:'SolarAccountImagesV3',TEST_PACKAGE_ID:'Solaranlage1811',TEST_DATASTORE_NAMESPACE:'Solaranlage1811',PUBLISH_MODE:'inline'});
+ s.db.exec('UPDATE access_tokens SET expires=0');s.db.prepare('INSERT INTO refresh_tokens VALUES(?,?,?)').run('voice-refresh','a',now/1000+3600);
+ const before=s.db.prepare('SELECT * FROM echo_value_devices').get();
+ const response=await(await readVoice(s.refresh(),s.env,now,s.send)).json();
+ assert.equal(response.resolvedStage,'live');assert.equal(response.resolvedPackageId,'Published');
+ assert.equal(response.instanceId,'one');assert.equal(response.pv.home_w,101);assert.equal(response.snapshot.solar,'100 W');
+ assert.equal(s.calls.length,1);assert.equal(s.calls[0].commands[0].namespace,'SolarAccountImagesV3');
+ assert.deepEqual(s.db.prepare('SELECT * FROM echo_value_devices').get(),before);
+});
+
+test('Voice may use an active DEV association but does not reactivate the inactive Store association',async()=>{
+ const s=await setup();Object.assign(s.env,{WIDGET_PACKAGE_ID:'Solaranlage1811',TEST_PACKAGE_ID:'Solaranlage1811',TEST_DATASTORE_NAMESPACE:'Solaranlage1811',DATASTORE_NAMESPACE:'Solaranlage1811',LIVE_PACKAGE_ID:'Published',LIVE_DATASTORE_NAMESPACE:'SolarAccountImagesV3'});
+ await register(s.request(),s.env,now);const live={...s.env,STAGE:'live',WIDGET_PACKAGE_ID:'Published'};
+ await register(s.request('a',{stage:'live',packageId:'Published'}),live,now);s.db.exec("UPDATE echo_value_devices SET active=0 WHERE stage='live'");
+ const r=await(await readVoice(s.request('a',{stage:'live',packageId:'Published',instanceId:undefined}),live,now,s.send)).json();
+ assert.equal(r.resolvedStage,'development');assert.equal(r.resolvedPackageId,'Solaranlage1811');
+ assert.equal(s.db.prepare("SELECT active FROM echo_value_devices WHERE stage='live'").get().active,0);
+});
+
+test('Voice rejects an unknown or revoked device, a removed usage, a disabled household and rotated credentials',async()=>{
+ for(const mutate of [s=>s.db.exec('UPDATE echo_value_devices SET active=0'),s=>remove(s.request(),s.env,now),s=>unlink(s.request(),s.env,now),s=>s.db.exec("UPDATE households SET disabled=1 WHERE id='a'"),s=>s.db.exec("UPDATE households SET write_hash='rotated' WHERE id='a'"),s=>s.db.exec('UPDATE access_tokens SET expires=0')]){
+  const s=await registeredLive();s.env.LIVE_DATASTORE_NAMESPACE='SolarAccountImagesV3';await mutate(s);
+  await assert.rejects(()=>readVoice(s.refresh(),s.env,now,s.send));assert.equal(s.calls.length,0);
+ }
+ for(const extra of [{userId:'amzn1.ask.account.b'},{deviceId:'amzn1.ask.device.b'},{stage:'development'},{packageId:'Other'}]){
+  const s=await registeredLive();await assert.rejects(()=>readVoice(s.refresh(extra),s.env,now,s.send));assert.equal(s.calls.length,0);
+ }
+});
+
+test('Voice rejects ambiguous cross-stage ownership instead of choosing a household',async()=>{
+ const s=await registeredLive();Object.assign(s.env,{TEST_PACKAGE_ID:'Solaranlage1811',TEST_DATASTORE_NAMESPACE:'Solaranlage1811'});
+ const dev={...s.env,STAGE:'development',WIDGET_PACKAGE_ID:'Solaranlage1811'};
+ await register(s.request('b',{stage:'development',packageId:'Solaranlage1811',userId:'amzn1.ask.account.a',deviceId:'amzn1.ask.device.a'}),dev,now);
+ await assert.rejects(()=>readVoice(s.refresh(),s.env,now,s.send),{code:'ambiguous_registration'});assert.equal(s.calls.length,0);
+});
+
+test('DEV tokenless minutes preserve the original atomic datastore delivery after access expiry',async()=>{
+ const s=await setup();Object.assign(s.env,{WIDGET_PACKAGE_ID:'Solaranlage1811',TEST_PACKAGE_ID:'Solaranlage1811',DATASTORE_NAMESPACE:'Solaranlage1811'});
+ await register(s.request(),s.env,now);s.env.PUBLISH_MODE='inline';
+ s.db.exec('UPDATE access_tokens SET expires=0');
+ const refresh=at=>new Request('https://test/internal/refresh',{method:'POST',headers:{'X-Solar-Registration':s.env.REGISTRATION_SECRET},body:JSON.stringify({stage:'development',packageId:'Solaranlage1811',userId:'amzn1.ask.account.a',deviceId:'amzn1.ask.device.a',instanceId:'one',occurredAt:new Date(at).toISOString(),trigger:'minute'})});
+ for(let i=0;i<3;i++){
+  const at=now+i*60000;s.db.prepare('UPDATE households SET live_at=?,live_json=? WHERE id=?').run(new Date(at).toISOString(),JSON.stringify({power_w:400+i,home_w:600+i,battery_soc:40+i}),'a');
+  const response=await(await refreshRegistered(refresh(at),s.env,at,s.send)).json();
+  assert.equal(response.delivery.accepted,1);assert.equal(s.calls.length,i+1);
+  const sent=s.calls.at(-1);assert.deepEqual(sent.target.items,['amzn1.ask.device.a']);
+  assert.equal(sent.commands.length,1);assert.equal(sent.commands[0].namespace,'Solaranlage1811');
+  assert.deepEqual(sent.commands[0].content,response.snapshot);assert.equal(response.snapshot.sampleTime,at);
+  assert.equal(response.snapshot.solar,(400+i)+' W');
+ }
+ const before=s.calls.length;s.db.exec("UPDATE households SET live_json='{}' WHERE id='a'");
+ await assert.rejects(()=>refreshRegistered(refresh(now+180000),s.env,now+180000,s.send),{code:'snapshot_unavailable'});
+ assert.equal(s.calls.length,before);
+ await remove(s.request(),s.env,now);
+ await assert.rejects(()=>refreshRegistered(refresh(now+180000),s.env,now+180000,s.send));assert.equal(s.calls.length,before);
+});
+
+test('DEV failed datastore delivery releases its lease and retries on the next regular minute',async()=>{
+ const s=await setup();Object.assign(s.env,{WIDGET_PACKAGE_ID:'Solaranlage1811',TEST_PACKAGE_ID:'Solaranlage1811',DATASTORE_NAMESPACE:'Solaranlage1811'});
+ await register(s.request(),s.env,now);s.env.PUBLISH_MODE='inline';
+ const req=()=>new Request('https://test/internal/refresh',{method:'POST',headers:{'X-Solar-Registration':s.env.REGISTRATION_SECRET},body:JSON.stringify({stage:'development',packageId:'Solaranlage1811',userId:'amzn1.ask.account.a',deviceId:'amzn1.ask.device.a',instanceId:'one',occurredAt:new Date(now).toISOString()})});
+ await assert.rejects(()=>refreshRegistered(req(),s.env,now,async(url,init)=>url.includes('/datastore/')?new Response('',{status:429}):s.send(url,init)),{code:'delivery_failed'});
+ assert.equal(s.calls.length,0);assert.equal(s.db.prepare('SELECT COUNT(*) n FROM echo_value_locks').get().n,0);
+ assert.equal((await(await refreshRegistered(req(),s.env,now,s.send)).json()).delivery.accepted,1);
+});
+test('DEV1811 tokenless refresh returns scoped fullscreen data and rejects changed ownership or removal',async()=>{
+ const s=await setup();Object.assign(s.env,{WIDGET_PACKAGE_ID:'Solaranlage1811',TEST_PACKAGE_ID:'Solaranlage1811'});
+ await register(s.request(),s.env,now);
+ const refresh=extra=>new Request('https://test/internal/refresh',{method:'POST',headers:{'X-Solar-Registration':s.env.REGISTRATION_SECRET},body:JSON.stringify({stage:'development',packageId:'Solaranlage1811',userId:'amzn1.ask.account.a',deviceId:'amzn1.ask.device.a',instanceId:'one',occurredAt:new Date(now).toISOString(),...extra})});
+ const r=await(await refreshRegistered(refresh(),s.env,now)).json();assert.equal(r.pv.power_w,100);assert.equal(r.snapshot.home,'101 W');
+ s.db.exec('UPDATE access_tokens SET expires=0');
+ assert.equal((await(await refreshRegistered(refresh(),s.env,now)).json()).pv.power_w,100);
+ for(const extra of [{userId:'amzn1.ask.account.b'},{deviceId:'amzn1.ask.device.b'},{instanceId:'absent'},{packageId:'Other'},{stage:'live'}])await assert.rejects(()=>refreshRegistered(refresh(extra),s.env,now));
+ await remove(s.request(),s.env,now);await assert.rejects(()=>refreshRegistered(refresh(),s.env,now));
+ assert.equal(s.calls.length,0);
+});
+test('DEV association survives token rotation but stops immediately on unlink, disabled household or changed generation',async()=>{
+ for(const mutate of [s=>unlink(s.request(),s.env,now),s=>s.db.exec("UPDATE households SET disabled=1 WHERE id='a'"),s=>s.db.exec("UPDATE households SET write_hash='rotated' WHERE id='a'")]){
+  const s=await setup();Object.assign(s.env,{WIDGET_PACKAGE_ID:'Solaranlage1811',TEST_PACKAGE_ID:'Solaranlage1811'});await register(s.request(),s.env,now);
+  const req=()=>new Request('https://test/internal/refresh',{method:'POST',headers:{'X-Solar-Registration':s.env.REGISTRATION_SECRET},body:JSON.stringify({stage:'development',packageId:'Solaranlage1811',userId:'amzn1.ask.account.a',deviceId:'amzn1.ask.device.a',instanceId:'one',occurredAt:new Date(now).toISOString()})});
+  await mutate(s);await assert.rejects(()=>refreshRegistered(req(),s.env,now));
+ }
+});
 test('Registered Live refresh returns four current values without OAuth or Amazon subrequests',async()=>{
  const s=await registeredLive();const before=s.db.prepare('SELECT updated_at FROM echo_value_devices').get().updated_at;
  for(let i=0;i<3;i++){
@@ -43,6 +128,63 @@ test('Registered Live refresh returns four current values without OAuth or Amazo
   assert.equal(r.registered,true);assert.equal(r.refreshed,true);assert.equal(r.snapshot.solar,(300+i)+' W');assert.equal(r.snapshot.home,(500+i)+' W');assert.equal(r.snapshot.battery,(30+i)+' %');assert.equal(r.snapshot.sampleTime,at);assert.equal(r.snapshot.binding,r.binding);
  }
  assert.equal(s.calls.length,0);assert.equal(s.db.prepare('SELECT updated_at FROM echo_value_devices').get().updated_at,before);
+});
+
+test('Inline Live refresh delivers one atomic object matching its response over three changing rounds',async()=>{
+ const s=await registeredLive();s.env.PUBLISH_MODE='inline';s.env.DATASTORE_NAMESPACE='SolarAccountImagesV3';
+ const updated=s.db.prepare('SELECT updated_at FROM echo_value_devices').get().updated_at;
+ for(let i=0;i<3;i++){
+  const at=now+i*60000;
+  s.db.prepare('UPDATE households SET live_at=?,live_json=? WHERE id=?').run(new Date(at).toISOString(),JSON.stringify({power_w:300+i,home_w:500+i,battery_soc:30+i}),'a');
+  const r=await(await refreshRegistered(s.refresh({occurredAt:new Date(at).toISOString(),trigger:'minute'}),s.env,at,s.send)).json();
+  assert.equal(r.delivery.accepted,1);assert.equal(s.calls.length,i+1);
+  const sent=s.calls.at(-1);assert.deepEqual(sent.target.items,['amzn1.ask.device.a']);
+  assert.equal(sent.commands.length,1);assert.equal(sent.commands[0].type,'PUT_OBJECT');
+  assert.equal(sent.commands[0].namespace,'SolarAccountImagesV3');assert.equal(sent.commands[0].key,'snapshot');
+  assert.deepEqual(sent.commands[0].content,r.snapshot);assert.equal(r.snapshot.sampleTime,at);
+  assert.equal(r.pv.power_w,300+i);assert.equal(r.pv.home_w,500+i);assert.equal(r.pv.battery_soc,30+i);
+  assert.equal(r.snapshot.solar,(300+i)+' W');assert.equal(r.snapshot.home,(500+i)+' W');assert.equal(r.snapshot.battery,(30+i)+' %');
+ }
+ assert.equal(s.db.prepare('SELECT updated_at FROM echo_value_devices').get().updated_at,updated);
+ s.db.exec("UPDATE households SET live_json='{}' WHERE id='a'");
+ await assert.rejects(()=>refreshRegistered(s.refresh(),s.env,now,s.send),{code:'snapshot_unavailable'});
+ assert.equal(s.calls.length,3);
+});
+
+test('Inline Live rejects inactive, removed, revoked, rotated and cross-scope bindings before any delivery',async()=>{
+ for(const mutate of [s=>s.db.exec('UPDATE echo_value_devices SET active=0'),s=>remove(s.request(),s.env,now),s=>unlink(s.request(),s.env,now),s=>s.db.exec("UPDATE households SET disabled=1"),s=>s.db.exec("UPDATE households SET write_hash='rotated' WHERE id='a'"),s=>s.db.exec('UPDATE access_tokens SET expires=0')]){
+  const s=await registeredLive();await mutate(s);s.env.PUBLISH_MODE='inline';
+  await assert.rejects(()=>refreshRegistered(s.refresh(),s.env,now,s.send));assert.equal(s.calls.length,0);
+ }
+ for(const extra of [{userId:'amzn1.ask.account.b'},{deviceId:'amzn1.ask.device.b'},{instanceId:'other'},{packageId:'Other'},{stage:'development'}]){
+  const s=await registeredLive();s.env.PUBLISH_MODE='inline';
+  await assert.rejects(()=>refreshRegistered(s.refresh(extra),s.env,now,s.send));assert.equal(s.calls.length,0);
+ }
+});
+
+test('Inline Live delivery failure returns no replacement snapshot and does not mutate registration',async()=>{
+ const s=await registeredLive();s.env.PUBLISH_MODE='inline';const before=s.db.prepare('SELECT * FROM echo_value_devices').get();
+ const send=async(url)=>url.includes('/auth/')?Response.json({access_token:'synthetic'}):Response.json({error:'unavailable'},{status:503});
+ await assert.rejects(()=>refreshRegistered(s.refresh(),s.env,now,send),{code:'delivery_failed'});
+ assert.deepEqual(s.db.prepare('SELECT * FROM echo_value_devices').get(),before);
+});
+
+test('Live keeps the verified association across access expiry while its refresh grant remains valid',async()=>{
+ const s=await registeredLive();s.env.PUBLISH_MODE='inline';s.db.exec('UPDATE access_tokens SET expires=0');
+ s.db.prepare('INSERT INTO refresh_tokens VALUES(?,?,?)').run('synthetic-refresh','a',now/1000+3600);
+ const r=await(await refreshRegistered(s.refresh(),s.env,now,s.send)).json();
+ assert.equal(r.delivery.accepted,1);assert.equal(r.snapshot.solar,'100 W');
+ s.db.exec('UPDATE refresh_tokens SET expires=0');
+ await assert.rejects(()=>refreshRegistered(s.refresh(),s.env,now,s.send),{code:'verified_registration_required'});
+ assert.equal(s.calls.length,1);
+});
+
+test('A valid refresh grant cannot bypass unlink, removal or generation rotation',async()=>{
+ for(const mutate of [s=>unlink(s.request(),s.env,now),s=>remove(s.request(),s.env,now),s=>s.db.exec("UPDATE households SET write_hash='rotated' WHERE id='a'")]){
+  const s=await registeredLive();s.db.prepare('INSERT INTO refresh_tokens VALUES(?,?,?)').run('synthetic-refresh','a',now/1000+3600);
+  await mutate(s);s.env.PUBLISH_MODE='inline';s.db.exec('UPDATE access_tokens SET expires=0');
+  await assert.rejects(()=>refreshRegistered(s.refresh(),s.env,now,s.send));assert.equal(s.calls.length,0);
+ }
 });
 test('Tokenless refresh never registers or reactivates unknown account/device/package usage',async()=>{
  for(const change of [{userId:'amzn1.ask.account.b'},{deviceId:'amzn1.ask.device.b'},{instanceId:'other'},{packageId:'Other'},{stage:'development'}]){
@@ -184,3 +326,6 @@ test('Store development and live adapter scopes resolve the Store namespace, whi
  assert.equal(resolveStage(req('development','Solaranlage1811'),env).DATASTORE_NAMESPACE,'Solaranlage1811');
  assert.throws(()=>resolveStage(req('certification','SolarAccountImageBuild1211'),env),{code:'wrong_scope'});
 });
+
+
+
