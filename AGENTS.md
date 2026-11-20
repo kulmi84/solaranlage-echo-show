@@ -71,3 +71,5 @@ Vor JEDER Aenderung diese Trennung gegen den Referenzstand pruefen:
 bestanden; anschliessend Nutzer-Gesamtabnahme am Echo. Das ist eine Abnahme
 an diesem Haushalt, keine allgemeine Amazon-Ursachen- oder Mehrhaushaltsaussage.
 Ruecksprung und Sicherungsnachweis: docs/ALEXA-BESTAETIGTER-STAND-1811.md.
+
+GitHub-Aktualisierungen fuer diesen Stand ausschliesslich im bestehenden Werte-Pull-Request #22 (codex/dev-text-values-1611-7). Kein direkter Push nach main und keine weiteren Issue-Aenderungen ohne ausdruecklichen Auftrag.
