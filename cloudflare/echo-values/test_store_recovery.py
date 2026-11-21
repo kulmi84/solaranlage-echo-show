@@ -44,7 +44,7 @@ class StoreRecovery(unittest.TestCase):
   self.event['request'].pop('presentationUri')
   self.event['request']['token']='solaranlage-store-werte'
   self.event['request']['arguments']=['solar.fullscreen.live.auto.v1',int(datetime.now(timezone.utc).timestamp()*1000)+3600000,0,'one']
-  self.assertEqual(self.invoke()['response'],{})
+  self.assertEqual(self.invoke()['response'],{'shouldEndSession':True})
  def test_store_open_does_not_render_values_when_verification_fails(self):
   self.g['send_registration']=lambda *a:(_ for _ in ()).throw(ValueError('verified_registration_required'))
   self.event['request']['arguments']=['solar.widget.text.open.v1']

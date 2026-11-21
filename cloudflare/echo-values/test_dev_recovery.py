@@ -41,6 +41,6 @@ class DevRecovery(unittest.TestCase):
   self.event['request'].pop('presentationUri')
   self.event['request']['token']='solaranlage-dev-1811'
   self.event['request']['arguments']=['solar.fullscreen.live.auto.v1',int(datetime.now(timezone.utc).timestamp())+3600,0,'one']
-  self.assertEqual(self.invoke()['response'],{})
+  self.assertEqual(self.invoke()['response'],{'shouldEndSession':True})
 
 if __name__=='__main__':unittest.main()

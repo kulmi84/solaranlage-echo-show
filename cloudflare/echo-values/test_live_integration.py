@@ -182,7 +182,7 @@ class LiveIntegration(unittest.TestCase):
 
   self.event['request'].update(arguments=['solar.fullscreen.live.auto.v1',int(time.time()*1000)+3600000,0],token='solaranlage-live-werte')
 
-  self.assertEqual(self.invoke()['response'],{})
+  self.assertEqual(self.invoke()['response'],{'shouldEndSession':True})
 
  def test_disabled_skill_revokes_without_access_token(self):
 
@@ -239,7 +239,7 @@ class WidgetTemplateTests(unittest.TestCase):
   dev=json.loads((HERE/'dev-widget/documents/document.json').read_text(encoding='utf-8'))
   live=self.document()
   visual=lambda d:json.dumps(d['mainTemplate']['items'][0]['items'],ensure_ascii=False)
-  self.assertEqual(visual(dev).replace('DEV · 1.1.0 (Build 1811)','1.1.0 (Build 1811)'),visual(live))
+  self.assertEqual(visual(dev).replace('DEV · 1.1.0 (Build 1811)','1.1.0 (Build 2311)'),visual(live))
  def test_mount_fetch_and_refresh_deadline(self):
   root=self.document()['mainTemplate']['items'][0]
   event=[c for c in root['onMount'] if c['type']=='SendEvent']

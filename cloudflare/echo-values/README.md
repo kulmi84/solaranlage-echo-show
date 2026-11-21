@@ -1,11 +1,11 @@
-# Solaranlage Echo Werte · Build 1811
+# Solaranlage Echo Werte · Build 2311
 
-Bestätigter Quellstand vom 20.11.2026: Live und separate DEV funktionieren am eigenen Echo. Kleine Kachel und Vollbild nutzen direkte Werte. Live-Tipp und Sprache öffnen Store ohne DEV, DEV-Tipp öffnet DEV.
+Store-Update **1.1.0 (Build 2311)** ist am 21.11.2026 bei Amazon in Zertifizierung, mit automatischer Veröffentlichung nach Freigabe. Noch keine bestätigte Store-Freigabe. Separate DEV bleibt Build 1811.
 
-`skill/` enthält den Hosted-Code zu `00eaa8d`; `worker.mjs` den laufenden Werte-Worker. Historische Bildfunktionen sind als Quellhistorie erhalten; der aktive Vollbild-Ausgabepfad verwendet Werte. Die Beispiele enthalten keine laufenden Zugangsdaten. `support_trace.py` ist ohne private Diagnosekonfiguration inaktiv.
+Die Sprachsitzung wird nach Start, Tipp, automatischen Updates und Fallback beendet, ohne die APL-Anzeige ausdrücklich zu schließen. Layout, Datenversorgung, bestehende Store-Paketkennung und DEV-Dokument bleiben erhalten. Kleine Kachel und Vollbild verwenden direkte Werte. Der erneute Echo-Test der Sprachfreigabe und weiteren Aktualisierung ist offen.
 
-`widget-template/` enthält das bestehende Store-Paket `SolarAccountImageBuild1211` mit `SolarAccountImagesV3/snapshot`; `dev-widget/` das separate DEV-Paket. Bestehende Kontoverknüpfungen und geprüfte Haushaltsbindungen bleiben erhalten. Keine allgemeine automatische Reaktivierung.
+Technische Store-Paketversion: 1.1.1 bei unveränderter Paketkennung SolarAccountImageBuild1211. Die sichtbare Skillversion bleibt 1.1.0 (Build 2311). Vorherstand, private Konfiguration und vollständige Cloud-Sicherung liegen ausschließlich lokal.
 
-Prüfen: `python -m unittest discover -s . -p "test_*.py"` und `node --test worker.test.mjs`. Kein automatisches Deployment aus diesem Verzeichnis.
+Prüfen: `python -m unittest discover -s . -p "test_*.py"` und `node --test worker.test.mjs`. Kein automatisches Deployment aus GitHub.
 
-[Projektstatus](../../docs/ALEXA-STATUS.md) · [Referenz und Rücksprung](../../docs/ALEXA-BESTAETIGTER-STAND-1811.md)
+[Projektstatus](../../docs/ALEXA-STATUS.md) · [Vorheriger Referenzstand](../../docs/ALEXA-BESTAETIGTER-STAND-1811.md)

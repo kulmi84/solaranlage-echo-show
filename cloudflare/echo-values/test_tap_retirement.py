@@ -25,7 +25,7 @@ class TapRetirement(VoiceBound):
   expected={'version':'1.0','response':{'directives':[{'type':'Alexa.Presentation.APL.RenderDocument','token':'values','document':{'type':'APL','mainTemplate':{'item':{'type':'Text','text':'values'}}}}]}}
   self.g['_before_visual_retirement']=lambda *a:old
   self.g['_values_visual_entry']=lambda *a:expected
-  self.assertEqual(self.invoke(),expected)
+  self.assertEqual(self.invoke(),{**expected,'response':{**expected['response'],'shouldEndSession':True}})
  def test_retired_widget_cannot_bypass_uri_scope_to_restart_images(self):
   self.g['_before_visual_retirement']=lambda *a:{'version':'1.0','response':{'directives':[{'type':'Alexa.Presentation.APL.RenderDocument','token':'solaranlage','document':{}}]}}
   self.g['_values_visual_entry']=lambda *a:(_ for _ in ()).throw(AssertionError('widget scope bypass'))

@@ -1,3 +1,9 @@
+## 21.11.2026 · Alexa 1.1.0 (Build 2311), eingereicht
+
+- Sprachsitzung nach Anzeige und Aktualisierung beenden, damit Alexa normale Folgeanfragen verarbeiten kann.
+- Store-Versionszeile auf Build 2311; separate DEV 1811 unverändert erhalten.
+- Amazon-Pflichtvalidierung bestanden; Zertifizierung mit automatischer Veröffentlichung beauftragt. Geräteabnahme der Sprachkorrektur noch offen.
+
 ## 20.11.2026 · Alexa 1.1.0 (Build 1811)
 
 - Live und DEV mit direkten Werten am eigenen Echo bestätigt; Aktualisierung und Vollbild per Tipp funktionieren.

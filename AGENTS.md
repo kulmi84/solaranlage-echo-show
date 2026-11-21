@@ -73,3 +73,20 @@ an diesem Haushalt, keine allgemeine Amazon-Ursachen- oder Mehrhaushaltsaussage.
 Ruecksprung und Sicherungsnachweis: docs/ALEXA-BESTAETIGTER-STAND-1811.md.
 
 GitHub-Aktualisierungen fuer diesen Stand ausschliesslich im bestehenden Werte-Pull-Request #22 (codex/dev-text-values-1611-7). Kein direkter Push nach main und keine weiteren Issue-Aenderungen ohne ausdruecklichen Auftrag.
+
+Sprachfreigabe beachten: Der bestaetigte Build1811 hatte spaeter eine gemeldete
+Sprachsitzungsregression. Bei Werte-Vollbildantworten shouldEndSession:true
+setzen, keinen reprompt und kein Finish; auch Fehler/Fallback duerfen die
+Sprachsitzung nicht offenhalten. Historische v1.0.5-Korrektur18116ec als Referenz.
+Neuer Fix21.11.2026 lokal129Tests, Bereitstellung/Geraetenachweis separat pruefen.
+
+Sprachfix229b549 am21.11.2026 in Development10:15 und Live10:18 bereitgestellt.
+129Tests und drei Development-Antworten bestaetigt. Echo-Sprachfreigabe und
+Minutentakt nach diesem Fix noch NICHT bestaetigt; nicht vom Backend ableiten.
+
+Store-Update1.1.0 (Build2311) am21.11.2026 eingereicht, Amazon-StatusCERTIFICATION.
+Hosted-Developmentf9c477c enthaelt Sprachfix229b549 plus Store-Versionszeile2311.
+Store-PaketkennungSolarAccountImageBuild1211 bleibt gleich, technische Version1.1.1.
+DEV-Paket/Anzeige1811 unveraendert, kein Testmodus-/Kontowechsel. Noch keine
+Freigabe oder Echo-Abnahme des Sprachfixes behaupten. Details lokal unter
+.private/solar-v3/store-build2311-20261121/.

@@ -21,7 +21,7 @@ class LivePresentation(VoiceBound):
  def test_store_timer_rejection_preserves_the_previous_values(self):
   self.g['send_registration']=lambda *a:(_ for _ in ()).throw(ValueError('verified_registration_required'))
   self.event['request']={'type':'Alexa.Presentation.APL.UserEvent','token':'solaranlage-store-werte','arguments':['solar.fullscreen.live.auto.v1',int(time.time()*1000)+3600000,0,'one']}
-  self.assertEqual(self.invoke()['response'],{})
+  self.assertEqual(self.invoke()['response'],{'shouldEndSession':True})
  def test_unknown_widget_cannot_spoof_the_store_timer_to_get_a_voice_read(self):
   self.g['send_registration']=self.answer
   self.event['request'].update(type='Alexa.Presentation.APL.UserEvent',presentationUri='widget://'+self.skill+'_live/Unapproved/one',token='solaranlage-store-werte',arguments=['solar.fullscreen.live.auto.v1',int(time.time()*1000)+3600000,0,'one'])

@@ -4011,7 +4011,7 @@ def lambda_handler(event, context):
             'display_prefix':'DEV · ','presentation_token':'solaranlage-dev-1811'}
     if store_cfg is None and primary_cfg and primary_cfg.get('package_id')=='Solaranlage1711R2':
         store_cfg={**primary_cfg,'stage':'live','package_id':'SolarAccountImageBuild1211',
-            'version_label':'1.1.0 (Build 1811)','version_font_size':'1.7vh',
+            'version_label':'1.1.0 (Build 2311)','version_font_size':'1.7vh',
             'display_prefix':'','presentation_token':'solaranlage-store-werte'}
     req = event.get('request', {})
     uri = req.get('presentationUri', '')
@@ -4356,4 +4356,23 @@ def lambda_handler(event, context):
     if any(_legacy_visual_directive(d) for d in response.get('directives',[])):
         result={**result,'response':{**response,'directives':[
             d for d in response.get('directives',[]) if not _legacy_visual_directive(d)]}}
+    return result
+
+
+# Display-only dashboard: never retain the conversational skill session.
+# APL remains visible; do not Finish it or discard pending visual updates.
+_before_voice_release = lambda_handler
+
+def lambda_handler(event, context):
+    result = _before_voice_release(event, context)
+    request = event.get('request', {})
+    application = event.get('context', {}).get('System', {}).get('application', {})
+    if (application.get('applicationId') == _direct_skill
+            and request.get('type') in ('LaunchRequest', 'IntentRequest',
+                                        'Alexa.Presentation.APL.UserEvent')
+            and isinstance(result, dict) and isinstance(result.get('response'), dict)):
+        response = dict(result['response'])
+        response['shouldEndSession'] = True
+        response.pop('reprompt', None)
+        return {**result, 'response': response}
     return result
