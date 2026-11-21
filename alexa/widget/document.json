@@ -231,13 +231,13 @@
           },
           {
             "minimumDelay": 1000,
-            "when": "${elapsedTime - lastGrantRequest >= 60000 && (!grantReady || elapsedTime >= grantRefreshAt)}",
+            "when": "${utcTime - lastGrantRequest >= 60000 && (!grantReady || imageFailed || utcTime >= grantRefreshAt)}",
             "commands": [
               {
                 "type": "SetValue",
                 "componentId": "imageWidget",
                 "property": "lastGrantRequest",
-                "value": "${elapsedTime}"
+                "value": "${utcTime}"
               },
               {
                 "type": "SendEvent",
@@ -301,7 +301,7 @@
           },
           {
             "minimumDelay": 5000,
-            "when": "${!grantReady || elapsedTime >= grantRefreshAt}",
+            "when": "${!grantReady || utcTime >= grantRefreshAt}",
             "commands": [
               {
                 "type": "DataStore:GetObject",
@@ -1194,7 +1194,7 @@
       "type": "SetValue",
       "componentId": "imageWidget",
       "property": "grantRefreshAt",
-      "value": "${elapsedTime + Math.max(30000, event.data.expiresIn * 1000 - 30000)}",
+      "value": "${event.data.expiresAt > 0 ? event.data.expiresAt - 30000 : utcTime + Math.max(30000, event.data.expiresIn * 1000 - 30000)}",
       "when": "${event.namespace == 'SolarAccountImages' && event.key == 'access' && event.data != null && event.data.imageBase && event.data.statusImageBase && event.data.expiresIn >= 60 && event.data.expiresIn <= 86400}"
     },
     {
@@ -1238,7 +1238,7 @@
       "type": "SetValue",
       "componentId": "imageWidget",
       "property": "grantRefreshAt",
-      "value": "${elapsedTime + Math.max(30000, event.data.expiresIn * 1000 - 30000)}",
+      "value": "${event.data.expiresAt > 0 ? event.data.expiresAt - 30000 : utcTime + Math.max(30000, event.data.expiresIn * 1000 - 30000)}",
       "when": "${event.namespace == 'SolarAccountImages' && event.key == 'access' && event.data != null && event.data.imageBase && event.data.statusImageBase && event.data.expiresIn >= 60 && event.data.expiresIn <= 86400}"
     },
     {

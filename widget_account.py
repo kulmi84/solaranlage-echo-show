@@ -1,6 +1,7 @@
 """Account-neutral Data Store image bootstrap; no credentials embedded."""
 import copy
 import re
+import time
 
 NAMESPACE = "SolarAccountImages"
 KEY = "access"
@@ -38,6 +39,7 @@ def route_account_images(event, context, fallback, *, skill_id, package_id,
     if not access or not isinstance(device, str) or not device.startswith("amzn1.ask.device."):
         return finish()
     try:
+        issued_at = int(time.time() * 1000)
         grant = session_factory(access, config_factory())
         prefix = "https://solaranlage-display.kulmi84.workers.dev/dashboard.png?s="
         base = grant.get("base_url", "")
@@ -51,7 +53,8 @@ def route_account_images(event, context, fallback, *, skill_id, package_id,
         command = {"type": "PUT_OBJECT", "namespace": NAMESPACE, "key": KEY,
                    "content": {"imageBase": origin + "value.png?s=" + token,
                                "statusImageBase": origin + "status.png?s=" + token,
-                               "expiresIn": lifetime}}
+                               "expiresIn": lifetime,
+                               "expiresAt": issued_at + lifetime * 1000}}
         # Publisher must use this skill's client-credentials token, never request apiAccessToken.
         publish(device, [command])
     except Exception:
