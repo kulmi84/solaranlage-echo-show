@@ -1,3 +1,36 @@
+# Verbindlich: Funktionsbestand erhalten, Aenderungen vorher abstimmen
+
+Explizite Nutzervorgabe vom 21.11.2026:
+Bei jeder neuen Version bleiben alle bisher umgesetzten Funktionen und das
+bestehende Verhalten erhalten. Nur den konkret beauftragten Umfang aendern.
+Eine Datenumstellung, Layoutaenderung, Versionsanhebung oder Fehlerkorrektur
+ist KEINE Freigabe fuer weitere funktionale oder technische Seitenaenderungen.
+
+Insbesondere Sprachbefehle, Aufrufname, Sprachmodell, Sprachrouting,
+Sprachsitzung, shouldEndSession, Fallback, Rueckfragen und Ansagen weder in
+DEV noch in Live nebenbei aendern. Die Anzeige bleibt ohne unaufgeforderte
+Rueckfragen/Ansagen; normale Alexa-Nutzung und bestehende ausdrueckliche
+Solar-Sprachabfragen muessen erhalten bleiben.
+
+Wenn eine nicht beauftragte Verhaltensaenderung erforderlich erscheint:
+vor der Umsetzung konkret erklaeren, welche Funktion sich dadurch aendert,
+warum und welche Folgen das hat; ausdrueckliche Zustimmung abwarten.
+Nicht eigenmaechtig umsetzen, entfernen, ersetzen, deaktivieren oder aus
+einer Versions-/Veroeffentlichungsfreigabe eine solche Zustimmung ableiten.
+Bereits ausdruecklich beauftragte Korrekturen innerhalb ihres Umfangs ohne
+wiederholte Freigabefragen erledigen.
+
+Vor jeder Aenderung den gesicherten Referenzstand und die bestehenden
+Funktionen abgleichen. Danach gezielt auf unbeabsichtigte Aenderungen pruefen:
+kleine Kachel, Vollbild, Live-/DEV-Trennung, Sprache, automatische Updates,
+Einblend-/Aufwachabruf, Navigation, Fehlerverhalten und Kontozuordnung.
+Lokale Tests und erfolgreiche Bereitstellung ersetzen keine Echo-Abnahme.
+
+Die folgenden historischen Fehlerbehebungen und technischen Empfehlungen
+sind Referenzwissen, KEIN Auftrag, diese Bereiche bei spaeteren Aufgaben
+erneut anzufassen. Ohne konkreten Auftrag keinen vorsorglichen Umbau und
+keinen automatischen Rueckbau vornehmen.
+
 # Solaranlage: bekannte Widget-Auslieferungsfalle
 
 Vor Änderungen an Alexa-Widgets `docs/ALEXA-WIDGET-AUSLIEFERUNG.txt` lesen.
@@ -90,3 +123,4 @@ Store-PaketkennungSolarAccountImageBuild1211 bleibt gleich, technische Version1.
 DEV-Paket/Anzeige1811 unveraendert, kein Testmodus-/Kontowechsel. Noch keine
 Freigabe oder Echo-Abnahme des Sprachfixes behaupten. Details lokal unter
 .private/solar-v3/store-build2311-20261121/.
+
