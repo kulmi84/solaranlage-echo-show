@@ -25,3 +25,7 @@ cloudflare/public-beta/wrangler.jsonc
 
 cloudflare/display/wrangler.jsonc
 cloudflare/display/preview-*.png
+
+# Generated local test fixtures
+/cloudflare/echo-values/binding-scope-fixture.json
+/cloudflare/echo-values/format-fixture.json

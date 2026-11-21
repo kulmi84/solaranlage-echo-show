@@ -1,11 +1,13 @@
-# Solaranlage Echo Werte · Build 2311
+# Solaranlage Echo Werte · Build 2111
 
-Store-Update **1.1.0 (Build 2311)** ist am 21.11.2026 bei Amazon in Zertifizierung, mit automatischer Veröffentlichung nach Freigabe. Noch keine bestätigte Store-Freigabe. Separate DEV bleibt Build 1811.
+Store-Update **1.1.0 (Build 2111)** ist in Zertifizierung. Live-Codekorrektur ist bereitgestellt; DEV bleibt separat erhalten. Keine abgeschlossene Live-Echo-Abnahme behaupten.
 
-Die Sprachsitzung wird nach Start, Tipp, automatischen Updates und Fallback beendet, ohne die APL-Anzeige ausdrücklich zu schließen. Layout, Datenversorgung, bestehende Store-Paketkennung und DEV-Dokument bleiben erhalten. Kleine Kachel und Vollbild verwenden direkte Werte. Der erneute Echo-Test der Sprachfreigabe und weiteren Aktualisierung ist offen.
+Vollbild liest die lebende `FullscreenSnapshot`-Datenbindung im Root-Komponenten-Tick. Dokumentweite Extension-Handler dürfen keine lokalen Root-Bindungen wie `fsSampleTime` verwenden. Binding, Schema, Originalzeitstempel und vollständige Textfelder werden vor Übernahme geprüft; Fehler erhalten den letzten gültigen Stand.
 
-Technische Store-Paketversion: 1.1.1 bei unveränderter Paketkennung SolarAccountImageBuild1211. Die sichtbare Skillversion bleibt 1.1.0 (Build 2311). Vorherstand, private Konfiguration und vollständige Cloud-Sicherung liegen ausschließlich lokal.
+`fullscreen_store.py` wird von beiden Anzeigeprofilen verwendet. Der Namespace stammt aus der verifizierten Datenautorität, Token und Footer aus dem angeforderten Anzeigeprofil. Sprachabschluss bleibt `shouldEndSession:true`, ohne reprompt oder Finish.
+
+Worker: `FULLSCREEN_DATASTORE_ENABLED=true`, `FULLSCREEN_STORE_ENABLED=true`. Der vorhandene Minuten-Cron versorgt DEV und Live getrennt unter bestehenden Bindungs-/Generations-/Widerrufsprüfungen. Keine neue Registrierung, keine zweite Haushaltsabfrage für einzelne Werte und keine Zahlenbilder. Die bisherigen Inline-Aufrufe bleiben erhalten.
 
 Prüfen: `python -m unittest discover -s . -p "test_*.py"` und `node --test worker.test.mjs`. Kein automatisches Deployment aus GitHub.
 
-[Projektstatus](../../docs/ALEXA-STATUS.md) · [Vorheriger Referenzstand](../../docs/ALEXA-BESTAETIGTER-STAND-1811.md)
+[Projektstatus](../../docs/ALEXA-STATUS.md) · [Wiederherstellung](../../docs/ALEXA-WIEDERHERSTELLUNG-2111.md)

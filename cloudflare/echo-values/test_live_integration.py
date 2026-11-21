@@ -14,7 +14,7 @@ class LiveIntegration(unittest.TestCase):
 
   root=Path(self.tmp.name)
 
-  for file in ('lambda_function.py','skill_registration.py'):
+  for file in ('lambda_function.py','skill_registration.py','support_trace.py','fullscreen_store.py'):
 
    shutil.copyfile(HERE/'skill'/file,root/file)
 
@@ -239,7 +239,7 @@ class WidgetTemplateTests(unittest.TestCase):
   dev=json.loads((HERE/'dev-widget/documents/document.json').read_text(encoding='utf-8'))
   live=self.document()
   visual=lambda d:json.dumps(d['mainTemplate']['items'][0]['items'],ensure_ascii=False)
-  self.assertEqual(visual(dev).replace('DEV · 1.1.0 (Build 1811)','1.1.0 (Build 2311)'),visual(live))
+  self.assertEqual(visual(dev).replace('DEV · 1.1.0 (Build 2111)','1.1.0 (Build 2111)'),visual(live))
  def test_mount_fetch_and_refresh_deadline(self):
   root=self.document()['mainTemplate']['items'][0]
   event=[c for c in root['onMount'] if c['type']=='SendEvent']
@@ -257,3 +257,4 @@ class WidgetTemplateTests(unittest.TestCase):
    triggers.extend(c['arguments'][1]['trigger'] for c in tick['commands'] if c['type']=='SendEvent')
   self.assertEqual(triggers,['reveal','minute'])
   self.assertNotIn('"type": "Image"',json.dumps(doc))
+

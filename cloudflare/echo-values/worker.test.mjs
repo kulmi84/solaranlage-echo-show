@@ -2,8 +2,45 @@ import {test} from 'node:test';
 import assert from 'node:assert/strict';
 import {DatabaseSync} from 'node:sqlite';
 import {readFileSync} from 'node:fs';
-import {digest,register,remove,unlink,relink,read,publish,resolveStage,refreshRegistered,readVoice} from './worker.mjs';
+import {digest,register,remove,unlink,relink,read,publish,resolveStage,refreshRegistered,readVoice,fullscreenPublishProfile,storeFullscreenPublishProfile} from './worker.mjs';
 const now=Date.parse('2026-11-16T15:00:00Z');
+
+test('Fullscreen scheduled profile cannot change Live or an unrelated DEV package',()=>{
+ const env={STAGE:'development',TEST_PACKAGE_ID:'Solaranlage1811',TEST_DATASTORE_NAMESPACE:'Solaranlage1811',
+  WIDGET_PACKAGE_ID:'Solaranlage1711R2',DATASTORE_NAMESPACE:'Solaranlage1711',PUBLISH_MODE:'inline'};
+ assert.equal(fullscreenPublishProfile(env),null);
+ const enabled={...env,FULLSCREEN_DATASTORE_ENABLED:'true'};
+ const selected=fullscreenPublishProfile(enabled);
+ assert.equal(selected.WIDGET_PACKAGE_ID,'Solaranlage1811');
+ assert.equal(selected.DATASTORE_NAMESPACE,'Solaranlage1811');
+ assert.equal(selected.PUBLISH_MODE,'scheduled');
+ assert.equal(enabled.PUBLISH_MODE,'inline');
+ assert.equal(fullscreenPublishProfile({...enabled,STAGE:'live'}),null);
+ assert.equal(fullscreenPublishProfile({...enabled,TEST_PACKAGE_ID:'Other'}),null);
+});
+
+test('One DEV snapshot delivers fullscreen and small values atomically; revocation still stops delivery',async()=>{
+ const s=await setup();Object.assign(s.env,{WIDGET_PACKAGE_ID:'Solaranlage1811',DATASTORE_NAMESPACE:'Solaranlage1811',
+  TEST_PACKAGE_ID:'Solaranlage1811',TEST_DATASTORE_NAMESPACE:'Solaranlage1811',PUBLISH_MODE:'inline',FULLSCREEN_DATASTORE_ENABLED:'true'});
+ const initial=await(await register(s.request(),s.env,now,s.send)).json();
+ assert.equal(initial.snapshot.solar,'100 W');
+ assert.equal(initial.snapshot.fullscreen.live.live0v,'100 W');
+ assert.equal(initial.snapshot.fullscreen.sampleTime,initial.snapshot.sampleTime);
+ s.calls.length=0;
+ const result=await publish(fullscreenPublishProfile(s.env),now,s.send);
+ assert.equal(result.accepted,1);assert.equal(s.calls.length,1);
+ const command=s.calls[0].commands;
+ assert.equal(command.length,1);assert.equal(command[0].type,'PUT_OBJECT');
+ assert.equal(command[0].namespace,'Solaranlage1811');
+ assert.equal(command[0].content.solar,'100 W');
+ assert.equal(command[0].content.fullscreen.live.live0v,'100 W');
+ assert.equal(command[0].content.binding,initial.binding);
+ s.calls.length=0;
+ await unlink(s.request(),s.env,now+1000,s.send);
+ s.calls.length=0;
+ assert.equal((await publish(fullscreenPublishProfile(s.env),now+2000,s.send)).accepted,0);
+ assert.equal(s.calls.length,0);
+});
 test('Store profile cannot alter the default DEV destination or bypass scope checks',()=>{
  const env={STAGE:'development',WIDGET_PACKAGE_ID:'Solaranlage1711R2',DATASTORE_NAMESPACE:'Solaranlage1711',LIVE_PACKAGE_ID:'SolarAccountImageBuild1211',LIVE_DATASTORE_NAMESPACE:'SolarAccountImagesV3'};
  const request=stage=>new Request('https://test/internal/register',{headers:{'X-Solar-Stage':stage}});
@@ -329,3 +366,17 @@ test('Store development and live adapter scopes resolve the Store namespace, whi
 
 
 
+
+test('Store fullscreen uses separate explicit scope and retains DEV profile',async()=>{
+ const s=await setup();Object.assign(s.env,{STAGE:'live',WIDGET_PACKAGE_ID:'SolarAccountImageBuild1211',DATASTORE_NAMESPACE:'SolarAccountImagesV3',LIVE_PACKAGE_ID:'SolarAccountImageBuild1211',LIVE_DATASTORE_NAMESPACE:'SolarAccountImagesV3',TEST_PACKAGE_ID:'Solaranlage1811',TEST_DATASTORE_NAMESPACE:'Solaranlage1811',FULLSCREEN_DATASTORE_ENABLED:'true',FULLSCREEN_STORE_ENABLED:'true',PUBLISH_MODE:'inline'});
+ const result=await(await register(s.request(),s.env,now,s.send)).json();
+ assert.equal(result.snapshot.fullscreen.live.live0v,'100 W');
+ assert.equal(result.snapshot.fullscreen.sampleTime,result.snapshot.sampleTime);
+ const profile=storeFullscreenPublishProfile(s.env);assert.equal(profile.STAGE,'live');
+ assert.equal(profile.DATASTORE_NAMESPACE,'SolarAccountImagesV3');
+ assert.equal(s.env.PUBLISH_MODE,'inline');
+ s.calls.length=0;assert.equal((await publish(profile,now,s.send)).accepted,1);
+ assert.equal(s.calls[0].commands[0].namespace,'SolarAccountImagesV3');
+ assert.equal(storeFullscreenPublishProfile({...s.env,FULLSCREEN_STORE_ENABLED:'false'}),null);
+ assert.equal(storeFullscreenPublishProfile({...s.env,LIVE_PACKAGE_ID:'Other'}),null);
+});

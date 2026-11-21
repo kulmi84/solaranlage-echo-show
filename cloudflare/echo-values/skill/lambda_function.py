@@ -1315,6 +1315,11 @@ def native_handler(event, context, *, dev_text=False, live_config=None, verified
 
 
 
+    if (dev_text and live_config and live_config.get('_fullscreen_store_snapshot')
+            and live_config.get('_fullscreen_store_namespace') in ('Solaranlage1811','SolarAccountImagesV3')):
+        from fullscreen_store import attach
+        attach(document, live_config['_fullscreen_store_snapshot'], expires_at, live_config['_fullscreen_store_namespace'])
+
     response = {'directives': [{'type': 'Alexa.Presentation.APL.RenderDocument', 'token': presentation_token, 'document': document}]}
 
 
@@ -4007,11 +4012,11 @@ def lambda_handler(event, context):
     # no additional secrets or private config are uploaded for this profile.
     if test_cfg is None and primary_cfg and primary_cfg['stage']=='development':
         test_cfg={**primary_cfg,'package_id':'Solaranlage1811',
-            'version_label':'1.1.0 (Build 1811)','version_font_size':'1.7vh',
+            'version_label':'1.1.0 (Build 2111)','version_font_size':'1.7vh',
             'display_prefix':'DEV · ','presentation_token':'solaranlage-dev-1811'}
     if store_cfg is None and primary_cfg and primary_cfg.get('package_id')=='Solaranlage1711R2':
         store_cfg={**primary_cfg,'stage':'live','package_id':'SolarAccountImageBuild1211',
-            'version_label':'1.1.0 (Build 2311)','version_font_size':'1.7vh',
+            'version_label':'1.1.0 (Build 2111)','version_font_size':'1.7vh',
             'display_prefix':'','presentation_token':'solaranlage-store-werte'}
     req = event.get('request', {})
     uri = req.get('presentationUri', '')
@@ -4144,6 +4149,7 @@ def lambda_handler(event, context):
     binding = None
     verified_pv = None
     verified_instance = None
+    fullscreen_source = cfg
 
     try:
 
@@ -4179,6 +4185,7 @@ def lambda_handler(event, context):
                 # Timers repeat the verified reader instead of treating that
                 # DEV instance as a Store registration.
                 verified_pv=result['pv'];verified_instance=instance
+                fullscreen_source=resolved
             if (((cfg['stage']=='development' and cfg['package_id']=='Solaranlage1811') or (cfg['stage']=='live' and cfg['package_id']=='SolarAccountImageBuild1211'))
                     and call[0]=='refresh' and result.get('registered') is True
                     and isinstance(result.get('pv'),dict) and result.get('binding')
@@ -4264,6 +4271,11 @@ def lambda_handler(event, context):
 
     if verified_instance:
         cfg={**cfg,'_verified_instance_id':verified_instance}
+    if (cfg.get('package_id') in ('Solaranlage1811','SolarAccountImageBuild1211')
+            and registered and binding and isinstance(initial, dict) and initial.get('binding') == binding):
+        namespace = {'Solaranlage1811':'Solaranlage1811','SolarAccountImageBuild1211':'SolarAccountImagesV3'}.get(fullscreen_source.get('package_id'))
+        if namespace:
+            cfg = {**cfg, '_fullscreen_store_snapshot': initial, '_fullscreen_store_namespace': namespace}
     return native_handler(event, context, dev_text=True, live_config=cfg, verified_pv=verified_pv)
 
 

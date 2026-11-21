@@ -1,5 +1,28 @@
 // Prepared migration candidate. No automatic deployment or household backfill.
 import {snapshot, skillToken} from './formatting.mjs';
+import {fullscreen} from './fullscreen.mjs';
+function valueSnapshot(row, now, env) {
+  const result = snapshot(row, now);
+  if (env.FULLSCREEN_DATASTORE_ENABLED === 'true' && ((env.STAGE === 'development'
+      && env.WIDGET_PACKAGE_ID === 'Solaranlage1811') || (env.FULLSCREEN_STORE_ENABLED === 'true'
+      && ['development','live'].includes(env.STAGE) && env.WIDGET_PACKAGE_ID === 'SolarAccountImageBuild1211'
+      && env.DATASTORE_NAMESPACE === 'SolarAccountImagesV3'))) {
+    try { result.fullscreen = fullscreen(row, now); } catch { /* Retain last valid fullscreen. */ }
+  }
+  return result;
+}
+export function storeFullscreenPublishProfile(env) {
+  if (env.FULLSCREEN_DATASTORE_ENABLED !== 'true' || env.FULLSCREEN_STORE_ENABLED !== 'true'
+      || env.LIVE_PACKAGE_ID !== 'SolarAccountImageBuild1211' || env.LIVE_DATASTORE_NAMESPACE !== 'SolarAccountImagesV3') return null;
+  return {...env, STAGE:'live', WIDGET_PACKAGE_ID:env.LIVE_PACKAGE_ID, DATASTORE_NAMESPACE:env.LIVE_DATASTORE_NAMESPACE,
+    DATASTORE_KEY:'snapshot', PUBLISH_MODE:'scheduled'};
+}
+export function fullscreenPublishProfile(env) {
+  if (env.FULLSCREEN_DATASTORE_ENABLED !== 'true' || env.STAGE !== 'development'
+      || env.TEST_PACKAGE_ID !== 'Solaranlage1811' || env.TEST_DATASTORE_NAMESPACE !== 'Solaranlage1811') return null;
+  return {...env, WIDGET_PACKAGE_ID: env.TEST_PACKAGE_ID, DATASTORE_NAMESPACE: env.TEST_DATASTORE_NAMESPACE,
+    DATASTORE_KEY: 'snapshot', PUBLISH_MODE: 'scheduled'};
+}
 
 const utf8 = value => new TextEncoder().encode(value);
 export const digest = async value => Array.from(new Uint8Array(await crypto.subtle.digest('SHA-256',utf8(value))),b=>b.toString(16).padStart(2,'0')).join('');
@@ -50,7 +73,7 @@ async function registerUnlocked(request,env,now=Date.now(),send) {
   const previous=env.PUBLISH_MODE==='inline'?await env.DB.prepare('SELECT subject_hash,household,generation FROM echo_value_devices WHERE stage=? AND device_id=?').bind(env.STAGE,data.deviceId).first():null;
   const revoked=await env.DB.prepare('SELECT revoked_at FROM echo_value_revocations WHERE stage=? AND subject_hash=?').bind(env.STAGE,who).first();
   if(revoked && occurred<=revoked.revoked_at)fail(409,'stale_event');
-  let initial;try{initial={...snapshot(row,now),binding:await digest(JSON.stringify([env.STAGE,who,row.id,generation]))};}catch{}
+  let initial;try{initial={...valueSnapshot(row,now,env),binding:await digest(JSON.stringify([env.STAGE,who,row.id,generation]))};}catch{}
   const changed=previous&&(previous.subject_hash!==who||previous.household!==row.id||previous.generation!==generation);
   // If the new household has no reading, clear before committing its ownership.
   // A failed clear therefore remains retryable as a household change.
@@ -91,7 +114,7 @@ async function refreshRegisteredUnlocked(request,env,now,send) {
   if(!row)fail(401,'verified_registration_required');
   const generation=await digest(row.write_hash);
   if(generation!==row.registered_generation)fail(401,'registration_generation_changed');
-  let current;try{current=snapshot(row,now);}catch{fail(503,'snapshot_unavailable');}
+  let current;try{current=valueSnapshot(row,now,env);}catch{fail(503,'snapshot_unavailable');}
   const binding=await digest(JSON.stringify([env.STAGE,who,row.id,generation]));
   // Preserve the original DEV registration delivery path after OAuth expiry.
   // The same scoped reading supplies both the response and one atomic object.
@@ -127,7 +150,7 @@ async function relinkUnlocked(request,env,now,send){
  const row=await linked(request,env,now),who=await subject(data.userId,env),generation=await digest(row.write_hash);
  if(env.PUBLISH_MODE==='inline'){
   const targets=(await env.DB.prepare('SELECT device_id FROM echo_value_devices WHERE stage=? AND subject_hash=? AND active=1 AND updated_at<=? AND NOT EXISTS(SELECT 1 FROM echo_value_revocations r WHERE r.stage=? AND r.subject_hash=? AND r.revoked_at>=?)').bind(env.STAGE,who,occurred,env.STAGE,who,occurred).all()).results.map(x=>x.device_id);
-  if(targets.length){let next;try{next={...snapshot(row,now),binding:await digest(JSON.stringify([env.STAGE,who,row.id,generation]))};}catch{}
+  if(targets.length){let next;try{next={...valueSnapshot(row,now,env),binding:await digest(JSON.stringify([env.STAGE,who,row.id,generation]))};}catch{}
    // Clear first under the lease. Failed delivery must not commit a new owner.
    await deliver(env,targets,[emptySnapshot(),...(next?[next]:[])],send);
   }
@@ -167,7 +190,7 @@ async function publishUnlocked(env,now=Date.now(),send=(url,init)=>globalThis.fe
   if(!env.WIDGET_PACKAGE_ID||!env.DATASTORE_NAMESPACE||!env.DATASTORE_KEY||!['live','development'].includes(env.STAGE))fail(503,'not_configured');
   const cursor=await env.DB.prepare('SELECT device_id FROM echo_value_publish_cursor WHERE stage=?').bind(env.STAGE).first();
   const started=Date.now();
-  const {results}=await env.DB.prepare('SELECT d.device_id,d.household,d.subject_hash,d.updated_at,d.generation,h.write_hash,h.timezone,h.live_at,h.live_json FROM echo_value_devices d JOIN households h ON h.id=d.household WHERE d.stage=? AND d.active=1 AND h.disabled=0 AND EXISTS(SELECT 1 FROM echo_value_usages u WHERE u.stage=d.stage AND u.device_id=d.device_id AND u.subject_hash=d.subject_hash AND u.active=1 AND u.package_id=?) ORDER BY CASE WHEN d.device_id>? THEN 0 ELSE 1 END,d.device_id LIMIT 100').bind(env.STAGE,env.WIDGET_PACKAGE_ID,cursor?.device_id||'').all();
+  const {results}=await env.DB.prepare('SELECT d.device_id,d.household,d.subject_hash,d.updated_at,d.generation,h.write_hash,h.timezone,h.live_at,h.live_json,h.history_at,h.history_json FROM echo_value_devices d JOIN households h ON h.id=d.household WHERE d.stage=? AND d.active=1 AND h.disabled=0 AND EXISTS(SELECT 1 FROM echo_value_usages u WHERE u.stage=d.stage AND u.device_id=d.device_id AND u.subject_hash=d.subject_hash AND u.active=1 AND u.package_id=?) ORDER BY CASE WHEN d.device_id>? THEN 0 ELSE 1 END,d.device_id LIMIT 100').bind(env.STAGE,env.WIDGET_PACKAGE_ID,cursor?.device_id||'').all();
   const groups=new Map();let failed=0;
   for(const row of results){if(await digest(row.write_hash)!==row.generation)continue;
     const groupKey=JSON.stringify([row.household,row.subject_hash]);
@@ -176,7 +199,7 @@ async function publishUnlocked(env,now=Date.now(),send=(url,init)=>globalThis.fe
   if(!groups.size)return {enabled:true,accepted:0,failed:0,households:0};
   const token=await skillToken(env,async(url,init)=>{const response=await send(url,init);if(!response.ok)return response;return Response.json(await boundedResponse(response));});let accepted=0;
   for(const {row,devices} of groups.values()){
-    let content;try{content={...snapshot(row,now),binding:await digest(JSON.stringify([env.STAGE,row.subject_hash,row.household,row.generation]))};}catch{failed+=devices.length;continue;}
+    let content;try{content={...valueSnapshot(row,now,env),binding:await digest(JSON.stringify([env.STAGE,row.subject_hash,row.household,row.generation]))};}catch{failed+=devices.length;continue;}
     for(let at=0;at<devices.length;at+=20){
       if(Date.now()-started>40000)break;
       const selected=devices.slice(at,at+20),targets=[];
@@ -294,7 +317,11 @@ export default {
     }
   },
   async scheduled(controller,env){
-    try{console.log(JSON.stringify({event:'echo_values_publish',...await publish(env,controller.scheduledTime)}));}
+    try{
+      console.log(JSON.stringify({event:'echo_values_publish',...await publish(fullscreenPublishProfile(env)||env,controller.scheduledTime)}));
+      const store=storeFullscreenPublishProfile(env);
+      if(store) console.log(JSON.stringify({event:'echo_values_store_fullscreen_publish',...await publish(store,controller.scheduledTime)}));
+    }
     catch{console.log(JSON.stringify({event:'echo_values_publish',result:'failed'}));}
   }
 };

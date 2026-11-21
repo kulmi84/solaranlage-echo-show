@@ -124,3 +124,101 @@ DEV-Paket/Anzeige1811 unveraendert, kein Testmodus-/Kontowechsel. Noch keine
 Freigabe oder Echo-Abnahme des Sprachfixes behaupten. Details lokal unter
 .private/solar-v3/store-build2311-20261121/.
 
+21.11.2026, nachfolgender DEV-Vollbild-Refresh-Fix (noch KEINE Echo-Abnahme):
+Nutzer genehmigte ausdruecklich die Umstellung der Vollbildaktualisierung auf
+den Datenspeicher, die Ruecknahme der laufenden Zertifizierung und Build2111
+fuer DEV UND Store. Amazon bestaetigte die Ruecknahme; 2311 ist damit nicht
+mehr in Zertifizierung. Neue Einreichung erst nach dem vereinbarten Echo-Test.
+DEV-Code wurde um12:27 Berlin bereitgestellt; Paketimport mit den Anzeigen
+Build2111 ist SUCCEEDED. Technische Paketkennungen bleiben Solaranlage1811
+und SolarAccountImageBuild1211; der Anzeigen-Build ist KEINE Paketkennung.
+Nur DEV1811 nutzt den neuen Vollbild-Datenspeicher; Live wurde nicht promoted.
+Sprachabschluss shouldEndSession:true bleibt unveraendert. Worker01369555
+enthaelt die DEV-Erweiterung, FULLSCREEN_DATASTORE_ENABLED=true und einen
+Minuten-Cron. Dieser ist ein zusaetzlicher Worker-Aufruf pro Minute; die
+vorhandenen Inline-Abrufe der kleinen Kachel bleiben erhalten. Keine Bilder.
+141 lokale Python- und48 Worker-Tests bestanden, einschliesslich materialisiertem
+Layout-/Textvergleich und exaktem Zahlenformat. Dies beweist NICHT das Echo.
+Aktueller Befund: Testmodus ist Off; DEV-Bindungen sind inaktiv. Erste echte
+Cron-Runde12:33 Berlin: enabled=true,accepted=0,households=0. Nicht als
+erfolgreiche Geraetezustellung ausgeben und keine alten Bindungen reaktivieren.
+Freigabe fuer Development-Wiedereinschalten wurde angefragt; vor einer solchen
+Aenderung den neuesten Nutzerentscheid beachten und danach FRISCHEN Aufruf
+zuordnen. Quellen, Originale, Freigaben und Status:
+.private/solar-v3/fullscreen-datastore-fix-20261121/STATE.json.
+
+21.11.2026: Nutzer gab mit "Mache mal" und "weiter" das Wiedereinschalten
+von Development frei. Testmodus danach in Amazon-Konsole auf Development
+gestellt und sichtbarer Aktivstatus gesichert (testmode-development.png).
+Keine alte Bindung reaktiviert, keine Kontoverknuepfung geaendert. Frischer
+DEV-Aufruf und Echo-Abnahme weiterhin offen. Nicht erneut umschalten.
+
+21.11.2026 17:02 Berlin: DEV-Vollbild Build2111 Scope-Fix bereitgestellt.
+Frischer aktiver DEV1811-Zugang und wiederholte Cron-Schreibantworten
+accepted=1,failed=0,households=1 bestaetigt. Nutzer meldete dennoch nur
+Anfangswerte. Ursache im Dokument: Extension-Handler im Dokumentkontext
+referenzierte komponentenlokales fsSampleTime. Jetzt liest der vorhandene
+Root-Tick die lebende FullscreenSnapshot-Datenbindung direkt mit denselben
+Bindungs-/Schema-/Zeit-/Vollstaendigkeitspruefungen. Kein Sitzungsumbau.
+Nur fullscreen_store.py ersetzt; aktiver Vorherstand gegen Sicherung und
+eingesetzter Quelltext per Kopie exakt geprueft. Amazon Last Deployed17:02.
+142 lokale Tests bestanden, einschliesslich drei simulierten Datenwechseln
+im generierten Ausdruck. Das ist KEIN APL-Laufzeit- oder Echo-Nachweis.
+Vollbild muss einmal neu geoeffnet werden, um das neue Dokument zu laden.
+Live, Worker, Konten, Testmodus, Pakete, Optik und Sprache nicht geaendert.
+Echo-Abnahme und Store-Wiedereinreichung bleiben offen. Sicherung/Details:
+.private/solar-v3/fullscreen-datastore-fix-20261121/STATE.json.
+
+21.11.2026: Nutzer meldet nach DEV-Scope-Fix: Er scheint so funktionieren.
+Store-Uebernahme desselben Weges ausdruecklich beauftragt. Store-Integration
+mit Namespace aus gepruefter Datenautoritaet und unveraendertem angeforderten
+Darstellungsprofil in Development17:37 bereitgestellt. Worker d1317e3a plus
+FULLSCREEN_STORE_ENABLED=true aktiv; vorhandener Cron bedient DEV und Live
+getrennt. Keine Bindungsreaktivierung/Kontenumstellung.142Python/49Worker/49Bundle
+bestanden. Live-Promotion automatisch abgelehnt, Dialog abgebrochen; Live-Code
+bleibt unveraendert und Store-Wiedereinreichung offen. Nicht als Live-Abnahme
+ausgeben. Vollstaendiger Quellen-/Ruecksprung-/Statusnachweis:
+.private/solar-v3/store-fullscreen-datastore-2111-20261121/WIEDERHERSTELLUNG.txt.
+
+21.11.2026 17:43 Berlin: Nutzer gab nach vorheriger Freigabeablehnung explizit
+Ja uebernehmen. Live-Promotion der vorbereiteten Store-Vollbildkorrektur
+erfolgreich abgeschlossen; Konsole Last Updated17:43, Promote-Button wieder
+freigegeben. Live nutzt nun dieselbe direkte Datenspeicherbindung im Root-Tick.
+Keine weiteren Code-/Paket-/Konto-/Sprachaenderungen in diesem Schritt.
+Dies ist der Bereitstellungsnachweis, keine Live-Echo-Abnahme. Paket-/Store-
+Wiedereinreichung2111 wird durch Code-Promotion nicht ersetzt und bleibt offen.
+Aktueller Status: .private/solar-v3/store-fullscreen-datastore-2111-20261121/STORE-STATE.json.
+Historische Angaben Live unveraendert in bisherigen Sicherungen sind damit ueberholt.
+
+21.11.2026 17:53:49 Berlin: Store-Update1.1.0(Build2111) vollstaendig
+eingereicht, HTTP202. Amazon-Skilluebersicht bestaetigt Development-Status
+CERTIFICATION mit exakt diesem Zeitstempel. AUTO_PUBLISHING gewaehlt:
+Veroeffentlichung nach Amazon-Freigabe. Pflichtvalidierung SUCCESSFUL; nur
+Instant-Update-Eignung nicht gegeben (RECOMMENDED, keine Pflichtverletzung).
+Veralteter Beschreibungssatz zum Bildsatz auf letzte gueltige Werte mit
+Originalzeitstempel korrigiert; sonst Manifest unveraendert. DEV bleibt
+erhalten. Neue Zertifizierungs-ID noch nicht in Historie erschienen; alte
+CANCELLED-/SUCCEEDED-Pruefungen nicht als aktuelle Freigabe ausgeben.
+Status und private API-Belege: .private/solar-v3/store-fullscreen-datastore-2111-20261121/.
+Noch nicht zertifiziert/veroeffentlicht; Echo-Nachweis separat.
+
+# Aktuelle Referenz Build2111 vom21.11.2026
+Dieser Abschnitt ist aktueller als historische Statusnotizen oben.
+DEV-Scope-Fix vom Nutzer funktional bestaetigt. Gemeinsamer Vollbild-Renderer
+liest FullscreenSnapshot im Root-Komponenten-Tick, niemals komponentenlokale
+Variablen aus dokumentweiten Extension-Handlern lesen. Binding/Schema/Originalzeit
+und komplette Felder pruefen; bei Fehler letzte gueltige Werte behalten.
+Store-Datenautoritaet/Namespace bleiben vom angeforderten Footer/Token getrennt.
+DEV und Store verwenden Anzeige1.1.0(Build2111), technische IDs unveraendert.
+shouldEndSession:true, kein reprompt/Finish; keine Sprachsitzung fuer Timer oeffnen.
+Worker hat FULLSCREEN_DATASTORE_ENABLED=true und FULLSCREEN_STORE_ENABLED=true;
+vorhandener Minuten-Cron bedient DEV und Live getrennt mit bestehenden Sperren.
+Kleine Kachel behaelt Inline plus gemeinsames PUT_OBJECT. Keine Bilder.
+Live-Code17:43 bereitgestellt, Store-Update17:53:49 in CERTIFICATION mit
+AUTO_PUBLISHING. Keine abgeschlossene Store-Freigabe/Live-Echo-Abnahme behaupten.
+155 Tests der GitHub-Quellen und49 Worker-Tests bestanden.
+Quellen und Ruecksprung: docs/ALEXA-WIEDERHERSTELLUNG-2111.md;
+lokale vollstaendige private Sicherung: Sicherungen/Gesamtstand-Build2111-2026-11-21/.
+Vor Ruecknahme frische genaue Konto/Geraet/Paket/Instanz/Generation pruefen,
+Widerrufe nicht zuruecksetzen, keinen Testmoduswechsel als Reparaturversuch.
+Nur bestehenden PR22 aktualisieren; kein main-Push/kein Merge in diesem Auftrag.
