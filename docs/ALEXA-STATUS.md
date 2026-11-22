@@ -1,17 +1,10 @@
 # Projektstatus · 22.11.2026
 
-- **1.1.0 (Build 2211)** um15:24 Uhr als Store-Update eingereicht. Amazon bestätigt **CERTIFICATION / In review**. Automatische Veröffentlichung nach Freigabe; noch nicht veröffentlicht. Die Prüfung2111 wurde zurückgezogen.
-- Vorbereiteter Handler seit15:23 Uhr nach Live übernommen. DEV bleibt beim bisherigen Stand15:09 Uhr; Paket und Sprachmodell nach Einreichung bytegleich geprüft.
-- Kleine Store-Kachel: Verbindungshinweis, begrenzte Wiederholungen und sicherer Stopp/Wiederanlauf bei bestätigtem Kontostatus. Fehlender Token oder401 allein stoppt keine Kachel dauerhaft. [Umfang und Grenzen](ALEXA-KACHEL-VERBINDUNG.md).
-- Worker `ef69b6a5` mit additiven Statustabellen und Aktivierungsflag aktiv. Bestehender Cron, Kontozuordnungen, DEV-/Store-Trennung, Sprache, Vollbild und Zahlenformat bleiben erhalten.
-- 194 Python- und61 Worker-Tests bestanden; das bereitgestellte Bündel besteht dieselben61 Tests. Lokale Stopp-/Wiederanlaufprüfung erfolgreich; Echo-Abnahme der neuen Statusfunktion bleibt offen.
-- Quellen, aktive Vorher-/Nachherstände, Freigaben und Einreichungsbelege vollständig lokal gesichert. Keine privaten Daten in GitHub. Nur PR22 aktualisiert, kein Merge.
+- **1.1.0 (Build 2211)** um20:28 Berlin erneut eingereicht: **CERTIFICATION / In review**, automatische Veröffentlichung nach Amazon-Freigabe. Vorherige Prüfung zurückgezogen; noch nicht veröffentlicht.
+- Ruhemodus mit Handler und Worker ausgerollt. Nach sechs bestätigten erfolglosen Registrierungen pausiert die leere Store-Kachel. Sicherer Wiederanlauf nach erfolgreicher Verknüpfung oder authentifiziertem Store-Vollbildstart; Berechtigung wird frisch geprüft. [Umfang und Grenzen](ALEXA-KACHEL-VERBINDUNG.md).
+- Worker `c10cc302`, zusätzliche Status-Tabelle und Aktivierungsflag aktiv. Handler20:25 in Development und20:27 nach Live übernommen. Bestehender Cron bleibt erhalten.
+- DEV-Paket, Sprachmodell und andere Pakete nach Import bytegleich geprüft. DEV-Verhalten, Sprache, Layout bei Verbindung und Vollbild unverändert; keine Konten-/Testmodusänderung oder Reaktivierung.
+- 215 Python-/73 Worker-/73 Bündeltests und Amazon-Pflichtvalidierung erfolgreich. **Echo-Abnahme der neuen Ruhefunktion und Veröffentlichung offen.** Backend-Erfolg ist kein Gerätenachweis.
+- Quellen und Auslieferungsbelege lokal gesichert; ausschließlich PR22 aktualisiert, kein Merge.
 
 [Quellen](../cloudflare/echo-values) · [Grundlage und Rücksprung2111](ALEXA-WIEDERHERSTELLUNG-2111.md)
-
-
-## Folgeänderung: Ruhemodus für unregistrierte Kacheln
-
-Nachträglich beauftragter Kandidat lokal fertig: Nach sechs erfolglosen Registrierungen keine weiteren automatischen Abrufe der leeren Kachel. Wiederanlauf nach erfolgreicher Kontoverknüpfung oder authentifiziertem Vollbildstart; frischer Kachelabruf prüft die Berechtigung erneut. Bereits vorhandene gültige Werte und registrierte Kacheln werden nicht in diesen Ruhezustand versetzt. 215 Python-/73 Worker-Tests bestanden, ebenso73 Bündeltests.
-
-**Noch nicht Bestandteil der laufenden Amazon-Prüfung2211.** Kein Live-/DEV-Deploy, keine entfernte Migration oder Testmodusänderung für diese Folgeänderung. Die bestehende Prüfung ist weiterhinCERTIFICATION. Auslieferung erfordert eine Entscheidung über deren Rücknahme und erneute Einreichung. Kein Echo-Nachweis.

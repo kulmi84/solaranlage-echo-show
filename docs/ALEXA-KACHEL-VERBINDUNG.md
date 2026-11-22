@@ -7,7 +7,7 @@ Store1.1.0(Build2211) wurde am22.11.2026 eingereicht und ist in Prüfung. Handle
 - Die Kachel plant bereits vor dem Senden den nächsten Versuch:1,2,4,8,maximal15Minuten Abstand. So wirkt die Begrenzung auch, wenn überhaupt keine Antwort zurückkommt. Wiederholtes Einblenden umgeht eine laufende Fehlerfrist nicht. Ein manueller Tipp öffnet weiterhin unverändert das Vollbild.
 - Erfolgreiche Antwort oder ein neuer gültiger Datenspeicher-Snapshot stellt den normalen60-Sekunden-Takt wieder her. Bei gesunder Verbindung bleibt der Einblend-/Aufwachabruf erhalten. Alte Werte und Originalzeit bleiben bei Fehlern stehen.
 - Diese Begrenzung gilt pro geladener Kachelinstanz. Ein vollständiger Neuaufbau der Kachel beginnt mit einem sofortigen Abruf; es wurde kein persistenter Datenspeicher für den Retry-Zustand eingeführt.
-- Der neue Store-Client verwendet connectionVersion2; vorherige Protokolle bleiben kompatibel. Paket und Backend gehören zusammen. DEV und Vollbild bleiben unverändert. Alte installierte Store-Dokumente sparen dadurch noch keine Anfragen.
+- Der zunächst eingereichte Store-Client verwendete connectionVersion2; vorherige Protokolle bleiben kompatibel. Paket und Backend gehören zusammen. DEV und Vollbild bleiben unverändert. Alte installierte Store-Dokumente sparen dadurch noch keine Anfragen.
 - Bei dauerhaft fehlerhafter, kontinuierlich geladener Instanz sinkt der Maximalrhythmus auf4Versuche/Stunde statt60. Keine Aussage über die Zahl betroffener Nutzer oder tatsächliche Gesamtersparnis.
 
 Zusätzlicher Alexa+-Hinweis (bestehender Sprachaufruf und Aufrufbeispiel bleiben): **„Alexa, öffne meine Solaranlage Skill.“** Dies ändert weder den eigentlichen Aufrufnamen noch das Sprachmodell.
@@ -30,14 +30,14 @@ Auslieferung: zuerst `cloudflare/echo-values/connection-schema.sql` additiv anwe
 Der vorherige Satz „Worker und Datenbank unverändert“ bezieht sich auf die erste Backoff-Fassung; die oben beschriebene Erweiterung wurde danach ausdrücklich genehmigt. Lokale Tests sind kein Echo-Nachweis. Beim späteren Gerätetest müssen bestätigte Trennung,neue Verknüpfung und drei normale Folgerunden separat beobachtet werden; den funktionierenden DEV-Zugang dafür nicht blind umschalten.
 
 
-## Bereitstellungsstand22.11.
+## Vorheriger Bereitstellungsstand22.11.15:24
 
 Worker (`ef69b6a5`), additive Tabellen und Aktivierungsflag sind aktiv. Handler15:09 Berlin in Development und15:23 nach Live übernommen. Vollständiges Store-Paket2211 um15:24:25.448 zur Prüfung mit automatischer Veröffentlichung eingereicht (HTTP202, CERTIFICATION). Amazon-Pflichtvalidierung erfolgreich. Nach Einreichung sind DEV-Paket,Sprachmodell und Store-Dokument bytegleich bestätigt. Kein Testmodus- oder Kontowechsel. Veröffentlichung und Echo-Abnahme stehen aus; bisherige Store-Dokumente erhalten den neuen Clientweg erst durch das veröffentlichte Update.
 
 
-## Vorbereiteter Ruhemodus nach wiederholter fehlender Registrierung
+## Ruhemodus nach wiederholter fehlender Registrierung
 
-Diese nachträglich beauftragte Erweiterung ist noch nicht in der laufenden2211-Prüfung und noch nicht ausgerollt.
+Diese nachträglich beauftragte Erweiterung ist seit22.11.20:27 im Live-Backend aktiv und Bestandteil der um20:28 erneut eingereichten2211-Prüfung.
 
 - Protokoll3 zählt nur vom Server bestätigte erfolglose Registrierungen der exakten Instanz. Nach sechs Versuchen mit den bisherigen Abständen (sofort,1,3,7,15,30Minuten) pausiert die leere Kachel und zeigt „Keine Verbindung. Bitte Skill öffnen.“ Das erklärt den Zustand als Verbindungsproblem, nicht als angeblich fehlende Kontoverknüpfung.
 - Der Zähler bleibt über einen vollständigen Neuaufbau der Kachel erhalten. Beim Neuaufbau bleibt eine initiale Statusprüfung erforderlich. Bereits registrierte Kacheln und Kacheln mit gültigen vorhandenen Werten werden nicht in diese zusätzliche Ruhepause versetzt. Vorübergehende Messdatenfehler verbrauchen kein Registrierungsbudget.
@@ -46,4 +46,7 @@ Diese nachträglich beauftragte Erweiterung ist noch nicht in der laufenden2211-
 - Bei vollständig ausbleibenden Antworten ohne bestätigten instanzgenauen Weckkanal bleibt der begrenzte Backoff erhalten. So wird keine Kachel dauerhaft ohne erreichbaren Wiederanlauf stillgelegt.
 - Opt-in: `connectionVersion:3` plus `CONNECTION_RETRY_PAUSE_ENABLED=true`; vorher additiv `retry-schema.sql` anwenden. Bestehende Protokolle1/2 bleiben erhalten. Gesunde Anzeige,Sprache,Vollbild,DEV-Paket und Paketkennungen bleiben unverändert. Die lokale Anzeigeversion bleibt vorerst2211; kein weiterer Versionswechsel beauftragt.
 
-Lokal:215 Python-/73 Worker-Tests, bereitstellbares Bündel73 Tests bestanden. Geräteprüfung und Auslieferung noch offen.
+Lokal:215 Python-/73 Worker-Tests, bereitstellbares Bündel73 Tests bestanden. Auslieferung abgeschlossen; Amazon-Freigabe und Geräteprüfung noch offen.
+
+
+Aktuell: Worker `c10cc302`, Handler20:25/Live20:27, erneute Einreichung20:28 Berlin mit AUTO_PUBLISHING, CERTIFICATION. DEV-Paket und Sprachmodell bytegleich geprüft. Keine abgeschlossene Echo-Abnahme.

@@ -330,3 +330,20 @@ Quellen, Vorherstand und vollstaendiges Paket: .private/solar-v3/retry-pause-202
 Noch NICHT ausgerollt, laufende Zertifizierung2211 NICHT zurueckgezogen. Vor einer
 Auslieferung muss ueber das Ersetzen der laufenden Pruefung entschieden werden.
 Keine neue Versionsnummer/Paketkennung eigenmaechtig vergeben.
+
+
+22.11.2026, aktuelle Auslieferung des ausdruecklich genehmigten Ruhemodus:
+Vorherige2211-Pruefung zurueckgezogen (HTTP204). Additive retry-schema.sql
+angewendet; Worker7ba02dad und Aktivierung CONNECTION_RETRY_PAUSE_ENABLED=true
+als Versionc10cc302 bereitgestellt. Handler20:25 Berlin in Development,
+20:27 nach Live uebernommen. Build1.1.0(2211) um20:28 Berlin erneut mit
+AUTO_PUBLISHING eingereicht (HTTP202); Amazon bestaetigt CERTIFICATION/In review.
+Die bisherigen Notizen "Kandidat/nicht ausgerollt" sind damit ueberholt.
+DEV-Paket und Sprachmodell nach Import bytegleich; andere Pakete unveraendert.
+Store-Dokument entspricht Protokoll3-Kandidat, technisches Manifest bleibt1.1.2.
+Keine Testmodus-/Kontoumstellung, keine Reaktivierung. DEV-Verhalten,Sprache,
+Layout bei Verbindung und Vollbild bleiben erhalten. 215Python-/73Worker-/73
+Buendeltests bestanden; Amazon-Pflichtvalidierung SUCCESSFUL. KEIN Echo-Nachweis.
+Quellen/Status/Vorher-/Nachherbelege: .private/solar-v3/retry-pause-20261122/.
+Rollback zuerst neues Flag deaktivieren; aktuelle Konto-/Widerrufsdaten nie
+mit alten Sicherungen ueberschreiben. Nur PR22 verwenden.
