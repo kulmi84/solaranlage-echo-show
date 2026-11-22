@@ -1,6 +1,6 @@
 # Solaranlage auf dem Echo Show
 
-> **Build2111 wurde zurückgezogen; Store-Update1.1.0(Build2211) wird vorbereitet.** Die neue Fehlerbehandlung der kleinen Store-Kachel ist ein noch nicht ausgerollter Folgestand. [Projektstatus](docs/ALEXA-STATUS.md)
+> **Store-Update 1.1.0 (Build 2211) ist seit 22.11.2026 in Prüfung.** Der Live-Handler ist übernommen; Veröffentlichung automatisch nach Amazon-Freigabe. DEV bleibt erhalten. [Projektstatus](docs/ALEXA-STATUS.md)
 
 
 > **Stand 19.11.2026:** Store **1.1.0 (Build 1811)** ist Live. Kleine Store-Kachel weiterhin ohne Messwerte; DEV 1811 und Vollbild funktionieren. [Projektstatus](docs/ALEXA-STATUS.md) · [Fehler #20](https://github.com/kulmi84/solaranlage-echo-show/issues/20).

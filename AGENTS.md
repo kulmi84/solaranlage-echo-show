@@ -286,3 +286,20 @@ Live-Promotion samt anschliessender Einreichung explizit freigeben lassen.
 Belege/private Vorher-/Nachherquellen und Datenbank-Lesezeichen:
 .private/solar-v3/connection-backoff-20261122/account-link-stop/deployment/.
 Datenbank-Lesezeichen NICHT fuer einen pauschalen OAuth-/Zuordnungsrollback benutzen.
+
+
+22.11.2026, aktueller Auslieferungsstand2211 (ersetzt die vorherige Sperrnotiz):
+Nutzer gab Promote to live -> Yes UND anschliessende Store-Einreichung explizit frei.
+Live-Promotion abgeschlossen, Amazon-Konsole Last Updated22.11.15:23 Berlin;
+Hosted-Deployment SUCCEEDED, Commit779aec729684abca0703830ef5a789163c4169bb.
+Development bleibt beim bereits bereitgestellten Stand15:09, keine neue DEV-Aenderung.
+Store-Update1.1.0(Build2211) am22.11.15:24:25.448 Berlin perHTTP202 eingereicht,
+AUTO_PUBLISHING. Skill-Liste bestaetigt development/CERTIFICATION, Konsole In review.
+Die Zertifizierungs-Historie kann noch die alte Pruefung zeigen; nicht mit der
+neuen Einreichung verwechseln. Noch NICHT zertifiziert oder im Store veroeffentlicht.
+Frischer Development-Export NACH Einreichung bestaetigt DEV-Paket, Sprachmodell
+und Store2211-Dokument bytegleich zum geprueften Vorherstand. Testmodus, Konten,
+Paketkennungen und Worker wurden in diesem Schritt nicht erneut geaendert.
+Echo-Abnahme der neuen Kontostatusfunktion bleibt offen. Keine Geraeteabnahme
+oder Cloudflare-Gesamtersparnis aus Deployment/Zertifizierung ableiten.
+Freigabe/Live-/Einreichungsbelege: .private/solar-v3/connection-backoff-20261122/account-link-stop/deployment/.
