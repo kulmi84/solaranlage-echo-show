@@ -27,3 +27,5 @@ Die Verfügbarkeit des neuen Widgets im allgemeinen Alexa-Store ist noch offen. 
 Die Einrichtung hat zwei Sensorseiten: **Live-Sensoren** für W/kW und %, danach **Energiezähler** für kumulierte Wh/kWh/MWh. Energiezähler sind optional. Fehlende Angaben werden nicht als Null erfunden.
 
 Sensoren lassen sich später in den Integrationsoptionen ändern. Vorhandene Nutzer brauchen für ein Update keine neue Kontoverknüpfung.
+
+Hinweis für Alexa+: **„Alexa, öffne meine Solaranlage Skill.“**

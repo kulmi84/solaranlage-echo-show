@@ -19,7 +19,7 @@ class RuntimeLabels(unittest.TestCase):
         self.prepare_fallback_profiles()
         self.g['send_registration'] = self.answer
         result = self.invoke()
-        self.assertIn('1.1.0 (Build 2111)', json.dumps(result))
+        self.assertIn('1.1.0 (Build 2211)', json.dumps(result))
         self.assertNotIn('DEV ·', json.dumps(result, ensure_ascii=False))
         self.assertEqual(result['response']['directives'][0]['token'], 'solaranlage-store-werte')
         self.assertIs(result['response']['shouldEndSession'], True)

@@ -1,6 +1,6 @@
 # Solaranlage auf dem Echo Show
 
-> **Store-Update 1.1.0 (Build 2311) ist bei Amazon in Zertifizierung.** Sprachfreigabe korrigiert; separate DEV bleibt Build 1811. [Projektstatus](docs/ALEXA-STATUS.md) · [Quellen](cloudflare/echo-values)
+> **Build2111 wurde zurückgezogen; Store-Update1.1.0(Build2211) wird vorbereitet.** Die neue Fehlerbehandlung der kleinen Store-Kachel ist ein noch nicht ausgerollter Folgestand. [Projektstatus](docs/ALEXA-STATUS.md)
 
 
 > **Stand 19.11.2026:** Store **1.1.0 (Build 1811)** ist Live. Kleine Store-Kachel weiterhin ohne Messwerte; DEV 1811 und Vollbild funktionieren. [Projektstatus](docs/ALEXA-STATUS.md) · [Fehler #20](https://github.com/kulmi84/solaranlage-echo-show/issues/20).
@@ -16,11 +16,13 @@ Solar-, Verbrauchs-, Akku- und Energiewerte aus Home Assistant auf dem Echo Show
 
 ## Kleines Widget
 
-Solarleistung, Hausverbrauch und Akkustand direkt auf dem Startbildschirm. Der bisherige Bildsatz bleibt stehen, bis der neue vollständig geladen ist.
+Solarleistung, Hausverbrauch und Akkustand direkt auf dem Startbildschirm. Die Werte-Version behält bei Abruffehlern die letzten gültigen Messwerte mit ihrem ursprünglichen Zeitstempel.
 
 ![Solaranlage-Widget auf dem Echo Show](docs/screenshots/echo-show-widget-2.0.1.png)
 
 ## Vollbildansicht
+
+Aufruf mit Alexa+: **„Alexa, öffne meine Solaranlage Skill.“**
 
 PV und BKW, Hausverbrauch, Netz und Akku sowie Tageswerte im Überblick.
 

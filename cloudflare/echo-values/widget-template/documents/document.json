@@ -44,12 +44,224 @@
           {
             "name": "nextRefreshAt",
             "value": 60000
+          },
+          {
+            "name": "retryDelayMs",
+            "value": 60000
+          },
+          {
+            "name": "requestPending",
+            "value": false
+          },
+          {
+            "name": "lastGoodSampleTime",
+            "value": 0
+          },
+          {
+            "name": "connectionStatus",
+            "value": "Verbindung wird geprüft"
+          },
+          {
+            "name": "linkPaused",
+            "value": false
+          },
+          {
+            "name": "connectionKey",
+            "value": ""
+          },
+          {
+            "name": "watchedConnectionKey",
+            "value": ""
+          },
+          {
+            "name": "connectionRevision",
+            "value": 0
+          },
+          {
+            "name": "connectionEnvelope",
+            "value": {}
+          },
+          {
+            "name": "connectionEventKey",
+            "value": ""
+          },
+          {
+            "name": "linkResumePending",
+            "value": false
+          },
+          {
+            "name": "connectionReplyState",
+            "value": {}
+          },
+          {
+            "name": "connectionReplyPending",
+            "value": false
           }
         ],
         "handleTick": [
           {
             "minimumDelay": 1000,
-            "when": "${displayState != \"hidden\" && wakePending && utcTime >= lastWakeAt + 3000}",
+            "when": "${connectionReplyPending}",
+            "commands": [
+              {
+                "type": "SetValue",
+                "componentId": "imageWidget",
+                "property": "connectionReplyPending",
+                "value": false
+              },
+              {
+                "type": "SetValue",
+                "componentId": "imageWidget",
+                "property": "connectionKey",
+                "value": "${connectionReplyState.key}",
+                "when": "${connectionReplyState.revision >= connectionRevision}"
+              },
+              {
+                "type": "SetValue",
+                "componentId": "imageWidget",
+                "property": "linkPaused",
+                "value": "${connectionReplyState.state == 'unlinked'}",
+                "when": "${connectionReplyState.revision >= connectionRevision && (connectionReplyState.state == 'linked' || connectionReplyState.state == 'unlinked')}"
+              },
+              {
+                "type": "SetValue",
+                "componentId": "imageWidget",
+                "property": "connectionStatus",
+                "value": "${connectionReplyState.state == 'unlinked' ? 'Bitte Konto in der Alexa-App verknüpfen' : (connectionReplyState.verified ? '' : 'Verbindung prüfen: Alexa-App')}",
+                "when": "${connectionReplyState.revision >= connectionRevision && (connectionReplyState.state == 'linked' || connectionReplyState.state == 'unlinked')}"
+              },
+              {
+                "type": "SetValue",
+                "componentId": "imageWidget",
+                "property": "linkResumePending",
+                "value": false,
+                "when": "${connectionReplyState.revision >= connectionRevision && (connectionReplyState.state == 'linked' || connectionReplyState.state == 'unlinked') && connectionReplyState.state == 'linked' && connectionReplyState.verified}"
+              },
+              {
+                "type": "SetValue",
+                "componentId": "imageWidget",
+                "property": "connectionRevision",
+                "value": "${connectionReplyState.revision}",
+                "when": "${connectionReplyState.revision >= connectionRevision && (connectionReplyState.state == 'linked' || connectionReplyState.state == 'unlinked')}"
+              }
+            ]
+          },
+          {
+            "minimumDelay": 1000,
+            "when": "${connectionKey && connectionKey != watchedConnectionKey}",
+            "commands": [
+              {
+                "type": "SetValue",
+                "componentId": "imageWidget",
+                "property": "watchedConnectionKey",
+                "value": "${connectionKey}"
+              },
+              {
+                "type": "DataStore:WatchObject",
+                "namespace": "SolarAccountImagesV3",
+                "key": "${connectionKey}"
+              },
+              {
+                "type": "DataStore:GetObject",
+                "namespace": "SolarAccountImagesV3",
+                "key": "${connectionKey}",
+                "token": "connection-state"
+              }
+            ]
+          },
+          {
+            "minimumDelay": 1000,
+            "when": "${connectionKey && connectionEventKey == connectionKey && connectionEnvelope.version == 1 && connectionEnvelope.revision > connectionRevision && (connectionEnvelope.state == 'linked' || connectionEnvelope.state == 'unlinked')}",
+            "commands": [
+              {
+                "type": "SetValue",
+                "componentId": "imageWidget",
+                "property": "linkResumePending",
+                "value": "${connectionEnvelope.state == 'linked'}"
+              },
+              {
+                "type": "SetValue",
+                "componentId": "imageWidget",
+                "property": "linkPaused",
+                "value": "${connectionEnvelope.state == 'unlinked'}"
+              },
+              {
+                "type": "SetValue",
+                "componentId": "imageWidget",
+                "property": "connectionStatus",
+                "value": "${connectionEnvelope.state == 'unlinked' ? 'Bitte Konto in der Alexa-App verknüpfen' : 'Verbindung wird geprüft'}"
+              },
+              {
+                "type": "SetValue",
+                "componentId": "imageWidget",
+                "property": "connectionRevision",
+                "value": "${connectionEnvelope.revision}"
+              },
+              {
+                "type": "SetValue",
+                "componentId": "imageWidget",
+                "property": "retryDelayMs",
+                "value": 60000
+              },
+              {
+                "type": "SetValue",
+                "componentId": "imageWidget",
+                "property": "requestPending",
+                "value": false
+              },
+              {
+                "type": "SetValue",
+                "componentId": "imageWidget",
+                "property": "wakePending",
+                "value": false
+              },
+              {
+                "type": "SetValue",
+                "componentId": "imageWidget",
+                "property": "nextRefreshAt",
+                "value": "${elapsedTime}"
+              }
+            ]
+          },
+          {
+            "minimumDelay": 1000,
+            "when": "${!linkPaused && !linkResumePending && displayState != \"hidden\" && displaySnapshot.sampleTime > lastGoodSampleTime}",
+            "commands": [
+              {
+                "type": "SetValue",
+                "componentId": "imageWidget",
+                "property": "lastGoodSampleTime",
+                "value": "${displaySnapshot.sampleTime}"
+              },
+              {
+                "type": "SetValue",
+                "componentId": "imageWidget",
+                "property": "retryDelayMs",
+                "value": 60000
+              },
+              {
+                "type": "SetValue",
+                "componentId": "imageWidget",
+                "property": "requestPending",
+                "value": false
+              },
+              {
+                "type": "SetValue",
+                "componentId": "imageWidget",
+                "property": "connectionStatus",
+                "value": ""
+              },
+              {
+                "type": "SetValue",
+                "componentId": "imageWidget",
+                "property": "nextRefreshAt",
+                "value": "${elapsedTime + 60000}"
+              }
+            ]
+          },
+          {
+            "minimumDelay": 1000,
+            "when": "${!linkPaused && displayState != \"hidden\" && wakePending && utcTime >= lastWakeAt + 3000 && ((!requestPending && retryDelayMs == 60000) || elapsedTime >= nextRefreshAt)}",
             "commands": [
               {
                 "type": "SetValue",
@@ -67,7 +279,25 @@
                 "type": "SetValue",
                 "componentId": "imageWidget",
                 "property": "nextRefreshAt",
-                "value": "${elapsedTime + 60000}"
+                "value": "${elapsedTime + retryDelayMs}"
+              },
+              {
+                "type": "SetValue",
+                "componentId": "imageWidget",
+                "property": "requestPending",
+                "value": true
+              },
+              {
+                "type": "SetValue",
+                "componentId": "imageWidget",
+                "property": "connectionStatus",
+                "value": "Verbindung prüfen: Alexa-App"
+              },
+              {
+                "type": "SetValue",
+                "componentId": "imageWidget",
+                "property": "retryDelayMs",
+                "value": "${Math.min(retryDelayMs * 2, 900000)}"
               },
               {
                 "type": "SendEvent",
@@ -76,7 +306,8 @@
                   {
                     "trigger": "reveal",
                     "shownElapsedMs": "${shownAt}",
-                    "sentElapsedMs": "${elapsedTime}"
+                    "sentElapsedMs": "${elapsedTime}",
+                    "connectionVersion": 2
                   }
                 ],
                 "flags": {
@@ -89,13 +320,31 @@
           },
           {
             "minimumDelay": 1000,
-            "when": "${displayState != \"hidden\" && !wakePending && elapsedTime >= nextRefreshAt}",
+            "when": "${!linkPaused && displayState != \"hidden\" && !wakePending && elapsedTime >= nextRefreshAt}",
             "commands": [
               {
                 "type": "SetValue",
                 "componentId": "imageWidget",
                 "property": "nextRefreshAt",
-                "value": "${elapsedTime + 60000}"
+                "value": "${elapsedTime + retryDelayMs}"
+              },
+              {
+                "type": "SetValue",
+                "componentId": "imageWidget",
+                "property": "requestPending",
+                "value": true
+              },
+              {
+                "type": "SetValue",
+                "componentId": "imageWidget",
+                "property": "connectionStatus",
+                "value": "Verbindung prüfen: Alexa-App"
+              },
+              {
+                "type": "SetValue",
+                "componentId": "imageWidget",
+                "property": "retryDelayMs",
+                "value": "${Math.min(retryDelayMs * 2, 900000)}"
               },
               {
                 "type": "SendEvent",
@@ -104,7 +353,8 @@
                   {
                     "trigger": "minute",
                     "shownElapsedMs": "${shownAt}",
-                    "sentElapsedMs": "${elapsedTime}"
+                    "sentElapsedMs": "${elapsedTime}",
+                    "connectionVersion": 2
                   }
                 ],
                 "flags": {
@@ -241,14 +491,14 @@
                 {
                   "type": "Container",
                   "width": "100%",
-                  "height": "${Math.floor(28 * layoutScale)}",
+                  "height": "${Math.floor(((displaySnapshot.stamp && !linkPaused) ? 28 : 48) * layoutScale)}",
                   "items": [
                     {
                       "type": "Text",
-                      "text": "${displaySnapshot.stamp}",
+                      "text": "${linkPaused ? ('Bitte Konto in der Alexa-App verknüpfen' + (displaySnapshot.stamp ? '\\n' + displaySnapshot.stamp : '')) : (displaySnapshot.stamp ? displaySnapshot.stamp : connectionStatus)}",
                       "fontSize": "${Math.floor(16 * layoutScale)}",
                       "color": "${displaySnapshot.stale ? '#FF6E6E' : '#FFD166'}",
-                      "maxLines": 1,
+                      "maxLines": "${(displaySnapshot.stamp && !linkPaused) ? 1 : 2}",
                       "width": "100%"
                     }
                   ],
@@ -256,7 +506,7 @@
                 },
                 {
                   "type": "Text",
-                  "text": "1.1.0 (Build 2111)",
+                  "text": "1.1.0 (Build 2211)",
                   "fontSize": "${Math.floor(14 * layoutScale)}",
                   "color": "white",
                   "spacing": "${Math.floor(5 * layoutScale)}",
@@ -292,7 +542,25 @@
             "type": "SetValue",
             "componentId": "imageWidget",
             "property": "nextRefreshAt",
-            "value": "${elapsedTime + 60000}"
+            "value": "${elapsedTime + retryDelayMs}"
+          },
+          {
+            "type": "SetValue",
+            "componentId": "imageWidget",
+            "property": "requestPending",
+            "value": true
+          },
+          {
+            "type": "SetValue",
+            "componentId": "imageWidget",
+            "property": "connectionStatus",
+            "value": "Verbindung prüfen: Alexa-App"
+          },
+          {
+            "type": "SetValue",
+            "componentId": "imageWidget",
+            "property": "retryDelayMs",
+            "value": "${Math.min(retryDelayMs * 2, 900000)}"
           },
           {
             "type": "SendEvent",
@@ -301,14 +569,16 @@
               {
                 "trigger": "mount",
                 "shownElapsedMs": "${shownAt}",
-                "sentElapsedMs": "${elapsedTime}"
+                "sentElapsedMs": "${elapsedTime}",
+                "connectionVersion": 2
               }
             ],
             "flags": {
               "interactionMode": "INLINE"
             },
             "componentId": "imageWidget",
-            "sequencer": "solarDirectValues"
+            "sequencer": "solarDirectValues",
+            "when": "${!linkPaused}"
           }
         ]
       }
@@ -337,8 +607,22 @@
       "value": "${event.data}",
       "componentId": "imageWidget",
       "type": "SetValue",
-      "when": "",
+      "when": "${event.namespace == 'SolarAccountImagesV3' && event.key == 'snapshot'}",
       "property": "snapshot"
+    },
+    {
+      "type": "SetValue",
+      "componentId": "imageWidget",
+      "property": "connectionEnvelope",
+      "value": "${event.data}",
+      "when": "${event.namespace == 'SolarAccountImagesV3' && event.key != 'snapshot' && event.data && event.data.version == 1}"
+    },
+    {
+      "type": "SetValue",
+      "componentId": "imageWidget",
+      "property": "connectionEventKey",
+      "value": "${event.key}",
+      "when": "${event.namespace == 'SolarAccountImagesV3' && event.key != 'snapshot' && event.data && event.data.version == 1}"
     }
   ],
   "DataStore:OnObjectChanged": [
@@ -346,8 +630,22 @@
       "value": "${event.data}",
       "componentId": "imageWidget",
       "type": "SetValue",
-      "when": "",
+      "when": "${event.namespace == 'SolarAccountImagesV3' && event.key == 'snapshot'}",
       "property": "snapshot"
+    },
+    {
+      "type": "SetValue",
+      "componentId": "imageWidget",
+      "property": "connectionEnvelope",
+      "value": "${event.data}",
+      "when": "${event.namespace == 'SolarAccountImagesV3' && event.key != 'snapshot' && event.data && event.data.version == 1}"
+    },
+    {
+      "type": "SetValue",
+      "componentId": "imageWidget",
+      "property": "connectionEventKey",
+      "value": "${event.key}",
+      "when": "${event.namespace == 'SolarAccountImagesV3' && event.key != 'snapshot' && event.data && event.data.version == 1}"
     }
   ],
   "onMount": [

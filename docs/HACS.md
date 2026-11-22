@@ -30,3 +30,5 @@ In den Optionen **Relay-Daten und Verknüpfung löschen** entfernt nach Bestäti
 Die Expertenoption ist für einen selbst betriebenen kompatiblen Kontodienst mit eigener Adresse. [Anleitung für eigene Infrastruktur](EINFACH-EINRICHTEN.md) · [Betreiberhinweise](PUBLIC-ENROLLMENT.md).
 
 [Bedienung](ANLEITUNG.md) · [Datenschutz](https://solaranlage-kontodienst.kulmi84.workers.dev/privacy) · [Kontakt](https://solaranlage-kontodienst.kulmi84.workers.dev/contact)
+
+Hinweis für Alexa+: **„Alexa, öffne meine Solaranlage Skill.“**

@@ -222,3 +222,47 @@ lokale vollstaendige private Sicherung: Sicherungen/Gesamtstand-Build2111-2026-1
 Vor Ruecknahme frische genaue Konto/Geraet/Paket/Instanz/Generation pruefen,
 Widerrufe nicht zuruecksetzen, keinen Testmoduswechsel als Reparaturversuch.
 Nur bestehenden PR22 aktualisieren; kein main-Push/kein Merge in diesem Auftrag.
+
+22.11.2026: Beauftragter Folgestand, NOCH NICHT bereitgestellt/eingereicht.
+Kleine Store-Kachel: neutraler Verbindungshinweis statt leerer Standzeile,
+Anfrageabstaende bei Fehler/fehlender Antwort 1/2/4/8/max15 Minuten.
+Erfolgreiche Antwort oder neuer Snapshot stellt60Sekunden wieder her.
+Letzte Werte/Originalzeit unveraendert. Neue Verbindungsversion1 als streng
+geprueftes Opt-in; alte Clients und DEV erhalten ihre bisherigen Antworten.
+DEV-Dokument, Worker, Datenbank, Zuordnungen, Vollbild und Sprachlogik unveraendert.
+Nutzer-Aufrufbeispiel fuer Alexa+ ausdruecklich: Alexa, oeffne meine Solaranlage Skill.
+Nur Beispiel/Anleitung/Store-Text; NICHT den Aufrufnamen oder das Sprachmodell aendern.
+Aktuelle Zertifizierung2111 nicht eigenmaechtig zurueckziehen. Fuer Ausrollen
+Paket UND Backend notwendig, danach Echo-Abnahme. Keine Cloudflare-Ersparnis
+vor Auslieferung behaupten. Fallquellen .private/solar-v3/connection-backoff-20261122/.
+
+
+22.11.2026, freigegebener Kontostatus-Folgestand fuer Store Build2211:
+Nutzer genehmigte gezielt Handler, Worker und gespeicherten Status fuer
+Abrufstopp und automatischen Wiederanlauf. connectionVersion2 ist nur fuer
+SolarAccountImageBuild1211 vorgesehen; CONNECTION_STATUS_ENABLED bleibt ohne
+explizite Aktivierung aus. Neue Tabellen in connection-schema.sql zuerst anwenden.
+Nur ein explizites SkillDisabled-Ereignis bestaetigt hier unlinked. Fehlender Token,
+401, fehlende Registrierung, Grant-Ablauf und nie beobachtete Verknuepfung bleiben
+UNKNOWN; solche Kacheln werden NICHT dauerhaft gestoppt. Keine Kontoverluste erfinden.
+Ein gestoppter Client beobachtet einen exakten Konto/Geraet/Paket/Instanz-Steuerschluessel.
+Ein frisches authentifiziertes SkillAccountLinked-Ereignis sendet nur einen Weckhinweis.
+Erst ein neuer echter Kachelabruf mit aktueller Link-Ereignisautoritaet, gueltigem
+Haushaltsgrant und unveraenderter Generation darf neu registrieren. Widerrufe bleiben
+historisch erhalten; explizit entfernte Instanzen bleiben gesperrt. Keine blinde
+Wiederaktivierung alter Bindungen. Steuerobjekte enthalten keine Messwerte/Token.
+Zustellfehler bleiben in einer begrenzten Warteschlange fuer den bestehenden Cron;
+kein weiterer Cron/Worker. Keine dauerhafte Statusabfrage bei bestaetigtem Stopp.
+Bei komplettem Neuladen ist eine initiale Statuspruefung weiterhin erforderlich.
+Antworten setzen nur literale Steuerdaten. Komponentenlokale Revisions-/Pausepruefung
+IM ROOT-TICK, nicht in ExecuteCommands-/dokumentweiten Handler-Ausdruecken!
+Sprache, DEV-Paket, Vollbild, gesunde60s/Einblendabrufe und Messwertformat bleiben.
+Dieser Folgestand ist lokal umgesetzt/getestet, NICHT ausgerollt oder Echo-abgenommen.
+Vorherige Development-Bereitstellung2211 enthaelt erst das alte v1-Backoff-Protokoll;
+Live bleibt2111. Zertifizierung2111 wurde auf Nutzerauftrag zurueckgezogen (HTTP204);
+2211 wurde noch nicht neu eingereicht. Keine aktuelle Zertifizierung behaupten.
+Importfalle: Paketversion liegt unter manifest.version. Ein im vollstaendigen
+Skill-Paket fehlendes InteractionModel wird bei Amazon GELOESCHT, nicht bewahrt.
+Originalmodell immer mitliefern und nach Import bytegleich pruefen; bei2211 bereits
+zwischenzeitlich geloeschtes Development-Modell wurde exakt wiederhergestellt.
+Quellen/Tests/Ruecksprung: .private/solar-v3/connection-backoff-20261122/account-link-stop/.

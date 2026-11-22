@@ -9,3 +9,5 @@
 - Vollständige private Sicherung mit Quellen, Konfiguration, Einreichungsbelegen und Wiederherstellungsweg liegt lokal. Keine privaten Daten in GitHub.
 
 [Quellen](../cloudflare/echo-values) · [Wiederherstellung](ALEXA-WIEDERHERSTELLUNG-2111.md)
+
+Folgestand 22.11.: **1.1.0 (Build2211)** lokal vorbereitet: Verbindungshinweis, Fehler-Backoff sowie freigegebener bestätigter Abrufstopp/Wiederanlauf. [Umfang und Grenzen](ALEXA-KACHEL-VERBINDUNG.md). Die Prüfung2111 wurde auf Nutzerauftrag zurückgezogen. Die neue Status-Erweiterung ist weder ausgerollt noch am Echo geprüft; bisheriger Live-Code bleibt2111. Development enthält bisher nur den vorherigen Backoff-Stand. Sprachmodell und bestehendes Aufrufbeispiel bleiben erhalten, Alexa+ erhält nur einen zusätzlichen Hinweis.

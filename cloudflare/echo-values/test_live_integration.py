@@ -239,21 +239,26 @@ class WidgetTemplateTests(unittest.TestCase):
   dev=json.loads((HERE/'dev-widget/documents/document.json').read_text(encoding='utf-8'))
   live=self.document()
   visual=lambda d:json.dumps(d['mainTemplate']['items'][0]['items'],ensure_ascii=False)
-  self.assertEqual(visual(dev).replace('DEV · 1.1.0 (Build 2111)','1.1.0 (Build 2111)'),visual(live))
+  # The authorized empty/error status changes only the timestamp slot.
+  live_items=live['mainTemplate']['items'][0]['items'][0]['item']['items']
+  dev_items=dev['mainTemplate']['items'][0]['items'][0]['item']['items']
+  live_items[4]=copy.deepcopy(dev_items[4])
+  self.assertEqual(visual(dev).replace('DEV \u00b7 1.1.0 (Build 2111)','1.1.0 (Build 2111)'),visual(live).replace('1.1.0 (Build 2211)','1.1.0 (Build 2111)'))
  def test_mount_fetch_and_refresh_deadline(self):
   root=self.document()['mainTemplate']['items'][0]
   event=[c for c in root['onMount'] if c['type']=='SendEvent']
   self.assertEqual(len(event),1)
   self.assertEqual(event[0]['arguments'][1]['trigger'],'mount')
   deadlines=[c['value'] for c in root['onMount'] if c.get('property')=='nextRefreshAt']
-  self.assertEqual(deadlines,['${elapsedTime + 60000}'])
+  self.assertEqual(deadlines,['${elapsedTime + retryDelayMs}'])
  def test_reveal_and_minute_are_separate_and_do_not_fire_hidden(self):
   doc=self.document();root=doc['mainTemplate']['items'][0]
   self.assertTrue(any(c.get('property')=='wakePending' and c['value'] is True for c in doc['onDisplayStateChange']))
   triggers=[]
-  for tick in root['handleTick']:
+  for tick in [t for t in root['handleTick'] if any(c.get('type')=='SendEvent' for c in t['commands'])]:
    self.assertIn('displayState != "hidden"',tick['when'])
-   self.assertTrue(any(c.get('property')=='nextRefreshAt' and c['value']=='${elapsedTime + 60000}' for c in tick['commands']))
+   if any(c['type']=='SendEvent' for c in tick['commands']):
+    self.assertTrue(any(c.get('property')=='nextRefreshAt' and c['value']=='${elapsedTime + retryDelayMs}' for c in tick['commands']))
    triggers.extend(c['arguments'][1]['trigger'] for c in tick['commands'] if c['type']=='SendEvent')
   self.assertEqual(triggers,['reveal','minute'])
   self.assertNotIn('"type": "Image"',json.dumps(doc))

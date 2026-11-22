@@ -40,7 +40,10 @@ def widget_trigger(arguments, receipt=False):
         raise ValueError('invalid_widget_trigger')
     marker=arguments[1]
     keys={'trigger','shownElapsedMs','sentElapsedMs'} | ({'ackElapsedMs'} if receipt else set())
-    if set(marker)!=keys or marker.get('trigger') not in ('mount','reveal','minute'):
+    optional={'connectionVersion'} if 'connectionVersion' in marker else set()
+    if optional and (type(marker['connectionVersion']) is not int or marker['connectionVersion'] not in (1,2)):
+        raise ValueError('invalid_widget_trigger')
+    if set(marker)!=keys|optional or marker.get('trigger') not in ('mount','reveal','minute'):
         raise ValueError('invalid_widget_trigger')
     for key in keys-{'trigger'}:
         if type(marker[key]) not in (int,float) or not 0<=marker[key]<=604800000:
@@ -122,6 +125,8 @@ def registration_requests(event, config):
             marker=widget_trigger(arguments)
         if marker and marker['trigger']!='legacy':
             base['trigger']=marker['trigger']
+            if marker.get('connectionVersion') == 2 and package == 'SolarAccountImageBuild1211':
+                base['connectionVersion']=2
 
         prefix = re.escape('widget://' + skill) + ('_development' if stage == 'development' else '(?:_live)?') + re.escape('/' + package + '/')
 

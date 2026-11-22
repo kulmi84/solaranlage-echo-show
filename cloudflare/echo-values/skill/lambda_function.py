@@ -4016,7 +4016,7 @@ def lambda_handler(event, context):
             'display_prefix':'DEV · ','presentation_token':'solaranlage-dev-1811'}
     if store_cfg is None and primary_cfg and primary_cfg.get('package_id')=='Solaranlage1711R2':
         store_cfg={**primary_cfg,'stage':'live','package_id':'SolarAccountImageBuild1211',
-            'version_label':'1.1.0 (Build 2111)','version_font_size':'1.7vh',
+            'version_label':'1.1.0 (Build 2211)','version_font_size':'1.7vh',
             'display_prefix':'','presentation_token':'solaranlage-store-werte'}
     req = event.get('request', {})
     uri = req.get('presentationUri', '')
@@ -4150,6 +4150,7 @@ def lambda_handler(event, context):
     verified_pv = None
     verified_instance = None
     fullscreen_source = cfg
+    connection = None
 
     try:
 
@@ -4193,6 +4194,12 @@ def lambda_handler(event, context):
                 verified_pv=result['pv']
                 verified_instance=call[1]['instanceId']
 
+            if cfg['package_id']=='SolarAccountImageBuild1211' and (trigger_marker or {}).get('connectionVersion') == 2:
+                candidate=result.get('connection')
+                if (isinstance(candidate,dict) and candidate.get('state') in ('unknown','linked','unlinked')
+                        and isinstance(candidate.get('key'),str) and re.fullmatch(r'connection-[a-f0-9]{64}',candidate['key'])
+                        and type(candidate.get('revision')) is int and 0 <= candidate['revision'] <= 9007199254740991):
+                    connection=candidate
             initial = result.get('snapshot') or initial
 
             registered = result.get('registered') is True or registered
@@ -4251,6 +4258,22 @@ def lambda_handler(event, context):
             commands.append({'type': 'SendEvent', 'sequencer': 'solarValuesReceipt',
                 'flags': {'interactionMode': 'INLINE'},
                 'arguments': receipt_args})
+
+        # Opt-in Store widget protocol only; no DEV, voice or old-package change.
+        if cfg['package_id']=='SolarAccountImageBuild1211' and (trigger_marker or {}).get('connectionVersion') in (1,2):
+            ok = bool(registered and initial and binding and initial.get('binding') == binding)
+            def connection_value(name, value):
+                return {'type':'SetValue','componentId':'imageWidget','property':name,'value':value}
+            commands.extend([connection_value('requestPending', False),
+                             connection_value('connectionStatus', '' if ok else 'Verbindung prüfen: Alexa-App')])
+            if ok:
+                commands.extend([connection_value('retryDelayMs', 60000),
+                                 connection_value('nextRefreshAt', '${elapsedTime + 60000}')])
+            if (trigger_marker or {}).get('connectionVersion') == 2 and connection:
+                # Only literal SetValue payloads cross this document boundary.
+                # Local binding/revision checks run in the root component tick.
+                commands.extend([connection_value('connectionReplyState',{**connection,'verified':ok}),
+                                 connection_value('connectionReplyPending',True)])
 
         return {'version': '1.0', 'response': {
             'shouldEndSession': True,
