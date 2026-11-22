@@ -28,3 +28,8 @@ Freigegebene Erweiterung für Build2211, lokal umgesetzt; noch nicht bereitgeste
 Auslieferung: zuerst `cloudflare/echo-values/connection-schema.sql` additiv anwenden,dann Worker inklusive `account_connection.mjs` bereitstellen. `CONNECTION_STATUS_ENABLED=true` aktiviert ausschließlich das Store-Protokoll2. Dazu gehören Handler und Store-Dokument aus demselben Stand. Keine Datenzuordnungen migrieren oder reaktivieren. Vor Rücknahme zuerst das Flag deaktivieren; Tabellen nicht aus einer alten Sicherung über aktuelle Kontozugänge zurückspielen.
 
 Der vorherige Satz „Worker und Datenbank unverändert“ bezieht sich auf die erste Backoff-Fassung; die oben beschriebene Erweiterung wurde danach ausdrücklich genehmigt. Lokale Tests sind kein Echo-Nachweis. Beim späteren Gerätetest müssen bestätigte Trennung,neue Verknüpfung und drei normale Folgerunden separat beobachtet werden; den funktionierenden DEV-Zugang dafür nicht blind umschalten.
+
+
+## Bereitstellungsstand22.11.
+
+Worker (`ef69b6a5`), additive Tabellen und Aktivierungsflag sind aktiv. Handler15:09 Berlin und vollständiges Store-Paket2211 sind in Development bereitgestellt; Amazon-Pflichtvalidierung erfolgreich. Kein Testmodus- oder Kontowechsel. Sprachmodell und DEV-Paket wurden nach Export bytegleich geprüft. Die direkte Live-Übernahme ist durch die automatische Freigabeprüfung blockiert und wurde abgebrochen; dafür wird eine ausdrückliche aktuelle Produktionsfreigabe benötigt. Store-Einreichung und Echo-Abnahme stehen weiterhin aus. Die Funktion ist deshalb noch nicht bei bestehenden Store-Kacheln wirksam.

@@ -266,3 +266,23 @@ Skill-Paket fehlendes InteractionModel wird bei Amazon GELOESCHT, nicht bewahrt.
 Originalmodell immer mitliefern und nach Import bytegleich pruefen; bei2211 bereits
 zwischenzeitlich geloeschtes Development-Modell wurde exakt wiederhergestellt.
 Quellen/Tests/Ruecksprung: .private/solar-v3/connection-backoff-20261122/account-link-stop/.
+
+
+22.11.2026, Teilbereitstellung2211 nach erneutem Nutzerauftrag bitte umsetzen:
+Additive Tabellenmigration erfolgreich ausgefuehrt; keine manuellen Aenderungen
+an Haushalten,OAuth-Zugaengen oder Geraete-/Instanzzuordnungen. Worker-Code c0b5e5f6,
+aktiver Worker inklusive CONNECTION_STATUS_ENABLED=true: ef69b6a5. Bestehender
+Minuten-Cron unveraendert. Dashboard-Buendel besteht dieselben61 Worker-Tests.
+Handler/Parser in Development15:09 Berlin bereitgestellt; beide Quellen vor
+Bereitstellung exakt gegen den geprueften Kandidaten nachgelesen. Vollstaendiger
+Paketimport SUCCEEDED, Pflichtvalidierung SUCCESSFUL. Frischer Rueckexport:
+Sprachmodell und DEV-Paket bytegleich, Store-Dokument exakt; Amazon erneuerte
+nur Preview-Links, Bildinhalte unveraendert. Zwei anonyme Runtime-Anfragen korrekt401.
+Direkte Live-Promotion bei Yes automatisch abgelehnt: explizite aktuelle
+Freigabe fuer genau die Produktionsuebernahme verlangt. Dialog abgebrochen,
+KEINE Umgehung und KEINE neue Store-Einreichung. Live-Handler weiterhin21.11.17:43.
+Nicht als vollstaendig ausgerollt oder Echo-abgenommen ausgeben. Vor Abschluss
+Live-Promotion samt anschliessender Einreichung explizit freigeben lassen.
+Belege/private Vorher-/Nachherquellen und Datenbank-Lesezeichen:
+.private/solar-v3/connection-backoff-20261122/account-link-stop/deployment/.
+Datenbank-Lesezeichen NICHT fuer einen pauschalen OAuth-/Zuordnungsrollback benutzen.

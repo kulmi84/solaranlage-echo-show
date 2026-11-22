@@ -11,3 +11,6 @@
 [Quellen](../cloudflare/echo-values) · [Wiederherstellung](ALEXA-WIEDERHERSTELLUNG-2111.md)
 
 Folgestand 22.11.: **1.1.0 (Build2211)** lokal vorbereitet: Verbindungshinweis, Fehler-Backoff sowie freigegebener bestätigter Abrufstopp/Wiederanlauf. [Umfang und Grenzen](ALEXA-KACHEL-VERBINDUNG.md). Die Prüfung2111 wurde auf Nutzerauftrag zurückgezogen. Die neue Status-Erweiterung ist weder ausgerollt noch am Echo geprüft; bisheriger Live-Code bleibt2111. Development enthält bisher nur den vorherigen Backoff-Stand. Sprachmodell und bestehendes Aufrufbeispiel bleiben erhalten, Alexa+ erhält nur einen zusätzlichen Hinweis.
+
+
+**Bereitstellung22.11.:** Worker inklusive Statustabellen und Aktivierungsflag ist aktiv (`ef69b6a5`). Handler und vollständiges Paket2211 in Development bereitgestellt; Amazon-Validierung erfolgreich. Sprachmodell,DEV-Paket und Bildvorschauinhalte im Rückexport unverändert. Direkte Live-Promotion wurde durch die automatische Freigabeprüfung blockiert und abgebrochen; Live-Handler bleibt auf21.11.17:43, Store-Einreichung2211 noch offen. Kein Echo-Nachweis der neuen Statusfunktion.
