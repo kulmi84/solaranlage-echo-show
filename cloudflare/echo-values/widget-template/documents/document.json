@@ -96,6 +96,14 @@
           {
             "name": "connectionReplyPending",
             "value": false
+          },
+          {
+            "name": "retryPaused",
+            "value": false
+          },
+          {
+            "name": "retryFailures",
+            "value": 0
           }
         ],
         "handleTick": [
@@ -135,7 +143,21 @@
                 "componentId": "imageWidget",
                 "property": "linkResumePending",
                 "value": false,
-                "when": "${connectionReplyState.revision >= connectionRevision && (connectionReplyState.state == 'linked' || connectionReplyState.state == 'unlinked') && connectionReplyState.state == 'linked' && connectionReplyState.verified}"
+                "when": "${connectionReplyState.revision >= connectionRevision && connectionReplyState.state != 'unlinked' && connectionReplyState.verified}"
+              },
+              {
+                "type": "SetValue",
+                "componentId": "imageWidget",
+                "property": "retryPaused",
+                "value": "${connectionReplyState.retryPaused == true && !connectionReplyState.verified && !displaySnapshot.sampleTime && !displaySnapshot.stamp}",
+                "when": "${connectionReplyState.revision >= connectionRevision}"
+              },
+              {
+                "type": "SetValue",
+                "componentId": "imageWidget",
+                "property": "retryFailures",
+                "value": "${connectionReplyState.retryFailures}",
+                "when": "${connectionReplyState.revision >= connectionRevision && connectionReplyState.retryFailures >= 0 && connectionReplyState.retryFailures <= 6}"
               },
               {
                 "type": "SetValue",
@@ -171,19 +193,20 @@
           },
           {
             "minimumDelay": 1000,
-            "when": "${connectionKey && connectionEventKey == connectionKey && connectionEnvelope.version == 1 && connectionEnvelope.revision > connectionRevision && (connectionEnvelope.state == 'linked' || connectionEnvelope.state == 'unlinked')}",
+            "when": "${connectionKey && connectionEventKey == connectionKey && connectionEnvelope.version == 1 && connectionEnvelope.revision > connectionRevision && (connectionEnvelope.state == 'linked' || connectionEnvelope.state == 'unlinked' || connectionEnvelope.state == 'retry')}",
             "commands": [
               {
                 "type": "SetValue",
                 "componentId": "imageWidget",
                 "property": "linkResumePending",
-                "value": "${connectionEnvelope.state == 'linked'}"
+                "value": "${connectionEnvelope.state != 'unlinked'}"
               },
               {
                 "type": "SetValue",
                 "componentId": "imageWidget",
                 "property": "linkPaused",
-                "value": "${connectionEnvelope.state == 'unlinked'}"
+                "value": "${connectionEnvelope.state == 'unlinked'}",
+                "when": "${connectionEnvelope.state != 'retry'}"
               },
               {
                 "type": "SetValue",
@@ -220,6 +243,20 @@
                 "componentId": "imageWidget",
                 "property": "nextRefreshAt",
                 "value": "${elapsedTime}"
+              },
+              {
+                "type": "SetValue",
+                "componentId": "imageWidget",
+                "property": "retryPaused",
+                "value": false,
+                "when": "${connectionEnvelope.state != 'unlinked'}"
+              },
+              {
+                "type": "SetValue",
+                "componentId": "imageWidget",
+                "property": "retryFailures",
+                "value": 0,
+                "when": "${connectionEnvelope.state != 'unlinked'}"
               }
             ]
           },
@@ -256,12 +293,24 @@
                 "componentId": "imageWidget",
                 "property": "nextRefreshAt",
                 "value": "${elapsedTime + 60000}"
+              },
+              {
+                "type": "SetValue",
+                "componentId": "imageWidget",
+                "property": "retryPaused",
+                "value": false
+              },
+              {
+                "type": "SetValue",
+                "componentId": "imageWidget",
+                "property": "retryFailures",
+                "value": 0
               }
             ]
           },
           {
             "minimumDelay": 1000,
-            "when": "${!linkPaused && displayState != \"hidden\" && wakePending && utcTime >= lastWakeAt + 3000 && ((!requestPending && retryDelayMs == 60000) || elapsedTime >= nextRefreshAt)}",
+            "when": "${!retryPaused && !linkPaused && displayState != \"hidden\" && wakePending && utcTime >= lastWakeAt + 3000 && ((!requestPending && retryDelayMs == 60000) || elapsedTime >= nextRefreshAt)}",
             "commands": [
               {
                 "type": "SetValue",
@@ -307,7 +356,7 @@
                     "trigger": "reveal",
                     "shownElapsedMs": "${shownAt}",
                     "sentElapsedMs": "${elapsedTime}",
-                    "connectionVersion": 2
+                    "connectionVersion": 3
                   }
                 ],
                 "flags": {
@@ -320,7 +369,7 @@
           },
           {
             "minimumDelay": 1000,
-            "when": "${!linkPaused && displayState != \"hidden\" && !wakePending && elapsedTime >= nextRefreshAt}",
+            "when": "${!retryPaused && !linkPaused && displayState != \"hidden\" && !wakePending && elapsedTime >= nextRefreshAt}",
             "commands": [
               {
                 "type": "SetValue",
@@ -354,7 +403,7 @@
                     "trigger": "minute",
                     "shownElapsedMs": "${shownAt}",
                     "sentElapsedMs": "${elapsedTime}",
-                    "connectionVersion": 2
+                    "connectionVersion": 3
                   }
                 ],
                 "flags": {
@@ -495,7 +544,7 @@
                   "items": [
                     {
                       "type": "Text",
-                      "text": "${linkPaused ? ('Bitte Konto in der Alexa-App verknüpfen' + (displaySnapshot.stamp ? '\\n' + displaySnapshot.stamp : '')) : (displaySnapshot.stamp ? displaySnapshot.stamp : connectionStatus)}",
+                      "text": "${linkPaused ? ('Bitte Konto in der Alexa-App verknüpfen' + (displaySnapshot.stamp ? '\\n' + displaySnapshot.stamp : '')) : (retryPaused ? 'Keine Verbindung. Bitte Skill öffnen.' : (displaySnapshot.stamp ? displaySnapshot.stamp : connectionStatus))}",
                       "fontSize": "${Math.floor(16 * layoutScale)}",
                       "color": "${displaySnapshot.stale ? '#FF6E6E' : '#FFD166'}",
                       "maxLines": "${(displaySnapshot.stamp && !linkPaused) ? 1 : 2}",
@@ -570,7 +619,7 @@
                 "trigger": "mount",
                 "shownElapsedMs": "${shownAt}",
                 "sentElapsedMs": "${elapsedTime}",
-                "connectionVersion": 2
+                "connectionVersion": 3
               }
             ],
             "flags": {
@@ -578,7 +627,7 @@
             },
             "componentId": "imageWidget",
             "sequencer": "solarDirectValues",
-            "when": "${!linkPaused}"
+            "when": "${!linkPaused && !retryPaused}"
           }
         ]
       }

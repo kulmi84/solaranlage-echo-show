@@ -3,7 +3,7 @@
 export const connectionScope = env => env.CONNECTION_STATUS_ENABLED === 'true' && ['live','development'].includes(env.STAGE)
   && env.WIDGET_PACKAGE_ID === 'SolarAccountImageBuild1211'
   && env.DATASTORE_NAMESPACE === 'SolarAccountImagesV3';
-export const connectionClient = (data, env) => connectionScope(env) && data.connectionVersion === 2;
+export const connectionClient = (data, env) => connectionScope(env) && [2,3].includes(data.connectionVersion);
 
 export async function observeConnection(db, env, data, who, occurred, hash) {
   const key = 'connection-' + await hash(JSON.stringify([env.STAGE, who, data.deviceId, data.instanceId, data.packageId]));

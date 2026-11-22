@@ -33,3 +33,17 @@ Der vorherige Satz „Worker und Datenbank unverändert“ bezieht sich auf die 
 ## Bereitstellungsstand22.11.
 
 Worker (`ef69b6a5`), additive Tabellen und Aktivierungsflag sind aktiv. Handler15:09 Berlin in Development und15:23 nach Live übernommen. Vollständiges Store-Paket2211 um15:24:25.448 zur Prüfung mit automatischer Veröffentlichung eingereicht (HTTP202, CERTIFICATION). Amazon-Pflichtvalidierung erfolgreich. Nach Einreichung sind DEV-Paket,Sprachmodell und Store-Dokument bytegleich bestätigt. Kein Testmodus- oder Kontowechsel. Veröffentlichung und Echo-Abnahme stehen aus; bisherige Store-Dokumente erhalten den neuen Clientweg erst durch das veröffentlichte Update.
+
+
+## Vorbereiteter Ruhemodus nach wiederholter fehlender Registrierung
+
+Diese nachträglich beauftragte Erweiterung ist noch nicht in der laufenden2211-Prüfung und noch nicht ausgerollt.
+
+- Protokoll3 zählt nur vom Server bestätigte erfolglose Registrierungen der exakten Instanz. Nach sechs Versuchen mit den bisherigen Abständen (sofort,1,3,7,15,30Minuten) pausiert die leere Kachel und zeigt „Keine Verbindung. Bitte Skill öffnen.“ Das erklärt den Zustand als Verbindungsproblem, nicht als angeblich fehlende Kontoverknüpfung.
+- Der Zähler bleibt über einen vollständigen Neuaufbau der Kachel erhalten. Beim Neuaufbau bleibt eine initiale Statusprüfung erforderlich. Bereits registrierte Kacheln und Kacheln mit gültigen vorhandenen Werten werden nicht in diese zusätzliche Ruhepause versetzt. Vorübergehende Messdatenfehler verbrauchen kein Registrierungsbudget.
+- Eine erfolgreiche Verknüpfung weckt über den bestehenden Steuerweg. Ein erfolgreicher authentifizierter Store-Vollbildstart kann zusätzlich ausschließlich fehlgeschlagene Protokoll3-Instanzen desselben Kontos und Geräts wecken. Automatische Vollbildtimer tun das nicht. Weckfehler unterbrechen das Vollbild nicht; der bestehende Cron versucht die Zustellung erneut.
+- Eine Wecknachricht gibt keine Daten frei. Erst ein frischer Kachelabruf prüft Quellinstanz,aktive Bindung,Haushalt,Generation,aktuelle Grants und Widerrufe erneut. Entfernte Ziel-/Quellinstanzen,anderes Konto/anderes Gerät,gesperrter Haushalt und geänderte Zugangsgeneration bleiben ausgeschlossen. Eine explizite Trennung wird durch einen DEV-gestützten Vollbildstart nicht aufgehoben.
+- Bei vollständig ausbleibenden Antworten ohne bestätigten instanzgenauen Weckkanal bleibt der begrenzte Backoff erhalten. So wird keine Kachel dauerhaft ohne erreichbaren Wiederanlauf stillgelegt.
+- Opt-in: `connectionVersion:3` plus `CONNECTION_RETRY_PAUSE_ENABLED=true`; vorher additiv `retry-schema.sql` anwenden. Bestehende Protokolle1/2 bleiben erhalten. Gesunde Anzeige,Sprache,Vollbild,DEV-Paket und Paketkennungen bleiben unverändert. Die lokale Anzeigeversion bleibt vorerst2211; kein weiterer Versionswechsel beauftragt.
+
+Lokal:215 Python-/73 Worker-Tests, bereitstellbares Bündel73 Tests bestanden. Geräteprüfung und Auslieferung noch offen.

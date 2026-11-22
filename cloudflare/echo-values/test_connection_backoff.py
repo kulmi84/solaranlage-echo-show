@@ -69,7 +69,7 @@ class BackoffDocument(unittest.TestCase):
             send = next(i for i,c in enumerate(commands) if c['type'] == 'SendEvent')
             self.assertTrue(any(c.get('property') == 'nextRefreshAt' and c['value'] == '${elapsedTime + retryDelayMs}' for c in commands[:send]))
             self.assertTrue(any(c.get('property') == 'retryDelayMs' and c['value'] == '${Math.min(retryDelayMs * 2, 900000)}' for c in commands[:send]))
-            self.assertEqual(commands[send]['arguments'][1]['connectionVersion'], 2)
+            self.assertEqual(commands[send]['arguments'][1]['connectionVersion'], 3)
         result = json.loads(subprocess.check_output(['node', str(HERE/'connection-backoff-check.mjs'),
             str(HERE/'widget-template/documents/document.json')], encoding='utf8'))
         self.assertEqual(result['missingReplies'], [0,60000,180000,420000,900000,1800000])
@@ -93,7 +93,7 @@ class BackoffDocument(unittest.TestCase):
     def test_protocol_is_strict_and_does_not_infer_account_link_state(self):
         marker = {'trigger':'minute','shownElapsedMs':0,'sentElapsedMs':60000,'connectionVersion':1}
         self.assertEqual(widget_trigger(['solar.widget.values.register.v1',marker]), marker)
-        for invalid in (True,0,3,'1'):
+        for invalid in (True,0,4,'1'):
             with self.assertRaises(ValueError):
                 widget_trigger(['solar.widget.values.register.v1',{**marker,'connectionVersion':invalid}])
 

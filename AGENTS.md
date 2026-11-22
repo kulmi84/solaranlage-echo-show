@@ -303,3 +303,30 @@ Paketkennungen und Worker wurden in diesem Schritt nicht erneut geaendert.
 Echo-Abnahme der neuen Kontostatusfunktion bleibt offen. Keine Geraeteabnahme
 oder Cloudflare-Gesamtersparnis aus Deployment/Zertifizierung ableiten.
 Freigabe/Live-/Einreichungsbelege: .private/solar-v3/connection-backoff-20261122/account-link-stop/deployment/.
+
+
+22.11.2026, beauftragter Folgeentwurf: Ruhemodus fuer unregistrierte Store-Kacheln.
+Nutzer beauftragte nach der2211-Einreichung ausdruecklich den zusaetzlichen Stopp
+nach wiederholten erfolglosen Registrierungen und Wiederanlauf nach Verknuepfung
+oder erfolgreichem Vollbildstart. Lokaler Kandidat connectionVersion3; bisherige
+Protokolle1/2 und die gerade laufende2211-Zertifizierung bleiben vorerst unveraendert.
+Sechs serverseitig bestaetigte Registrierungsfehlschlaege (0/1/3/7/15/30Minuten)
+setzen retryPaused; das ist KEINE Aussage unlinked. Falsche/duplizierte/alte Events
+verbrauchen keine weiteren Versuche. Erfolgreiche Registrierung setzt den Zaehler
+zurueck; vorhandene gueltige Werte verhindern die lokale Ruhepause. Ohne bestaetigten
+instanzgenauen Weckkanal bleibt begrenzter Backoff statt eines dauerhaften Stopps.
+Zaehler/Weckautoritaet liegen additiv in retry-schema.sql. Aktivierung separat mit
+CONNECTION_RETRY_PAUSE_ENABLED=true; ohne Flag keine neue Zustandsabfrage/-mutation.
+Ein echter erfolgreicher Store-Vollbildstart kann nur fehlgeschlagene Protokoll3-
+Instanzen desselben Kontos/Geraets wecken. Timer sind KEIN Vollbildstart. Weckobjekt
+enthaelt keine Werte und ist KEINE Datenberechtigung. Nachfolgender FRISCHER Kachel-
+abruf prueft Quell-Konto/Geraet/Paket/Instanz, aktive Quelle, Haushalt, Generation,
+Grants und Widerrufe erneut. Explizite Store-Trennung/entfernte Instanzen bleiben
+streng gesperrt. DEV als Datenquelle macht Store nicht zur DEV-Darstellung.
+Alle komponentenlokalen Statuspruefungen bleiben im Root-Tick, Antworten setzen
+nur literale Metadaten. Sprache, Layout bei Verbindung, Vollbild und DEV-Paket bleiben.
+215Python-/73Worker-Tests und dieselben73 Buendeltests bestanden. Kein Echo-Nachweis.
+Quellen, Vorherstand und vollstaendiges Paket: .private/solar-v3/retry-pause-20261122/.
+Noch NICHT ausgerollt, laufende Zertifizierung2211 NICHT zurueckgezogen. Vor einer
+Auslieferung muss ueber das Ersetzen der laufenden Pruefung entschieden werden.
+Keine neue Versionsnummer/Paketkennung eigenmaechtig vergeben.

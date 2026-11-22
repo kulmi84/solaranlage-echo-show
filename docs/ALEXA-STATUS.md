@@ -8,3 +8,10 @@
 - Quellen, aktive Vorher-/Nachherstände, Freigaben und Einreichungsbelege vollständig lokal gesichert. Keine privaten Daten in GitHub. Nur PR22 aktualisiert, kein Merge.
 
 [Quellen](../cloudflare/echo-values) · [Grundlage und Rücksprung2111](ALEXA-WIEDERHERSTELLUNG-2111.md)
+
+
+## Folgeänderung: Ruhemodus für unregistrierte Kacheln
+
+Nachträglich beauftragter Kandidat lokal fertig: Nach sechs erfolglosen Registrierungen keine weiteren automatischen Abrufe der leeren Kachel. Wiederanlauf nach erfolgreicher Kontoverknüpfung oder authentifiziertem Vollbildstart; frischer Kachelabruf prüft die Berechtigung erneut. Bereits vorhandene gültige Werte und registrierte Kacheln werden nicht in diesen Ruhezustand versetzt. 215 Python-/73 Worker-Tests bestanden, ebenso73 Bündeltests.
+
+**Noch nicht Bestandteil der laufenden Amazon-Prüfung2211.** Kein Live-/DEV-Deploy, keine entfernte Migration oder Testmodusänderung für diese Folgeänderung. Die bestehende Prüfung ist weiterhinCERTIFICATION. Auslieferung erfordert eine Entscheidung über deren Rücknahme und erneute Einreichung. Kein Echo-Nachweis.

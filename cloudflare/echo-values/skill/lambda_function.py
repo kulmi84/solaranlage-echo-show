@@ -4170,6 +4170,9 @@ def lambda_handler(event, context):
                   'userId':system.get('user',{}).get('userId'),'deviceId':system.get('device',{}).get('deviceId'),
                   'instanceId':args[3],'occurredAt':req.get('timestamp')},None)]
           for call in calls:
+            if (cfg['package_id']=='SolarAccountImageBuild1211' and (opening or visual_voice or kind=='LaunchRequest')
+                    and call[0] in ('voice','register')):
+                call=(call[0],{**call[1],'resumeWidgetRetries':True},call[2])
             result = send_registration(call, profile)
             if (call[0]=='voice' and result.get('registered') is True
                     and isinstance(result.get('pv'),dict) and result.get('binding')
@@ -4194,12 +4197,17 @@ def lambda_handler(event, context):
                 verified_pv=result['pv']
                 verified_instance=call[1]['instanceId']
 
-            if cfg['package_id']=='SolarAccountImageBuild1211' and (trigger_marker or {}).get('connectionVersion') == 2:
+            if cfg['package_id']=='SolarAccountImageBuild1211' and (trigger_marker or {}).get('connectionVersion') in (2,3):
                 candidate=result.get('connection')
                 if (isinstance(candidate,dict) and candidate.get('state') in ('unknown','linked','unlinked')
                         and isinstance(candidate.get('key'),str) and re.fullmatch(r'connection-[a-f0-9]{64}',candidate['key'])
                         and type(candidate.get('revision')) is int and 0 <= candidate['revision'] <= 9007199254740991):
-                    connection=candidate
+                    connection={k:candidate[k] for k in ('state','key','revision')}
+                    if ((trigger_marker or {}).get('connectionVersion') == 3
+                            and type(candidate.get('retryPaused')) is bool and type(candidate.get('retryFailures')) is int
+                            and 0<=candidate['retryFailures']<=6
+                            and candidate['retryPaused'] == (candidate['retryFailures']>=6)):
+                        connection.update(retryPaused=candidate['retryPaused'],retryFailures=candidate['retryFailures'])
             initial = result.get('snapshot') or initial
 
             registered = result.get('registered') is True or registered
@@ -4260,7 +4268,7 @@ def lambda_handler(event, context):
                 'arguments': receipt_args})
 
         # Opt-in Store widget protocol only; no DEV, voice or old-package change.
-        if cfg['package_id']=='SolarAccountImageBuild1211' and (trigger_marker or {}).get('connectionVersion') in (1,2):
+        if cfg['package_id']=='SolarAccountImageBuild1211' and (trigger_marker or {}).get('connectionVersion') in (1,2,3):
             ok = bool(registered and initial and binding and initial.get('binding') == binding)
             def connection_value(name, value):
                 return {'type':'SetValue','componentId':'imageWidget','property':name,'value':value}
@@ -4269,7 +4277,7 @@ def lambda_handler(event, context):
             if ok:
                 commands.extend([connection_value('retryDelayMs', 60000),
                                  connection_value('nextRefreshAt', '${elapsedTime + 60000}')])
-            if (trigger_marker or {}).get('connectionVersion') == 2 and connection:
+            if (trigger_marker or {}).get('connectionVersion') in (2,3) and connection:
                 # Only literal SetValue payloads cross this document boundary.
                 # Local binding/revision checks run in the root component tick.
                 commands.extend([connection_value('connectionReplyState',{**connection,'verified':ok}),

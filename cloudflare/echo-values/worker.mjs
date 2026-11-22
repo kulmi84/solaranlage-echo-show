@@ -1,4 +1,5 @@
 // Prepared migration candidate. No automatic deployment or household backfill.
+import {retryScope,retryClient,observeRetry,failedRetry,verifiedRetry,queueRetryResume,retryAuthority,flushRetrySignals} from './retry_pause.mjs';
 import {snapshot, skillToken} from './formatting.mjs';
 import {fullscreen} from './fullscreen.mjs';
 import {connectionClient,observeConnection,connectionState,connectionReply,setConnectionState,removeConnections,linkedConnectionRow,flushConnectionSignals} from './account_connection.mjs';
@@ -68,7 +69,7 @@ export async function linked(request,env,now) {
   if(!row)fail(401,'unauthorized');
   return row;
 }
-async function registerUnlocked(request,env,now=Date.now(),send,verifiedLinkRow=null) {
+async function registerUnlocked(request,env,now=Date.now(),send,verifiedLinkRow=null,verifiedFullscreen=false) {
   await internal(request,env);const data=await body(request),occurred=scope(data,env,now);device(data);
   const row=verifiedLinkRow || await linked(request,env,now),who=await subject(data.userId,env),generation=await digest(row.write_hash);
   const previous=env.PUBLISH_MODE==='inline'?await env.DB.prepare('SELECT subject_hash,household,generation FROM echo_value_devices WHERE stage=? AND device_id=?').bind(env.STAGE,data.deviceId).first():null;
@@ -78,6 +79,7 @@ async function registerUnlocked(request,env,now=Date.now(),send,verifiedLinkRow=
   if(connectionClient(data,env)){
     observation=await observeConnection(env.DB,env,data,who,occurred,digest);
     if(!observation.active)fail(409,'stale_event');
+    if(retryClient(data,env))await observeRetry(env.DB,env,who,data);
     const known=await connectionState(env.DB,env,who);
     if(known && occurred<known.occurred_at)fail(409,'stale_event');
   }
@@ -97,14 +99,16 @@ async function registerUnlocked(request,env,now=Date.now(),send,verifiedLinkRow=
   let connection;
   if(connectionClient(data,env)){
     const previousState=await connectionState(env.DB,env,who);
-    if(!verifiedLinkRow && (previousState?.status!=='linked' || previousState.household!==row.id || previousState.generation!==generation))await setConnectionState(env.DB,env,who,'linked',occurred,{id:row.id,generation},'token');
+    if((!verifiedLinkRow || verifiedFullscreen) && (previousState?.status!=='linked' || previousState.household!==row.id || previousState.generation!==generation))await setConnectionState(env.DB,env,who,'linked',occurred,{id:row.id,generation},'token');
     connection=connectionReply(observation,await connectionState(env.DB,env,who));
+    if(retryClient(data,env))connection=await verifiedRetry(env.DB,env,who,data,connection);
   }
   let delivery;
   if(env.PUBLISH_MODE==='inline'&&env.PUBLISH_ENABLED==='true'){
     const contents=[...(changed&&initial?[emptySnapshot()]:[]),...(initial?[initial]:[])];
     if(contents.length)delivery=await deliver(env,[data.deviceId],contents,send);
   }
+  if(data.resumeWidgetRetries===true && initial && retryScope(env))await wakeRetryWidgets(env,who,data.deviceId,occurred,{stage:env.STAGE,packageId:env.WIDGET_PACKAGE_ID,instanceId:data.instanceId,household:row.id,generation},now,send);
   return reply({registered:true,binding:await digest(JSON.stringify([env.STAGE,who,row.id,generation])),...(initial?{snapshot:initial}:{}),...(delivery?{delivery}:{}),...(connection?{connection}:{})});
 }
 async function refreshRegisteredUnlocked(request,env,now,send) {
@@ -119,6 +123,7 @@ async function refreshRegisteredUnlocked(request,env,now,send) {
   if(connectionClient(data,env)){
     const observation=await observeConnection(env.DB,env,data,who,occurred,digest);
     if(!observation.active)fail(409,'stale_event');
+    if(retryClient(data,env))await observeRetry(env.DB,env,who,data);
     const state=await connectionState(env.DB,env,who);
     if(state && occurred<state.occurred_at)fail(409,'stale_event');
     connection=connectionReply(observation,state);
@@ -142,6 +147,12 @@ async function refreshRegisteredUnlocked(request,env,now,send) {
     if(connection){
       const authorized=await linkedConnectionRow(env.DB,env,who,occurred,digest,now);
       if(authorized)return registerUnlocked(retryRequest,env,now,send,authorized);
+      if(retryClient(data,env)){
+        const fromFullscreen=await retryAuthority(env.DB,env,who,data,occurred,digest,now);
+        if(fromFullscreen)return registerUnlocked(retryRequest,env,now,send,fromFullscreen,true);
+        connection=await failedRetry(env.DB,env,who,data,occurred,connection);
+        return reply({registered:false,connection});
+      }
     }
     fail(401,'verified_registration_required');
   }
@@ -149,6 +160,7 @@ async function refreshRegisteredUnlocked(request,env,now,send) {
   if(generation!==row.registered_generation)fail(401,'registration_generation_changed');
   let current;try{current=valueSnapshot(row,now,env);}catch{fail(503,'snapshot_unavailable');}
   const binding=await digest(JSON.stringify([env.STAGE,who,row.id,generation]));
+  if(retryClient(data,env))connection=await verifiedRetry(env.DB,env,who,data,connection);
   // Preserve the original DEV registration delivery path after OAuth expiry.
   // The same scoped reading supplies both the response and one atomic object.
   // Live uses the same atomic delivery after its existing authorization checks.
@@ -224,8 +236,16 @@ async function deliver(env,targets,contents,send){
  if(accepted!==targets.length)fail(503,'delivery_failed');
  return {accepted,failed:0};
 }
+async function wakeRetryWidgets(env,who,deviceId,occurred,source,now,send){
+  try{
+    const queued=await queueRetryResume(env.DB,env,who,deviceId,occurred,source,digest,now);
+    if(queued)await flushRetrySignals(env.DB,env,now,digest,(deviceId,key,content)=>deliver({...env,DATASTORE_KEY:key},[deviceId],[content],send));
+  }catch{console.log(JSON.stringify({event:'widget_retry_wake',result:'retry_later'}));}
+}
 async function connectionSignals(env,now,send){
-  return flushConnectionSignals(env.DB,env,now,(deviceId,key,content)=>deliver({...env,DATASTORE_KEY:key},[deviceId],[content],send));
+  const write=(deviceId,key,content)=>deliver({...env,DATASTORE_KEY:key},[deviceId],[content],send);
+  await flushConnectionSignals(env.DB,env,now,write);
+  await flushRetrySignals(env.DB,env,now,digest,write);
 }
 async function publishUnlocked(env,now=Date.now(),send=(url,init)=>globalThis.fetch(url,init)) {
   if(env.PUBLISH_ENABLED!=='true')return {enabled:false,accepted:0,failed:0,households:0};
@@ -307,6 +327,10 @@ export async function readVoice(request,env,now=Date.now(),send=(url,init)=>glob
  // refresh revalidates it under its stage lock before reading or delivering data.
  const scoped=new Request(request.url,{method:'POST',headers:request.headers,body:JSON.stringify({...data,stage:target.stage,packageId:target.package_id,instanceId:target.instance_id})});
  const result=await(await refreshRegistered(scoped,selected,now,send)).json();
+ if(data.resumeWidgetRetries===true && retryScope(env) && result.registered===true && result.snapshot?.binding===result.binding){
+  try{await locked({...env,__send:send},guarded=>wakeRetryWidgets(env,who,data.deviceId,Date.parse(data.occurredAt),{stage:target.stage,packageId:target.package_id,instanceId:target.instance_id,household:target.household,generation:target.generation},now,guarded));}
+  catch{console.log(JSON.stringify({event:'widget_retry_wake',result:'retry_later'}));}
+ }
  return reply({...result,resolvedStage:target.stage,resolvedPackageId:target.package_id,instanceId:target.instance_id});
 }
 export async function remove(request,env,now=Date.now()){
