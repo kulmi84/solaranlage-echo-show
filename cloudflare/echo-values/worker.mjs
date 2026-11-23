@@ -316,10 +316,12 @@ export async function refreshRegistered(request,env,now=Date.now(),send=(url,ini
 }
 export async function readVoice(request,env,now=Date.now(),send=(url,init)=>globalThis.fetch(url,init)){
  await internal(request,env);const data=await body(request);scope(data,env,now);device(data,false);
+ const tokenHousehold=request.headers.has('Authorization')?await linked(request,env,now):null;
  const who=await subject(data.userId,env);
  const rows=(await env.DB.prepare('SELECT d.stage,d.household,d.generation,h.write_hash,u.instance_id,u.package_id FROM echo_value_devices d JOIN echo_value_usages u ON u.stage=d.stage AND u.device_id=d.device_id AND u.subject_hash=d.subject_hash JOIN households h ON h.id=d.household WHERE d.device_id=? AND d.subject_hash=? AND d.active=1 AND u.active=1 AND h.disabled=0 AND ((d.stage=\'live\' AND u.package_id=?) OR (d.stage=\'development\' AND u.package_id=?)) AND NOT EXISTS(SELECT 1 FROM echo_value_revocations r WHERE r.stage=d.stage AND r.subject_hash=d.subject_hash AND r.revoked_at>=d.updated_at) AND (EXISTS(SELECT 1 FROM access_tokens a WHERE a.tenant=h.id AND a.expires>?) OR EXISTS(SELECT 1 FROM refresh_tokens a WHERE a.tenant=h.id AND a.expires>?))').bind(data.deviceId,who,env.LIVE_PACKAGE_ID||'',env.TEST_PACKAGE_ID||'',Math.floor(now/1000),Math.floor(now/1000)).all()).results;
  const valid=[];for(const row of rows)if(row.generation===await digest(row.write_hash))valid.push(row);
  if(!valid.length)fail(401,'verified_registration_required');
+ if(tokenHousehold && valid.some(row=>row.household!==tokenHousehold.id))fail(401,'account_binding_mismatch');
  if(new Set(valid.map(r=>JSON.stringify([r.household,r.generation]))).size!==1)fail(409,'ambiguous_registration');
  valid.sort((a,b)=>(a.stage==='live'?0:1)-(b.stage==='live'?0:1)||a.instance_id.localeCompare(b.instance_id));
  const target=valid[0],selected={...env,STAGE:target.stage,WIDGET_PACKAGE_ID:target.package_id,DATASTORE_NAMESPACE:target.stage==='live'?env.LIVE_DATASTORE_NAMESPACE:env.TEST_DATASTORE_NAMESPACE,DATASTORE_KEY:'snapshot'};

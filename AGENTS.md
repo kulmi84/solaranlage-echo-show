@@ -347,3 +347,26 @@ Buendeltests bestanden; Amazon-Pflichtvalidierung SUCCESSFUL. KEIN Echo-Nachweis
 Quellen/Status/Vorher-/Nachherbelege: .private/solar-v3/retry-pause-20261122/.
 Rollback zuerst neues Flag deaktivieren; aktuelle Konto-/Widerrufsdaten nie
 mit alten Sicherungen ueberschreiben. Nur PR22 verwenden.
+
+
+23.11.2026, gezielte Live-Vollbildkorrektur Build2211:
+Store-LaunchRequest mit gueltigem Kontotoken hatte registration_requests ohne
+passenden Launch-Fall aufgerufen: keine verifizierte Anfangsmessung/kein
+FullscreenStore-Anschluss, obwohl der anschliessende direkte Abruf Werte zeigte.
+Regressionstest reproduziert dies. Jetzt nutzt nur dieser Store-Start den
+bestehenden exakten Konto/Geraet-Leser mit Token-Haushaltsabgleich im Worker.
+Keine neue Bindung, keine Widerrufsreaktivierung und keine Sprachsitzungsaenderung.
+DEV1811, Paket/Layout/Sprachmodell/Testmodus unveraendert. 216Python-/74Worker-
+und74Buendeltests bestanden. Hosted dc8d51961c306e86009005709df6553d9d41aedd
+auf master und prod bereitgestellt, SMAPI Hosted-Deployment SUCCEEDED.
+Worker b23725e6102d413698495e0705874a24 enthaelt zusaetzlich eine zeitlich und
+auf den eigenen HMAC-Kontobereich begrenzte Ergebnisdiagnose ohne Token/Messwerte.
+Sie endet automatisch nach30Minuten, veraendert keine Antwort/Berechtigung.
+Aktuelle kleine Live-Kachel noch NICHT als repariert/Geraete-abgenommen ausgeben:
+zwei frische eigene Live-Instanzen aktiv; nach Aktivierung der Diagnose bisher
+kein neuer eigener Abruf nachweisbar. Alte Erklaerung "keine aktive Live-Bindung"
+ist fuer diesen neueren Stand ueberholt. Vollbild einmal neu laden fuer neues APL.
+DEV ist derzeit fuer Entwicklerkonto NICHT aktiviert, Live aktiviert (404/204).
+Kein Testmoduswechsel als Reparatur vorgenommen. Wiederherstellung DEV separat
+mit ausdruecklicher Zustimmung und frischem Instanzabruf, nicht alte Widerrufe loeschen.
+Belege/Ruecksprung: .private/solar-v3/device-recovery-20261123/.

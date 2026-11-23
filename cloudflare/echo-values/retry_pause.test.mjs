@@ -5,6 +5,16 @@ import {readFileSync} from 'node:fs';
 import {digest,register,refreshRegistered,unlink,relink,remove,publish,readVoice} from './worker.mjs';
 const now=Date.parse('2026-11-22T12:00:00Z');
 
+test('Authenticated fullscreen verifies token household before reading existing binding',async()=>{
+ const s=await setup();await register(s.req(now,'a'),s.env,now,s.send);
+ const matching=await(await readVoice(s.req(now+1000,'a'),s.env,now+1000,s.send)).json();
+ assert.equal(matching.registered,true);assert.equal(matching.pv.home_w,101);
+ const before=s.calls.length;
+ await assert.rejects(()=>readVoice(s.req(now+2000,'b'),s.env,now+2000,s.send),e=>e.code==='account_binding_mismatch');
+ assert.equal(s.calls.length,before);
+ await assert.rejects(()=>readVoice(s.req(now+2000,'c'),s.env,now+2000,s.send),e=>e.code==='unauthorized');
+});
+
 async function setup(){
  const db=new DatabaseSync(':memory:');
  for(const file of ['../public-beta/schema.sql','./schema.sql','./connection-schema.sql','./retry-schema.sql'])db.exec(readFileSync(new URL(file,import.meta.url),'utf8'));

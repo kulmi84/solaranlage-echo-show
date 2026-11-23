@@ -4156,11 +4156,14 @@ def lambda_handler(event, context):
 
         profiles = [p for p in (primary_cfg,store_cfg,test_cfg,store_dev_cfg) if p] if disabled else [cfg]
         for profile in profiles:
-          if ((kind=='LaunchRequest' or visual_voice or opening or refresh) and not image_access_token(event)
+          if ((kind=='LaunchRequest' or visual_voice or opening or refresh)
+                  and (not image_access_token(event) or (kind=='LaunchRequest'
+                       and isinstance(image_access_token(event),str)
+                       and re.fullmatch(r'[a-f0-9]{64}',image_access_token(event))))
                   and cfg['stage'] in ('live','development') and cfg['package_id']=='SolarAccountImageBuild1211'):
               calls=[('voice',{'stage':cfg['stage'],'packageId':cfg['package_id'],
                   'userId':system.get('user',{}).get('userId'),'deviceId':system.get('device',{}).get('deviceId'),
-                  'occurredAt':req.get('timestamp')},None)]
+                  'occurredAt':req.get('timestamp')},image_access_token(event) if kind=='LaunchRequest' else None)]
           else:
               calls=registration_requests(event, profile)
           if (refresh and cfg['stage']=='development' and cfg['package_id']=='Solaranlage1811'

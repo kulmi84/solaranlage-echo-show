@@ -1,5 +1,5 @@
 {
-  "README.md": "4946b4b8bbcfe1f48e1d35d0044344ecadff85b312aa8bcee790461bed87f36a",
+  "README.md": "355932b95d200a775dbc8198174fb11eb80b7fe9991656baa12d2df713ef1492",
   "account_connection.mjs": "965ec37864fd354aea5f3f972e64251a06a91a3995509aa1074094942ae74abc",
   "account_connection.test.mjs": "fbcf43000645acb042ed1445d8155d7fd0246bee42e0e76c2657da05e83e2187",
   "binding-scope-check.mjs": "0844d80c5df185ff1b44d401b99c6f859b195f799158e8dbac003c5bc68bc475",
@@ -17,11 +17,11 @@
   "retry-pause-check.mjs": "e81f796f4991f97a72c9a9646d9763b94cbbd6b9b177324c110696fd0b90423a",
   "retry-schema.sql": "af6a97fa209500aab013f9b67223f9eff9ef6484ea423c0af1d8d1b71546867d",
   "retry_pause.mjs": "43e37b28225c3037620fd2165f1e3ae42c0377c4dd851b67f5de5f2e66b00098",
-  "retry_pause.test.mjs": "65d5c04cb49966c88b74091c754251b00f877a2e68afd69c4e617641f172d1a0",
+  "retry_pause.test.mjs": "52a593dcb3fb6a48f503e9dd878a96b4f4f528071cc847066117240ed76ec373",
   "schema.sql": "9ad50ff014a282ebafcf3184f56000b2542745f462f21abaf700c96627741ee2",
   "skill-events.merge.json": "b88a6716bed4149731e0c03d055b279089c5940c55595eab758cad3119074d77",
   "skill/fullscreen_store.py": "e799c3104f4ea4988a20bb33546873720222d4a31ab72ca35e84e1e93349eec2",
-  "skill/lambda_function.py": "4fa4f95bf487f4b1c910bdb9616323ff5c2f72b81743f5f2ce87f8fb49d2205e",
+  "skill/lambda_function.py": "918af36637f8a2ae981efd8c218575d9d6bcb82f14d7357ecdf19749c3559c8c",
   "skill/relay_config.example.json": "cfc7f12b10c8132fc47a661cf019ae03e8eee18a5cc78f100137157aa6f0ea7f",
   "skill/requirements.txt": "1f37b52a577bb4ac9d134661a264d1f24cd0b677ea233cdae8c4662acb889b1c",
   "skill/skill_registration.py": "8d6e63d39d80edfd01e45bdaaea9f469efa81df4f2d4054c42890c910da02e10",
@@ -38,7 +38,7 @@
   "test_release_2111.py": "e1b755d79d6bd792b8f34256a52252c228399ada9a1b1ac11fea0115fc034cac",
   "test_retry_pause.py": "7d025249f08a06b1e38d62d8c94abf06e614aaf7a1f5f9ad845e92e1be0852ac",
   "test_skill_registration.py": "002193c9f34893e6dc3958b5b37290d0c4a3192c2b63b41710201180fa912c3b",
-  "test_store_recovery.py": "3dcbe26e5959d42b8c8ca63d58e77c6ace97ed699a8b9f3eaaf57df004893ac3",
+  "test_store_recovery.py": "6bddd95acae7ce50b53c648318ade0702d5d26ea00102b18f921ffe6b653f846",
   "test_tap_retirement.py": "d8584bc59161513e88d5401c233af841afd38b6eba28cf534b7049c50d3e660b",
   "test_voice_bound.py": "002e088b780ed3810c032c29862cbf00c1f5a2fd00afd6fef1f0e6da6e38a3b5",
   "test_voice_release.py": "e02ba8a0ec2714f548a071849a737d37e3555fe5d7c62b4c64030c001048665f",
@@ -46,6 +46,6 @@
   "widget-template/documents/document.json": "922f02d90d1d1148cc4200e8a90e378bffc4b5b22adb98cbe70f86ed62886cf9",
   "widget-template/manifest.json": "08daab2ff37cb2b43532003bb7af050c43280793f19d70a557690f8c395a44cf",
   "widget-template/presentations/default.tpl": "72fef538b2955ce9105368e9b84e32de10f88d0ad39ba2f7c8d804f6a3bd879f",
-  "worker.mjs": "f25adb7842175df874ec7a286d902a8aa4a3264f62b3f638e125ae64803215af",
+  "worker.mjs": "1a82b0f0dd59900c427f063f0a64b08044cbf3fab53b70fdc0384dad9014ca84",
   "worker.test.mjs": "d6e126ce796109daf554546265d09580d47a9a4a5e12133892391f9f219f1b23"
 }

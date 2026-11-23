@@ -1,10 +1,10 @@
-# Projektstatus · 22.11.2026
+# Projektstatus · 23.11.2026
 
-- **1.1.0 (Build 2211)** um20:28 Berlin erneut eingereicht: **CERTIFICATION / In review**, automatische Veröffentlichung nach Amazon-Freigabe. Vorherige Prüfung zurückgezogen; noch nicht veröffentlicht.
-- Ruhemodus mit Handler und Worker ausgerollt. Nach sechs bestätigten erfolglosen Registrierungen pausiert die leere Store-Kachel. Sicherer Wiederanlauf nach erfolgreicher Verknüpfung oder authentifiziertem Store-Vollbildstart; Berechtigung wird frisch geprüft. [Umfang und Grenzen](ALEXA-KACHEL-VERBINDUNG.md).
-- Worker `c10cc302`, zusätzliche Status-Tabelle und Aktivierungsflag aktiv. Handler20:25 in Development und20:27 nach Live übernommen. Bestehender Cron bleibt erhalten.
-- DEV-Paket, Sprachmodell und andere Pakete nach Import bytegleich geprüft. DEV-Verhalten, Sprache, Layout bei Verbindung und Vollbild unverändert; keine Konten-/Testmodusänderung oder Reaktivierung.
-- 215 Python-/73 Worker-/73 Bündeltests und Amazon-Pflichtvalidierung erfolgreich. **Echo-Abnahme der neuen Ruhefunktion und Veröffentlichung offen.** Backend-Erfolg ist kein Gerätenachweis.
-- Quellen und Auslieferungsbelege lokal gesichert; ausschließlich PR22 aktualisiert, kein Merge.
+- **1.1.0 (Build 2211)** ist veröffentlicht; Amazon meldet Live/PUBLISHED seit23.11.10:59 Berlin.
+- Live-Vollbildkorrektur bereitgestellt: Ein authentifizierter Store-Start bindet jetzt den verifizierten Datenspeicher an, statt nur einmal aktuelle Werte zu laden. Token-Haushalt und bestehende Gerätebindung müssen übereinstimmen. Hosted `dc8d519`, Worker `b23725e6`.
+- **216 Python-/74 Worker-/74 Bündeltests erfolgreich. Echo-Abnahme des Fixes offen.** Ein neues Vollbilddokument muss durch erneutes Öffnen geladen werden.
+- Kleine Live-Kachel des Entwicklers noch nicht als repariert bestätigt. Frische Live-Instanzen sind aktiv; während der begrenzten Kontodiagnose kam bisher kein neuer eigener Abruf an. Andere Haushalte erhalten weiterhin von Amazon akzeptierte Zustellungen; das beweist keine sichtbare Anzeige.
+- DEV-Paket, Sprache, Sprachsitzung, Layout, Testmodus und Kontoverknüpfung in diesem Schritt unverändert. Kein Widerruf zurückgesetzt. DEV ist aktuell für das Entwicklerkonto nicht aktiviert; Wiederherstellung separat offen.
+- Ruhemodus2211 bleibt erhalten. Nur PR22 aktualisiert, kein Merge. Quellen und Rücksprung lokal gesichert.
 
-[Quellen](../cloudflare/echo-values) · [Grundlage und Rücksprung2111](ALEXA-WIEDERHERSTELLUNG-2111.md)
+[Grundlage und Rücksprung2111](ALEXA-WIEDERHERSTELLUNG-2111.md)

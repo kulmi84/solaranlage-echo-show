@@ -20,6 +20,19 @@ class StoreRecovery(unittest.TestCase):
   self.event['context']['System']['user'].pop('accessToken')
   self.event['request']['presentationUri']='widget://'+self.skill+'_live/SolarAccountImageBuild1211/one'
   self.g['send_registration']=self.fresh
+ def test_authenticated_store_launch_keeps_datastore_refresh_attached(self):
+  self.event['context']['System']['user']['accessToken']='a'*64
+  self.event['request']={'type':'LaunchRequest','timestamp':'2026-11-23T19:00:00Z'}
+  result=self.invoke()
+  self.assertTrue(self.registrations, 'authenticated launch skipped verified snapshot reader')
+  self.assertEqual(self.registrations[-1][0],'voice')
+  self.assertEqual(self.registrations[-1][2],'a'*64)
+  document=result['response']['directives'][0]['document']
+  self.assertEqual(document['settings']['FullscreenStore']['dataBindings'][0]['namespace'],'SolarAccountImagesV3')
+  self.assertNotIn('SendEvent',str(document['mainTemplate']['items'][0]['handleTick']))
+  self.assertIs(result['response']['shouldEndSession'],True)
+  self.assertNotIn('reprompt',result['response'])
+  self.assertEqual(self.calls,[])
  def test_tokenless_store_open_uses_verified_instance_and_values(self):
   self.event['request']['arguments']=['solar.widget.text.open.v1']
   result=self.invoke()
