@@ -5,7 +5,7 @@ No voice/session changes. No render/layout substitution and no network reads.
 import re
 
 
-def attach(document, snapshot, expires_at, namespace="Solaranlage1811"):
+def attach(document, snapshot, expires_at, namespace="Solaranlage1811", live_fallback=False):
     if namespace not in ("Solaranlage1811", "SolarAccountImagesV3"):
         return False
     binding = snapshot.get('binding')
@@ -70,4 +70,23 @@ def attach(document, snapshot, expires_at, namespace="Solaranlage1811"):
         setv('nextRefreshAt', '${elapsedTime + 60000}', '${currentPage == 0 && (refreshAfterWake || elapsedTime >= nextRefreshAt)}'),
         setv('refreshAfterWake', False),
     ]
+    if live_fallback:
+        # Standard fullscreen viewports cannot rely on widget DataStore access.
+        # Keep the existing reader/timer as fallback; DEV retains its exact tick.
+        initial_deadline = next(b['value'] for b in root['bind'] if b['name'] == 'nextRefreshAt')
+        root['bind'].extend([{'name': 'fsNextNetworkAt', 'value': initial_deadline},
+                             {'name': 'fsWakeNetworkPending', 'value': False}])
+        tick['commands'].insert(1, setv('fsNextNetworkAt', '${elapsedTime + 60000}',
+            '${currentPage == 0 && fsPending.sampleTime > fsSampleTime}'))
+        document.setdefault('onDisplayStateChange', []).append(
+            setv('fsWakeNetworkPending', True, '${event.displayState == "hidden"}'))
+        root['items'][0].setdefault('onPageChanged', []).append(setv('fsNextNetworkAt',
+            '${elapsedTime + (event.source.page == 1 || event.source.value == 1 ? 21600000 : 60000)}'))
+        root['handleTick'].append({'minimumDelay': 1000,
+            'when': '${displayState == "foreground" && utcTime < ' + str(expires_at)
+                    + ' && (fsWakeNetworkPending || elapsedTime >= fsNextNetworkAt)}',
+            'commands': [setv('fsWakeNetworkPending', False),
+                setv('fsNextNetworkAt', '${elapsedTime + (currentPage == 1 ? 21600000 : 60000)}'),
+                {'type': 'SendEvent', 'sequencer': 'solarDevFullscreenRefresh',
+                 'arguments': ['solar.fullscreen.live.auto.v1', expires_at, '${currentPage == 1 ? 1 : 0}']}]})
     return True

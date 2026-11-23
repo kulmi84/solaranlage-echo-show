@@ -1318,7 +1318,8 @@ def native_handler(event, context, *, dev_text=False, live_config=None, verified
     if (dev_text and live_config and live_config.get('_fullscreen_store_snapshot')
             and live_config.get('_fullscreen_store_namespace') in ('Solaranlage1811','SolarAccountImagesV3')):
         from fullscreen_store import attach
-        attach(document, live_config['_fullscreen_store_snapshot'], expires_at, live_config['_fullscreen_store_namespace'])
+        attach(document, live_config['_fullscreen_store_snapshot'], expires_at, live_config['_fullscreen_store_namespace'],
+               live_fallback=live_config.get('stage')=='live' and live_config.get('package_id')=='SolarAccountImageBuild1211')
 
     response = {'directives': [{'type': 'Alexa.Presentation.APL.RenderDocument', 'token': presentation_token, 'document': document}]}
 
@@ -4157,13 +4158,13 @@ def lambda_handler(event, context):
         profiles = [p for p in (primary_cfg,store_cfg,test_cfg,store_dev_cfg) if p] if disabled else [cfg]
         for profile in profiles:
           if ((kind=='LaunchRequest' or visual_voice or opening or refresh)
-                  and (not image_access_token(event) or (kind=='LaunchRequest'
+                  and (not image_access_token(event) or ((kind=='LaunchRequest' or refresh)
                        and isinstance(image_access_token(event),str)
                        and re.fullmatch(r'[a-f0-9]{64}',image_access_token(event))))
                   and cfg['stage'] in ('live','development') and cfg['package_id']=='SolarAccountImageBuild1211'):
               calls=[('voice',{'stage':cfg['stage'],'packageId':cfg['package_id'],
                   'userId':system.get('user',{}).get('userId'),'deviceId':system.get('device',{}).get('deviceId'),
-                  'occurredAt':req.get('timestamp')},image_access_token(event) if kind=='LaunchRequest' else None)]
+                  'occurredAt':req.get('timestamp')},image_access_token(event) if (kind=='LaunchRequest' or refresh) else None)]
           else:
               calls=registration_requests(event, profile)
           if (refresh and cfg['stage']=='development' and cfg['package_id']=='Solaranlage1811'
@@ -4293,7 +4294,8 @@ def lambda_handler(event, context):
                 'commands': commands}]} if commands else {})}}
 
     if refresh:
-        if ((cfg['stage']=='development' and cfg['package_id']=='Solaranlage1811') or (cfg['stage']=='live' and cfg['package_id']=='SolarAccountImageBuild1211')) and not image_access_token(event) and verified_pv is None:
+        if verified_pv is None and ((cfg['stage']=='live' and cfg['package_id']=='SolarAccountImageBuild1211')
+                or (cfg['stage']=='development' and cfg['package_id']=='Solaranlage1811' and not image_access_token(event))):
             return {'version':'1.0','response':{}}
 
         refresh_args=args[1:3] if verified_instance else args[1:]

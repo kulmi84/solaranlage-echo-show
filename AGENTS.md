@@ -370,3 +370,26 @@ DEV ist derzeit fuer Entwicklerkonto NICHT aktiviert, Live aktiviert (404/204).
 Kein Testmoduswechsel als Reparatur vorgenommen. Wiederherstellung DEV separat
 mit ausdruecklicher Zustimmung und frischem Instanzabruf, nicht alte Widerrufe loeschen.
 Belege/Ruecksprung: .private/solar-v3/device-recovery-20261123/.
+
+
+23.11.2026, Echo-Nachtest widerlegt Erfolg des ersten Live-Fixes:
+Nutzer meldet Vollbild weiterhin ohne Aktualisierung UND kleine Store-Kachel leer.
+Eigener echter Tipp erreicht /internal/register, registered=true, snapshot und
+fullscreen vorhanden, Amazon accepted1. Dies ist KEIN sichtbarer Lese-/Updatebeweis.
+Offizielle Amazon-Dokumentation AlexaTextList nennt Standard-Vollbild-Viewports
+als ohne Datenspeicherzugriff (apl-alexa-text-list-layout.html, Data store section).
+Deshalb neuer NUR LIVE-Store-Fallback im Vollbild: bleibt eine neue Datenspeicher-
+Messung aus, vorhandenen verifizierten Leser alle60s nutzen; Monat/Jahr weiter6h,
+Ausblenden pausiert, Aufwachen ruft einmal ab. Neuer Datenspeicher-Snapshot schiebt
+Netzwerkfrist hinaus. Fehler belassen alte Werte und Originalzeit. shouldEndSession
+true bleibt erhalten; keine Ansagen/Reprompts/Finish, kein Sprachmodellumbau.
+DEV-Fallbackflag false: bestaetigter DEV-Tick bleibt exakt erhalten.
+Neue Tests: drei Runden ohne DataStore, keine Doppelabrufe bei Push, Ausblenden,
+Aufwachen, Historientakt und authentifizierter Timer samt Fehlererhalt.
+219Python-Tests erfolgreich. Keine Worker-/Paket-/Konto-/Testmodus-/Layoutaenderung
+in diesem zweiten Schritt. Hosted867658cf501e51cb113d8f64677fab1c56e55f5b
+nach erfolgreichem master-Deploy nach prod uebergeben; finale Deployment- und
+Echo-Abnahme separat in FALLBACK-STATE.json, nicht aus dem Git-Ref ableiten.
+Kleine Store-Kachel weiterhin OFFEN: keine erfolgreichen automatischen Abrufe der
+eigenen Instanz nachgewiesen, bisher nur Tipps. Nicht als behoben melden.
+Quellen/Vorherstand/Tests: .private/solar-v3/device-recovery-20261123/.

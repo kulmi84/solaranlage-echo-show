@@ -29,7 +29,7 @@ class StoreRecovery(unittest.TestCase):
   self.assertEqual(self.registrations[-1][2],'a'*64)
   document=result['response']['directives'][0]['document']
   self.assertEqual(document['settings']['FullscreenStore']['dataBindings'][0]['namespace'],'SolarAccountImagesV3')
-  self.assertNotIn('SendEvent',str(document['mainTemplate']['items'][0]['handleTick']))
+  self.assertIn('solar.fullscreen.live.auto.v1',str(document['mainTemplate']['items'][0]['handleTick']))
   self.assertIs(result['response']['shouldEndSession'],True)
   self.assertNotIn('reprompt',result['response'])
   self.assertEqual(self.calls,[])
@@ -52,12 +52,31 @@ class StoreRecovery(unittest.TestCase):
   self.assertIn('one',str(result['response']['directives'][0]['document']))
   self.assertTrue(result['response'].get('directives'))
   self.assertEqual(self.calls,[])
+ def test_authenticated_store_fullscreen_timer_keeps_reader_and_voice_closed(self):
+  self.event['context']['System']['user']['accessToken']='a'*64
+  self.event['request'].pop('presentationUri')
+  self.event['request']['token']='solaranlage-store-werte'
+  self.event['request']['arguments']=['solar.fullscreen.live.auto.v1',int(datetime.now(timezone.utc).timestamp()*1000)+3600000,0]
+  result=self.invoke()
+  self.assertEqual(self.registrations[-1][0],'voice')
+  self.assertEqual(self.registrations[-1][2],'a'*64)
+  self.assertIs(result['response']['shouldEndSession'],True)
+  self.assertNotIn('reprompt',result['response'])
+  self.assertEqual(self.calls,[])
  def test_failed_store_timer_keeps_previous_display(self):
   self.g['send_registration']=lambda *a:(_ for _ in ()).throw(ValueError('verified_registration_required'))
   self.event['request'].pop('presentationUri')
   self.event['request']['token']='solaranlage-store-werte'
   self.event['request']['arguments']=['solar.fullscreen.live.auto.v1',int(datetime.now(timezone.utc).timestamp()*1000)+3600000,0,'one']
   self.assertEqual(self.invoke()['response'],{'shouldEndSession':True})
+ def test_failed_authenticated_store_timer_keeps_last_values_and_original_time(self):
+  self.event['context']['System']['user']['accessToken']='a'*64
+  self.g['send_registration']=lambda *a:(_ for _ in ()).throw(ValueError('delivery_busy'))
+  self.event['request'].pop('presentationUri')
+  self.event['request']['token']='solaranlage-store-werte'
+  self.event['request']['arguments']=['solar.fullscreen.live.auto.v1',int(datetime.now(timezone.utc).timestamp()*1000)+3600000,0]
+  self.assertEqual(self.invoke()['response'],{'shouldEndSession':True})
+  self.assertEqual(self.calls,[])
  def test_store_open_does_not_render_values_when_verification_fails(self):
   self.g['send_registration']=lambda *a:(_ for _ in ()).throw(ValueError('verified_registration_required'))
   self.event['request']['arguments']=['solar.widget.text.open.v1']

@@ -52,7 +52,7 @@ class FullscreenStore(VoiceBound):
                 self.assertEqual(directive['document']['settings']['FullscreenStore']['dataBindings'][0]['namespace'],namespace)
                 self.assertNotIn('DEV \u00b7',str(directive))
                 self.assertIs(result['response']['shouldEndSession'],True)
-                self.assertNotIn('SendEvent',str(directive['document']['mainTemplate']['items'][0]['handleTick']))
+                self.assertIn('solar.fullscreen.live.auto.v1',str(directive['document']['mainTemplate']['items'][0]['handleTick']))
 
     def test_three_live_binding_updates_and_error_preservation_in_component_scope(self):
         doc = self.dev_open()['response']['directives'][0]['document']
@@ -64,6 +64,20 @@ class FullscreenStore(VoiceBound):
         self.assertTrue(result['rejectedOlderSample'])
         self.assertTrue(result['rejectedOtherHouseholdBinding'])
         self.assertTrue(result['retainedAfterMissingData'])
+
+    def test_store_missing_datastore_uses_three_bounded_fallback_rounds(self):
+        def answer(call,config):
+            return {**self.fresh(call,config),'resolvedStage':'live',
+                    'resolvedPackageId':'SolarAccountImageBuild1211','instanceId':'one'}
+        self.g['send_registration']=answer
+        response=self.invoke()['response']
+        self.assertIs(response['shouldEndSession'],True)
+        self.assertNotIn('reprompt',response)
+        fixture=HERE/'fullscreen-fallback-fixture.json'
+        self.addCleanup(lambda: fixture.unlink(missing_ok=True))
+        fixture.write_text(json.dumps(response['directives'][0]['document']),encoding='utf8')
+        result=json.loads(subprocess.check_output(['node',str(HERE/'fullscreen-fallback-check.mjs'),str(fixture)],encoding='utf8'))
+        self.assertTrue(all(result.values()))
 
     def test_rendered_geometry_text_and_navigation_match_before(self):
         # Compare a fully materialized initial document, not just selected styles.
