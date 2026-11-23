@@ -15,3 +15,8 @@
 Bei ausbleibenden Datenspeicher-Updates nutzt nur das Live-Vollbild den vorhandenen verifizierten Abruf alle60Sekunden. Pro sichtbarer Vollbildrunde kommt dann ein Worker-Aufruf hinzu; keine Zahlenbilder. Monats-/Jahresseite bleibt bei6Stunden. Ausblenden pausiert, Aufwachen aktualisiert; Fehler erhalten die letzten Werte. DEV, Sprache und Layout bleiben erhalten.
 
 219 Python-Tests erfolgreich. Hosted `867658c` nach erfolgreichem Development-Deploy nach Live übergeben. Echo-Nachweis noch offen; kleine Store-Kachel weiterhin leer gemeldet.
+
+
+## Kleine Kachel: belegte Sperrkollision
+
+Eine eigene automatische Minute wurde mit503 `delivery_busy` abgewiesen, der folgende Einblendabruf erfolgreich beantwortet und zugestellt. Der Live-Adapter behandelt jetzt nur diesen vorübergehenden Sperrfall mit erneutem Versuch nach5Sekunden. Die Sperre, Kontoprüfungen, andere Fehlerabstände und der Ruhemodus bleiben erhalten; DEV unverändert. Hosted `494b3e0` ist bereitgestellt,226 Python-Tests bestanden. **Sichtbare Werte und automatische Vollbildrunden am Echo noch nicht bestätigt.**

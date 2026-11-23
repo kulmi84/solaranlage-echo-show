@@ -4152,6 +4152,7 @@ def lambda_handler(event, context):
     verified_instance = None
     fullscreen_source = cfg
     connection = None
+    delivery_busy = False
 
     try:
 
@@ -4178,6 +4179,8 @@ def lambda_handler(event, context):
                     and call[0] in ('voice','register')):
                 call=(call[0],{**call[1],'resumeWidgetRetries':True},call[2])
             result = send_registration(call, profile)
+            if cfg['stage']=='live' and cfg['package_id']=='SolarAccountImageBuild1211' and call[0] in ('register','refresh'):
+                delivery_busy = result.get('deliveryBusy') is True
             if (call[0]=='voice' and result.get('registered') is True
                     and isinstance(result.get('pv'),dict) and result.get('binding')
                     and result.get('snapshot',{}).get('binding')==result['binding']):
@@ -4281,6 +4284,11 @@ def lambda_handler(event, context):
             if ok:
                 commands.extend([connection_value('retryDelayMs', 60000),
                                  connection_value('nextRefreshAt', '${elapsedTime + 60000}')])
+            elif delivery_busy:
+                # A held stage lease is not a lost link or registration failure.
+                # Retry the existing instance after the current write can finish.
+                commands.extend([connection_value('retryDelayMs', 60000),
+                                 connection_value('nextRefreshAt', '${elapsedTime + 5000}')])
             if (trigger_marker or {}).get('connectionVersion') in (2,3) and connection:
                 # Only literal SetValue payloads cross this document boundary.
                 # Local binding/revision checks run in the root component tick.

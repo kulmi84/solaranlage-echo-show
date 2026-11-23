@@ -31,6 +31,19 @@ class ConnectionBackoff(VoiceBound):
         self.assertEqual(commands[1]['value'], 'Verbindung pr\u00fcfen: Alexa-App')
         self.assertNotIn('Konto verkn', str(commands))
 
+    def test_busy_delivery_retries_current_widget_without_auth_or_value_changes(self):
+        self.prepare_store()
+        self.g['send_registration']=lambda *a:{'registered':False,'deliveryBusy':True}
+        result=self.invoke()['response']
+        commands=result['directives'][0]['commands']
+        self.assertIs(result['shouldEndSession'],True)
+        self.assertNotIn('outputSpeech',result)
+        self.assertNotIn('reprompt',result)
+        self.assertFalse(any(c.get('property')=='snapshot' for c in commands))
+        values={c.get('property'):c.get('value') for c in commands}
+        self.assertEqual(values['nextRefreshAt'],'${elapsedTime + 5000}')
+        self.assertEqual(values['retryDelayMs'],60000)
+
     def test_success_resets_backoff_without_second_read(self):
         self.prepare_store()
         self.g['send_registration'] = self.fresh

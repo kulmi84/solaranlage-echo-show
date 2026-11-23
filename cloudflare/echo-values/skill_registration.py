@@ -9,6 +9,7 @@ import json
 import re
 
 from urllib.request import Request, build_opener, HTTPRedirectHandler
+from urllib.error import HTTPError
 
 
 
@@ -203,7 +204,22 @@ def send_registration(call, config, opener=urlopen):
 
     # Called synchronously by the candidate handler; no detached background work.
 
-    with opener(req, timeout=5) as response:
+    try:
+        response = opener(req, timeout=5)
+    except HTTPError as error:
+        if (error.code == 503 and action in ('register','refresh')
+                and config.get('stage') == 'live' and config.get('package_id') == 'SolarAccountImageBuild1211'):
+            try:
+                raw = error.read(8193)
+                busy = len(raw) <= 8192 and json.loads(raw).get('error') == 'delivery_busy'
+            except Exception:
+                busy = False
+            finally:
+                error.close()
+            if busy:
+                return {'registered':False,'deliveryBusy':True}
+        raise
+    with response:
 
         if response.status != 200:
 

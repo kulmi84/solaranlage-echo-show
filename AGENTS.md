@@ -393,3 +393,25 @@ Echo-Abnahme separat in FALLBACK-STATE.json, nicht aus dem Git-Ref ableiten.
 Kleine Store-Kachel weiterhin OFFEN: keine erfolgreichen automatischen Abrufe der
 eigenen Instanz nachgewiesen, bisher nur Tipps. Nicht als behoben melden.
 Quellen/Vorherstand/Tests: .private/solar-v3/device-recovery-20261123/.
+
+
+23.11.2026, frischer Befund/Korrektur kleiner Store-Kachel:
+Eigene automatische Minute erreichte /internal/register, wurde mit503 delivery_busy
+abgewiesen; unmittelbar folgendes reveal registered=true, snapshot/fullscreen
+vorhanden, accepted1. Die Notiz "keine automatischen Abrufe" ist damit ueberholt.
+Die bestehende Stage-Lease bleibt unveraendert. Nur die exakt bestaetigte
+503/delivery_busy-Antwort wird im LIVE-Store-Adapter als voruebergehend behandelt:
+requestPending=false, nextRefreshAt=elapsedTime+5000, retryDelayMs=60000.
+Keine Werte/Bindung erzeugen oder loeschen, keine Registrierung/Widerrufe aendern.
+Andere503/401/Timeouts und DEV behalten ihr bisheriges Fehlerverhalten. Ruhemodus
+fuer fehlende Registrierung bleibt erhalten; delivery_busy verbraucht kein Budget.
+Hosted494b3e0593a273a40bd6ef91d07505ba13304042 auf master/prod, SMAPI SUCCEEDED.
+226Python-Tests erfolgreich. Vorherige74Worker-Tests weiter gueltig; Worker-
+Funktionslogik nicht erneut geaendert. Diagnose zeitbegrenzt erweitert auf exakte
+bereits authentifizierte eigene Instanz/Geraete-Digests, um abweichende IDs bei
+automatischen Ereignissen sichtbar zu machen; KEINE Autoritaetsuebertragung.
+Keine Tokens/Messwerte/rohen Kennungen im Diagnoseprotokoll. Aktiver Diagnose-
+Worker ea4b3ee926d94fe29d8e95be1885db3c; Ablauf nach15Minuten.
+Vollbild-Fallback867658c bleibt enthalten. Kein Echo-Erfolg fuer eine der beiden
+Anzeigen behaupten, solange Nutzer/automatische Rundennachweise ausstehen.
+Fallstand: .private/solar-v3/device-recovery-20261123/BUSY-STATE.json.
