@@ -1,10 +1,9 @@
-# Projektstatus · 20.11.2026
+# Projektstatus · 19.11.2026
 
-- **1.1.0 (Build 1811): Live und DEV am eigenen Echo vom Nutzer als funktionierend bestätigt.**
-- Kleine Kacheln und Vollbild verwenden direkte Werte. Automatische Aktualisierung funktioniert.
-- Live-Tipp und Sprachstart öffnen das Store-Vollbild ohne DEV-Zusatz; DEV-Tipp öffnet die separate DEV-Ansicht.
-- Aktiver Hosted-Code: `00eaa8d`; Live-Promotion am 20.11.2026, 21:49 Uhr (Berlin). 119 lokale Tests und getrennte bereitgestellte Endpunkttests bestanden.
-- Amazon-Supportfall bleibt offen; die Geräteabnahme belegt keine allgemeine Plattformursache oder Mehrhaushaltsabnahme.
-- Offen: verbleibende Legacy-/Bildzugriffe messen und beide Bilddienste erst nach belegtem Ende ihrer Nutzung stilllegen. Noch nichts abgeschaltet.
+- **Store: 1.1.0 (Build 1811) ist Live.** Kleine Kachel und Vollbild verwenden direkte Textwerte.
+- **DEV 1811 bleibt separat erhalten und funktioniert am Echo.**
+- **Offen:** Kleine Store-Kachel zeigt Beschriftungen, aber keine Messwerte. Vollbild per Tipp funktioniert.
+- **Amazon-Support:** Sauberer Vergleich Store mit Testmodus Off, danach DEV angefordert. Benötigt werden Alexa-Request-IDs, vollständige Präsentations-URIs, UTC-Zeiten, Fotos und ein gezielter Data-Store-Schreibtest. Manifest und Widget-Dokument als Dateien mitgeben. Kein Werksreset.
+- **Cloudflare:** Werte-Worker `solaranlage-echo-werte` aktiv. Alte Bilddienste bleiben bis zum belegten Ende ihrer Nutzung erhalten.
 
-[Gesicherter Referenzstand und Rücksprung](ALEXA-BESTAETIGTER-STAND-1811.md) · [Quellen](../cloudflare/echo-values)
+[Offener Store-Fehler #20](https://github.com/kulmi84/solaranlage-echo-show/issues/20) · [Build-1811-Quellen](https://github.com/kulmi84/solaranlage-echo-show/tree/codex/dev-text-values-1611-7/cloudflare/echo-values)
